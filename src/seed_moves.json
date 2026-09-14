@@ -1,0 +1,682 @@
+[
+ {
+  "id": "mm01",
+  "title": "Tornado-Opener",
+  "area": "Nacken/Schulter",
+  "benefit": "morgens eingerostet",
+  "len": "10–15 Sek.",
+  "hookIdea": "Mach das bevor dein Kaffee wirkt.",
+  "steps": [
+   "Tiefer weiter Stand, Knie gebeugt",
+   "Rechte Schulter explosiv hoch",
+   "Arme reißen auseinander",
+   "Brustkorb öffnet komplett",
+   "Seitenwechsel, Rhythmus"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "über Kopf greifen"
+ },
+ {
+  "id": "mm02",
+  "title": "Anti-Schreibtisch",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "10–20 Sek.",
+  "hookIdea": "8 Stunden sitzen zerstören deinen Körper.",
+  "steps": [
+   "Rundrücken Startposition",
+   "Großer Ausfallschritt",
+   "Hände hinter Rücken",
+   "Brust brutal öffnen",
+   "WICHTIG: Öffnung übertreiben."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Treppen steigen"
+ },
+ {
+  "id": "mm03",
+  "title": "Wachmacher-Swing",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "10–15 Sek.",
+  "hookIdea": "Besser als Kaffee.",
+  "steps": [
+   "Tiefe Vorbeuge, Arme hängen",
+   "Explosiv aufrollen",
+   "Arme riesig schwingen",
+   "WICHTIG: Kein Stop. Rhythmisch."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "mm05",
+  "title": "Wirbelsäulen-Reset",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "15–20 Sek.",
+  "hookIdea": "Das fühlt sich illegal gut an.",
+  "steps": [
+   "Weicher breiter Stand",
+   "Langsame Wirbelsäulenrolle",
+   "Plötzliche riesige Brustöffnung",
+   "Tiefer Side Bend",
+   "WICHTIG: Kontrast weich -> groß."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "mm07",
+  "title": "Rhythmische Rotation",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "15–20 Sek.",
+  "hookIdea": "Das ist JOGA. Nicht Yoga. Nicht Sport.",
+  "steps": [
+   "Rhythmische Rotation",
+   "Gewicht fließend verlagern",
+   "Arme komplett öffnen"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "lange sitzen ohne Schmerz"
+ },
+ {
+  "id": "mm08",
+  "title": "Nervensystem-Move",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "15–20 Sek.",
+  "hookIdea": "Mach das wenn dein Kopf komplett voll ist.",
+  "steps": [
+   "Große langsame Armkreise",
+   "Vorbeuge, hochrollen",
+   "WICHTIG: Atmung hörbar."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "mm09",
+  "title": "Anti-Steifheits-Move",
+  "area": "Rücken",
+  "benefit": "morgens eingerostet",
+  "len": "15–20 Sek.",
+  "hookIdea": "Du bist nicht alt. Du bist unbeweglich.",
+  "steps": [
+   "Schwere Vorbeuge",
+   "Wirbel für Wirbel hochrollen",
+   "Arme riesig öffnen",
+   "Transformation: klein -> groß"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "mm10",
+  "title": "Holy-Shit-Move",
+  "area": "Hüfte",
+  "benefit": "morgens eingerostet",
+  "len": "15–20 Sek.",
+  "hookIdea": "Dieser Move fühlt sich komplett verrückt an.",
+  "steps": [
+   "Große Spiralbewegung",
+   "Tiefer Side Lunge",
+   "Arm Sweep über Kopf",
+   "WICHTIG: Silhouette. Raum. Dynamik."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Treppen steigen"
+ },
+ {
+  "id": "ar01",
+  "title": "Für den Rücken",
+  "area": "Rücken",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–30 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Rücken.",
+  "steps": [
+   "1. Wirbelsäulen-Welle",
+   "2. Sitzende Rotation 15 Sek.",
+   "3. Hängen lassen 30 Sek."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "lange sitzen ohne Schmerz"
+ },
+ {
+  "id": "ar02",
+  "title": "Full Body Abend",
+  "area": "Ganzkörper",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–20 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Full Body.",
+  "steps": [
+   "1. Tornado-Opener",
+   "2. Brustöffner-Lunge",
+   "3. Side Spiral"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Treppen steigen"
+ },
+ {
+  "id": "ar03",
+  "title": "Für guten Schlaf",
+  "area": "Atem",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–20 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Schlaf.",
+  "steps": [
+   "1. Nervensystem-Move",
+   "2. Atemwelle",
+   "3. Ausschwingen"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "ruhig schlafen"
+ },
+ {
+  "id": "ar04",
+  "title": "Hüfte am Abend",
+  "area": "Hüfte",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–30 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Hüfte.",
+  "steps": [
+   "1. Hüftkreise voller Radius",
+   "2. Tiefer Lunge 20 Sek.",
+   "3. Frosch 30 Sek."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Treppen steigen"
+ },
+ {
+  "id": "ar05",
+  "title": "Schultern am Abend",
+  "area": "Nacken/Schulter",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–30 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Schultern.",
+  "steps": [
+   "1. Schulter-Pendel",
+   "2. Thorax-Rotation",
+   "3. Integration"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "über Kopf greifen"
+ },
+ {
+  "id": "ar06",
+  "title": "Gegen Stress",
+  "area": "Atem",
+  "benefit": "bevor du aufs Sofa gehst",
+  "len": "15–20 Sek.",
+  "hookIdea": "Die geilste Abendroutine. Stress.",
+  "steps": [
+   "1. Stille Welle",
+   "2. Atem 4 ein 6 aus",
+   "3. Stehende Stille"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "ruhig schlafen"
+ },
+ {
+  "id": "sd1",
+  "title": "Nacken am Schreibtisch",
+  "area": "Nacken/Schulter",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Dein Nacken hasst dich gerade.",
+  "steps": [
+   "Move 1: Ohr-zu-Schulter – sinken",
+   "Move 2: Schulter-Drop – fallen",
+   "Move 3: Schulter-Rollout – rollen"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "sd2",
+  "title": "Raucherpause-Ersatz",
+  "area": "Rücken",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Bewegung statt Raucherpause.",
+  "steps": [
+   "Move 1: Wirbelsäulen-Welle – aufrollen",
+   "Move 2: Arme hoch – ziehen",
+   "Move 3: Brustöffnung – aufmachen"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "sd3",
+  "title": "Hände am Schreibtisch",
+  "area": "Hände",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Deine Hände tippen seit Stunden.",
+  "steps": [
+   "Move 1: Ausschütteln + Kreisen",
+   "Move 2: Finger-Stretch",
+   "Move 3: Schulter-Nacken"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "über Kopf greifen"
+ },
+ {
+  "id": "sd4",
+  "title": "Rücken am Schreibtisch",
+  "area": "Rücken",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Du sitzt seit zwei Stunden. Dein Rücken auch.",
+  "steps": [
+   "Move 1: Sitzende Rotation – drehen",
+   "Move 2: Vorbeuge hängend",
+   "Move 3: Katze/Kuh – welle"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Schuhe binden"
+ },
+ {
+  "id": "sd5",
+  "title": "Augen am Schreibtisch",
+  "area": "Augen",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Deine Augen kleben am Bildschirm.",
+  "steps": [
+   "Move 1: Weitsicht-Scan",
+   "Move 2: Kopf + Augen",
+   "Move 3: Stirn-Release"
+  ],
+  "src": "JOGA 2.0",
+  "skill": ""
+ },
+ {
+  "id": "sd6",
+  "title": "Beine am Schreibtisch",
+  "area": "Beine",
+  "benefit": "nach 8 Stunden Sitzen",
+  "len": "~60 Sek.",
+  "hookIdea": "Deine Beine schlafen.",
+  "steps": [
+   "Move 1: Ausfallschritt am Stuhl",
+   "Move 2: Sitzende Hüfte",
+   "Move 3: Einbein-Balance"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Balance halten"
+ },
+ {
+  "id": "wf1",
+  "title": "Mit 8 gemacht",
+  "area": "Ganzkörper",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Das hast du mit 8 jeden Tag gemacht.",
+  "steps": [
+   "Vorwärtsrolle – FEHLVERSUCHE ZEIGEN!",
+   "Rückwärtsrolle vereinfacht",
+   "Das Zögern IST der Content."
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "wf2",
+  "title": "Gehopst",
+  "area": "Beine",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Wann hast du zuletzt gehopst?",
+  "steps": [
+   "Einbein-Hopser",
+   "Seilspringen ohne Seil",
+   "Seitliche Skips"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Treppen steigen"
+ },
+ {
+  "id": "wf3",
+  "title": "Boden wie früher",
+  "area": "Boden",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Boden ist unterschätzt.",
+  "steps": [
+   "Robben kurz",
+   "Krabben-Walk",
+   "Bärengang"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "wf4",
+  "title": "Gleichgewicht wie früher",
+  "area": "Beine",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Gleichgewicht. War mal einfach.",
+  "steps": [
+   "Auf Linie gehen",
+   "Seitliches Balancieren",
+   "Einbeinstand Augen zu"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Balance halten"
+ },
+ {
+  "id": "wf5",
+  "title": "Handstand fast",
+  "area": "Kraft",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Handstand. Fast.",
+  "steps": [
+   "Frosch-Balance (Krähe)",
+   "Wand-Handstand – FEHLVERSUCHE!",
+   "Schulterstand"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "Balance halten"
+ },
+ {
+  "id": "wf6",
+  "title": "Nicht vergessen",
+  "area": "Ganzkörper",
+  "benefit": "vom Boden aufstehen",
+  "len": "~60 Sek.",
+  "hookIdea": "Was der Körper nicht vergisst.",
+  "steps": [
+   "Tiefe Hocke 20–30 Sek.",
+   "Kleine Brücke",
+   "Schneidersitz ohne Lehne"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "vom Boden aufstehen"
+ },
+ {
+  "id": "w02",
+  "title": "Samurai Flow",
+  "area": "Rücken",
+  "benefit": "Show-Flow",
+  "len": "Aus Flow S1",
+  "hookIdea": "Langsam ist manchmal härter.",
+  "steps": [
+   "Horse Stance -> langsamer Block -> Slow Rotation"
+  ],
+  "src": "JOGA 2.0",
+  "skill": "lange sitzen ohne Schmerz"
+ },
+ {
+  "id": "w03",
+  "title": "Tierkörper",
+  "area": "Ganzkörper",
+  "benefit": "Show-Flow",
+  "len": "Aus Flow S2",
+  "hookIdea": "Du bewegst dich viel zu menschlich.",
+  "steps": [
+   "Squat -> Panther -> Crouch to Open -> Schleichen"
+  ],
+  "src": "JOGA 2.0",
+  "skill": ""
+ },
+ {
+  "id": "w04",
+  "title": "Rave Flow",
+  "area": "Ganzkörper",
+  "benefit": "Show-Flow",
+  "len": "Aus Flow E4",
+  "hookIdea": "Dein Körper kennt Rhythmus.",
+  "steps": [
+   "Bounce -> Shoulder Groove -> Side Step -> Body Wave"
+  ],
+  "src": "JOGA 2.0",
+  "skill": ""
+ },
+ {
+  "id": "flow_b1",
+  "title": "B1 Erdung",
+  "area": "Ganzkörper",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_b2",
+  "title": "B2 Welle",
+  "area": "Ganzkörper",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_b3",
+  "title": "B3 Öffner",
+  "area": "Ganzkörper",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_b4",
+  "title": "B4 Verankerer",
+  "area": "Ganzkörper",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_b5",
+  "title": "B5 Atemflow",
+  "area": "Atem",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_b6",
+  "title": "B6 Balance",
+  "area": "Balance",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": "Balance halten"
+ },
+ {
+  "id": "flow_b7",
+  "title": "B7 Rücken",
+  "area": "Rücken",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": "lange sitzen ohne Schmerz"
+ },
+ {
+  "id": "flow_b8",
+  "title": "B8 Schwerlos",
+  "area": "Ganzkörper",
+  "benefit": "Flow Basis",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_e1",
+  "title": "E1 Schleudergang",
+  "area": "Ganzkörper",
+  "benefit": "Flow Energie",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_e2",
+  "title": "E2 Aufwecker",
+  "area": "Ganzkörper",
+  "benefit": "Flow Energie",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_e3",
+  "title": "E3 Kraftfluss",
+  "area": "Kraft",
+  "benefit": "Flow Energie",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_e4",
+  "title": "E4 Rave Flow",
+  "area": "Ganzkörper",
+  "benefit": "Flow Energie",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_e5",
+  "title": "E5 Sturm",
+  "area": "Ganzkörper",
+  "benefit": "Flow Energie",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_r1",
+  "title": "R1 Stille",
+  "area": "Ganzkörper",
+  "benefit": "Flow Regulation",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_r2",
+  "title": "R2 Nacht-Flow",
+  "area": "Ganzkörper",
+  "benefit": "Flow Regulation",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_r3",
+  "title": "R3 Nachtschicht",
+  "area": "Ganzkörper",
+  "benefit": "Flow Regulation",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_r4",
+  "title": "R4 Hände",
+  "area": "Ganzkörper",
+  "benefit": "Flow Regulation",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_s1",
+  "title": "S1 Samurai",
+  "area": "Ganzkörper",
+  "benefit": "Flow Signature",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_s2",
+  "title": "S2 Tierkörper",
+  "area": "Ganzkörper",
+  "benefit": "Flow Signature",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_s3",
+  "title": "S3 Magnet",
+  "area": "Ganzkörper",
+  "benefit": "Flow Signature",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_s4",
+  "title": "S4 Spirale",
+  "area": "Ganzkörper",
+  "benefit": "Flow Signature",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ },
+ {
+  "id": "flow_s5",
+  "title": "S5 Exorzismus",
+  "area": "Ganzkörper",
+  "benefit": "Flow Signature",
+  "len": "",
+  "hookIdea": "",
+  "steps": [],
+  "src": "22 Flows",
+  "skill": ""
+ }
+]
