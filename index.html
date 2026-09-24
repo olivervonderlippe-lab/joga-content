@@ -1227,8 +1227,136 @@ const emptyState = () => ({
   reviews: {},
   moves: SEED_MOVES,
   shoots: [],
-  hookNotes: []
+  hookNotes: [],
+  oliContent: OLI_SEED
 });
+
+/* ---------- Oli-Content-Bibliothek ---------- */
+const OLI_FORMATS = ['Oli Geht', 'Oli Klärt', 'Typisch Mann'];
+const OLI_STATUS = ['Idee', 'Skript fertig', 'gedreht', 'gepostet'];
+// Seed aus JOGA_Oli_Drehscripte_V1_2_Audit.docx (Stand 23.09.2026) —
+// die vier priorisierten Oli-Klärt-Folgen und die vier "Kopf sagt 26"-Piloten
+// stehen bereits mit fertigem Skript, der Rest als Idee/Reserve.
+const OLI_SEED = [{
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'UNTER 10.000 SCHRITTEN ZÄHLT\'S NICHT?',
+  status: 'Skript fertig',
+  script: `Oli: "Zum Glück kann dein Körper nicht zählen."\n\nEinordnung: Große Dosis-Wirkungs-Metaanalyse 2025 (Ding et al., Lancet Public Health, 57 Studien/35 Kohorten): Knickpunkt bei ca. 5.000–7.000 Schritten, 7.000 vs. 2.000 = 47% niedrigeres Sterberisiko. 10.000 bleiben sinnvoll, sind aber keine magische Grenze.\n\nSchluss: "7.842? Dein Körper sagt nicht: schade."\n\nQuelle: Ding D et al., Lancet Public Health 2025;10(8):e668–e681. PMID 40713949.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'STEIF? DANN MUSST DU MEHR DEHNEN.',
+  status: 'Skript fertig',
+  script: `Oli: "Oder stärker werden."\n\nEinordnung: Dehnen verbessert ROM. Aber Krafttraining über volle Bewegungsamplitude kann ROM ähnlich gut verbessern (Alizadeh et al. 2023: ES=0,73 Krafttraining, kein signifikanter Unterschied zu Stretching ES=0,08 p=0,79).\n\nDemo: passive Dehnung → gleiche Richtung aktiv unter Kraft.\n\nSchluss: "Beweglichkeit kann man dehnen. Und belasten."\n\nQuelle: Alizadeh S et al., Sports Med 2023;53(3):707–722. PMID 36622555.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'BALANCE HAT MAN. ODER EBEN NICHT.',
+  status: 'Skript fertig',
+  script: `Oli steht auf einem Bein, wackelt kurz: "Praktisch. Dann könnte ich jetzt aufhören."\n\nEinordnung: Balance ist trainierbar, gut belegt in der Sturzpräventions-Forschung; WHO empfiehlt älteren Erwachsenen multikomponentes Training mit Balance und Kraft.\n\nDemo: Progression Boden → ein Bein → Kopfbewegung/Reach.\n\nSchluss: "Wackeln ist nicht das Gegenargument. Wackeln ist das Training."`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'KNIE NIE ÜBER DIE ZEHEN?',
+  status: 'Skript fertig',
+  script: `Oli: "Dann wird eine Kniebeuge ziemlich kompliziert."\n\nDemo: einmal künstlich mit fast senkrechtem Schienbein squatten, dann natürlich.\n\nEinordnung: Fry et al. 2003 (7 krafttrainierte Männer) – künstliche Begrenzung der Knievorverlagerung senkt Kniedrehmoment, erhöht aber Hüftdrehmoment stark. Nicht die 1070%-Zahl verwenden, nur die Richtung.\n\nSchluss: "Nicht die Zehen sind die rote Linie."\n\nQuelle: Fry AC et al., J Strength Cond Res 2003;17(4):629–633. PMID 14636100.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'ZU ALT FÜR MUSKELAUFBAU?',
+  status: 'Idee',
+  script: `Reserve für Staffel 2. Oli: "Deine Muskeln haben keinen Rentenbescheid bekommen." Quelle: de Santana DA et al., Experimental Gerontology 2024. PMID 39579806.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'VOR SPORT: ERST MAL LANGE DEHNEN?',
+  status: 'Idee',
+  script: `Reserve für Staffel 2. Statisches Dehnen explizit, nicht pauschal "Dehnen". Quelle: Herbert & Gabriel, BMJ 2002;325:468. PMID 12202327.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'IST PILATES KRAFTTRAINING?',
+  status: 'Idee',
+  script: `Später/differenziert drehen, nicht als Pilotfolge – Studienlage uneinheitlich. "Die nervige Antwort: kommt drauf an."`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF SAGT: SOCKE. 3 SEKUNDEN.',
+  status: 'Skript fertig',
+  script: `Oli versucht Socke im Stehen anzuziehen. Wackler. Fuß runter. Neuer Versuch. Wand.\nBottom erst am Ende: "KÖRPER HAT RÜCKFRAGEN."\nOli trocken: "Geht doch."\n\nKontrollierbar: kein Tier/Kind/Passant nötig.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF SAGT: ICH STEH EINFACH AUF.',
+  status: 'Skript fertig',
+  script: `Oli sitzt auf dem Boden. Beginnt aufzustehen, stoppt, sortiert Beine neu, Hand dazu, kurzer Blick aufs Sofa – entscheidet sich bewusst für saubere Variante, steht auf.\nEnde: "KÖRPER: WIR BESPRECHEN DAS KURZ."\nWichtig: nicht künstlich 90-jährig spielen, Humor aus dem Mikro-Moment des Planens.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF: KANN ICH.',
+  status: 'Skript fertig',
+  script: `Oli sieht eleganten Mobility-Move auf dem eigenen Handy.\nCut: Startposition. Cut: kurzer Versuch. Cut: Oli sitzt/liegt da, schaut in Kamera.\nBottom: "KÖRPER: INTERESSANTE THEORIE."\nKein Sturz nötig, kein Slapstick.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'ICH DEHNE MICH NUR KURZ.',
+  status: 'Skript fertig',
+  script: `Oli beginnt simplen Stretch. Sieht, dass noch mehr geht. Nächste Position. Noch eine. Noch eine.\nCut auf Uhr. Bottom: "37 MINUTEN SPÄTER." Oli: "Jetzt kann ich anfangen."`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'Ich brauche keine Anleitung.',
+  status: 'Idee',
+  script: `Reserve (verständlich/billig, aber noch zu generisch – nicht Oli-eigen genug für Pilot). Falsch zusammenbauen, Schraube übrig, heimlich Anleitung lesen.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'Ich mach nur schnell ein Video.',
+  status: 'Idee',
+  script: `Reserve. Kamera/Licht aufbauen, Versprecher, Akku leer, falscher Winkel – alles selbst herstellbar, kein Tier/Kind. Bottom: "2 STUNDEN SPÄTER."`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen. Jetzt entscheidet ein Algorithmus, ob ich welche bekomme.',
+  status: 'Skript fertig',
+  script: `Richtung: Werbung vs. Creator-Leben. Selbstironie statt Algorithmus-Jammern. Konkreter Auslöser + eigene Beobachtung + Satz zum Landen nicht vergessen.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Warum ich Bewegung Körperpflege nenne.',
+  status: 'Skript fertig',
+  script: `Bleibt – echte Markenhaltung, gehört zu Oli. Vergleich: niemand fragt, wie viele Reps du beim Zähneputzen schaffst.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden.',
+  status: 'Skript fertig',
+  script: `Produktionsabsurditäts-Beobachtung, kann als Oli Geht oder Comedy funktionieren.`,
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Freier Wochen-Slot',
+  status: 'Idee',
+  script: `Kein vorbereitetes Thema. Nur drehen, wenn in der Woche tatsächlich etwas passiert/auffällt. Regel: erst drehen, wenn konkreter Auslöser + eigene Beobachtung + Satz zum Landen existieren.`,
+  src: 'V1.2-Audit'
+}];
 
 /* ---------- UI-Bausteine ---------- */
 const Btn = ({
@@ -1883,6 +2011,185 @@ function Library({
   }, state.moves.length, " Moves. Import: JSON-Array mit title, area, skill, benefit, len, hookIdea, steps."));
 }
 
+function OliEditor({
+  initial,
+  onSave,
+  onCancel,
+  onDelete
+}) {
+  const [m, setM] = useState({
+    ...initial
+  });
+  const set = (k, v) => setM(x => ({
+    ...x,
+    [k]: v
+  }));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Format"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: m.format,
+    onChange: e => set('format', e.target.value)
+  }, OLI_FORMATS.map(f => /*#__PURE__*/React.createElement("option", {
+    key: f
+  }, f)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Titel / Hook / Prämisse"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.title,
+    onChange: e => set('title', e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Status"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: m.status,
+    onChange: e => set('status', e.target.value)
+  }, OLI_STATUS.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s
+  }, s)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Skript / Notizen"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 8,
+    value: m.script,
+    onChange: e => set('script', e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Quelle"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.src || '',
+    onChange: e => set('src', e.target.value),
+    placeholder: "z. B. V1.2-Audit, eigen …"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, onDelete && /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: onDelete
+  }, "Löschen"), /*#__PURE__*/React.createElement(Btn, {
+    onClick: onCancel
+  }, "Abbrechen"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    disabled: !m.title,
+    onClick: () => onSave(m)
+  }, "Speichern")));
+}
+function OliLibrary({
+  state,
+  update
+}) {
+  const [format, setFormat] = useState('Alle');
+  const [status, setStatus] = useState('Alle');
+  const [q, setQ] = useState('');
+  const [edit, setEdit] = useState(null);
+  const fileRef = useRef();
+  const items = state.oliContent.filter(m => (format === 'Alle' || m.format === format) && (status === 'Alle' || m.status === status) && (!q || (m.title + m.script).toLowerCase().includes(q.toLowerCase())));
+  const save = m => {
+    update(s => ({
+      ...s,
+      oliContent: s.oliContent.some(x => x.id === m.id) ? s.oliContent.map(x => x.id === m.id ? m : x) : [...s.oliContent, m]
+    }));
+    setEdit(null);
+  };
+  const del = id => {
+    if (confirm('Eintrag löschen?')) update(s => ({
+      ...s,
+      oliContent: s.oliContent.filter(x => x.id !== id)
+    }));
+    setEdit(null);
+  };
+  const exportJSON = () => {
+    const a = document.createElement('a');
+    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.oliContent, null, 1));
+    a.download = 'joga-oli-content.json';
+    a.click();
+  };
+  const importJSON = f => {
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const arr = JSON.parse(rd.result);
+        if (!Array.isArray(arr)) throw 0;
+        update(s => {
+          const ids = new Set(s.oliContent.map(m => m.id));
+          const add = arr.filter(m => m && m.title).map(m => ({
+            id: m.id && !ids.has(m.id) ? m.id : uid(),
+            format: OLI_FORMATS.includes(m.format) ? m.format : OLI_FORMATS[0],
+            title: m.title,
+            status: OLI_STATUS.includes(m.status) ? m.status : 'Idee',
+            script: m.script || '',
+            src: m.src || 'Import'
+          }));
+          return {
+            ...s,
+            oliContent: [...s.oliContent, ...add]
+          };
+        });
+      } catch {
+        alert('Datei ist kein JSON-Array mit Oli-Content.');
+      }
+    };
+    rd.readAsText(f);
+  };
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Oli"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => setEdit({
+      id: uid(),
+      format: OLI_FORMATS[0],
+      title: '',
+      status: 'Idee',
+      script: '',
+      src: 'eigen'
+    })
+  }, "+ Eintrag")), edit && /*#__PURE__*/React.createElement(OliEditor, {
+    initial: edit,
+    onSave: save,
+    onCancel: () => setEdit(null),
+    onDelete: state.oliContent.some(x => x.id === edit.id) ? () => del(edit.id) : null
+  }), /*#__PURE__*/React.createElement("input", {
+    className: "search",
+    value: q,
+    onChange: e => setQ(e.target.value),
+    placeholder: "Suchen"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, ['Alle', ...OLI_FORMATS].map(f => /*#__PURE__*/React.createElement(Tag, {
+    key: f,
+    on: format === f,
+    onClick: () => setFormat(f)
+  }, f))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap dim"
+  }, ['Alle', ...OLI_STATUS].map(s => /*#__PURE__*/React.createElement(Tag, {
+    key: s,
+    on: status === s,
+    onClick: () => setStatus(s)
+  }, s))), /*#__PURE__*/React.createElement("ul", {
+    className: "list"
+  }, items.map(m => /*#__PURE__*/React.createElement("li", {
+    key: m.id,
+    className: "card slim",
+    onClick: () => setEdit(m)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hook"
+  }, m.title), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, m.format, " · ", m.status)))), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => fileRef.current.click()
+  }, "JSON importieren"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: exportJSON
+  }, "JSON exportieren"), /*#__PURE__*/React.createElement("input", {
+    ref: fileRef,
+    type: "file",
+    accept: "application/json",
+    hidden: true,
+    onChange: e => e.target.files[0] && importJSON(e.target.files[0])
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, state.oliContent.length, " Einträge. Import: JSON-Array mit title, format, status, script."));
+}
+
 /* ---------- Drehplan ---------- */
 const CUT_STATUS = ['geplant', 'gedreht', 'gepostet'];
 // Vorschläge für Schnitte. Vorausgewählt: 1 Routine, 1 JOGA-Minute, 1 REACH-Version. Der Rest ist Angebot.
@@ -2469,7 +2776,10 @@ function App() {
         setSync('PIN');
       } else {
         const local = localStorage.getItem('joga_state');
-        setState(local ? JSON.parse(local) : emptyState());
+        setState(local ? {
+          ...emptyState(),
+          ...JSON.parse(local)
+        } : emptyState());
         setSync('offline');
       }
     }
@@ -2508,7 +2818,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", {
     className: "logo"
   }, "JOGA"), /*#__PURE__*/React.createElement("p", null, sync));
-  const tabs = [['board', 'Board'], ['review', 'Review'], ['plan', 'Drehplan'], ['hooks', 'Hooks'], ['lib', 'Moves']];
+  const tabs = [['board', 'Board'], ['review', 'Review'], ['plan', 'Drehplan'], ['hooks', 'Hooks'], ['lib', 'Moves'], ['oli', 'Oli']];
   return /*#__PURE__*/React.createElement("div", {
     className: "app"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2536,6 +2846,9 @@ function App() {
     ctx: hookCtx,
     setCtx: setHookCtx
   }), tab === 'lib' && /*#__PURE__*/React.createElement(Library, {
+    state: state,
+    update: update
+  }), tab === 'oli' && /*#__PURE__*/React.createElement(OliLibrary, {
     state: state,
     update: update
   })), /*#__PURE__*/React.createElement("nav", {
