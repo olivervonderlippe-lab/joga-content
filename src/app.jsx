@@ -88,7 +88,70 @@ const api = {
   async save(state) { const r = await fetch('/api/data', { method: 'PUT', headers: this.headers(), body: JSON.stringify(state) }); if (r.status === 401) throw new Error('PIN'); if (!r.ok) throw new Error('Speichern fehlgeschlagen'); return r.json(); },
   async ki(type, params) { const r = await fetch('/api/joga', { method: 'POST', headers: this.headers(), body: JSON.stringify({ type, params }) }); const d = await r.json(); if (!r.ok) throw new Error(d.error || 'KI-Fehler'); return d.lines; },
 };
-const emptyState = () => ({ v: 1, goals: GOALS_DEFAULT, reels: BASELINE, reviews: {}, moves: SEED_MOVES, shoots: [], hookNotes: [] });
+const emptyState = () => ({ v: 1, goals: GOALS_DEFAULT, reels: BASELINE, reviews: {}, moves: SEED_MOVES, shoots: [], hookNotes: [], oliContent: OLI_SEED });
+
+/* ---------- Oli-Content-Bibliothek ---------- */
+const OLI_FORMATS = ['Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg'];
+const OLI_STATUS = ['Idee', 'Skript fertig', 'gedreht', 'gepostet'];
+// Seed aus JOGA_Oli_Drehscripte_V1_2_Audit.docx (Stand 23.09.2026) — die vier
+// priorisierten Oli-Klärt-Folgen und die vier "Kopf sagt 26"-Piloten stehen
+// bereits mit fertigem Skript, der Rest als Idee/Reserve.
+const OLI_SEED = [
+  { id: uid(), format: 'Oli Klärt', title: 'UNTER 10.000 SCHRITTEN ZÄHLT\'S NICHT?', status: 'Skript fertig',
+    script: 'Oli: "Zum Glück kann dein Körper nicht zählen."\n\nEinordnung: Große Dosis-Wirkungs-Metaanalyse 2025 (Ding et al., Lancet Public Health, 57 Studien/35 Kohorten): Knickpunkt bei ca. 5.000–7.000 Schritten, 7.000 vs. 2.000 = 47% niedrigeres Sterberisiko. 10.000 bleiben sinnvoll, sind aber keine magische Grenze.\n\nSchluss: "7.842? Dein Körper sagt nicht: schade."\n\nQuelle: Ding D et al., Lancet Public Health 2025;10(8):e668–e681. PMID 40713949.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'STEIF? DANN MUSST DU MEHR DEHNEN.', status: 'Skript fertig',
+    script: 'Oli: "Oder stärker werden."\n\nEinordnung: Dehnen verbessert ROM. Aber Krafttraining über volle Bewegungsamplitude kann ROM ähnlich gut verbessern (Alizadeh et al. 2023: ES=0,73 Krafttraining, kein signifikanter Unterschied zu Stretching ES=0,08 p=0,79).\n\nDemo: passive Dehnung → gleiche Richtung aktiv unter Kraft.\n\nSchluss: "Beweglichkeit kann man dehnen. Und belasten."\n\nQuelle: Alizadeh S et al., Sports Med 2023;53(3):707–722. PMID 36622555.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'BALANCE HAT MAN. ODER EBEN NICHT.', status: 'Skript fertig',
+    script: 'Oli steht auf einem Bein, wackelt kurz: "Praktisch. Dann könnte ich jetzt aufhören."\n\nEinordnung: Balance ist trainierbar, gut belegt in der Sturzpräventions-Forschung; WHO empfiehlt älteren Erwachsenen multikomponentes Training mit Balance und Kraft.\n\nDemo: Progression Boden → ein Bein → Kopfbewegung/Reach.\n\nSchluss: "Wackeln ist nicht das Gegenargument. Wackeln ist das Training."', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'KNIE NIE ÜBER DIE ZEHEN?', status: 'Skript fertig',
+    script: 'Oli: "Dann wird eine Kniebeuge ziemlich kompliziert."\n\nDemo: einmal künstlich mit fast senkrechtem Schienbein squatten, dann natürlich.\n\nEinordnung: Fry et al. 2003 (7 krafttrainierte Männer) – künstliche Begrenzung der Knievorverlagerung senkt Kniedrehmoment, erhöht aber Hüftdrehmoment stark. Nicht die 1070%-Zahl verwenden, nur die Richtung.\n\nSchluss: "Nicht die Zehen sind die rote Linie."\n\nQuelle: Fry AC et al., J Strength Cond Res 2003;17(4):629–633. PMID 14636100.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'ZU ALT FÜR MUSKELAUFBAU?', status: 'Idee',
+    script: 'Reserve für Staffel 2. Oli: "Deine Muskeln haben keinen Rentenbescheid bekommen." Quelle: de Santana DA et al., Experimental Gerontology 2024. PMID 39579806.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'VOR SPORT: ERST MAL LANGE DEHNEN?', status: 'Idee',
+    script: 'Reserve für Staffel 2. Statisches Dehnen explizit, nicht pauschal "Dehnen". Quelle: Herbert & Gabriel, BMJ 2002;325:468. PMID 12202327.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Klärt', title: 'IST PILATES KRAFTTRAINING?', status: 'Idee',
+    script: 'Später/differenziert drehen, nicht als Pilotfolge – Studienlage uneinheitlich. "Die nervige Antwort: kommt drauf an."', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'KOPF SAGT: SOCKE. 3 SEKUNDEN.', status: 'Skript fertig',
+    script: 'Oli versucht Socke im Stehen anzuziehen. Wackler. Fuß runter. Neuer Versuch. Wand.\nBottom erst am Ende: "KÖRPER HAT RÜCKFRAGEN."\nOli trocken: "Geht doch."\n\nKontrollierbar: kein Tier/Kind/Passant nötig.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'KOPF SAGT: ICH STEH EINFACH AUF.', status: 'Skript fertig',
+    script: 'Oli sitzt auf dem Boden. Beginnt aufzustehen, stoppt, sortiert Beine neu, Hand dazu, kurzer Blick aufs Sofa – entscheidet sich bewusst für saubere Variante, steht auf.\nEnde: "KÖRPER: WIR BESPRECHEN DAS KURZ."\nWichtig: nicht künstlich 90-jährig spielen, Humor aus dem Mikro-Moment des Planens.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'KOPF: KANN ICH.', status: 'Skript fertig',
+    script: 'Oli sieht eleganten Mobility-Move auf dem eigenen Handy.\nCut: Startposition. Cut: kurzer Versuch. Cut: Oli sitzt/liegt da, schaut in Kamera.\nBottom: "KÖRPER: INTERESSANTE THEORIE."\nKein Sturz nötig, kein Slapstick.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'ICH DEHNE MICH NUR KURZ.', status: 'Skript fertig',
+    script: 'Oli beginnt simplen Stretch. Sieht, dass noch mehr geht. Nächste Position. Noch eine. Noch eine.\nCut auf Uhr. Bottom: "37 MINUTEN SPÄTER." Oli: "Jetzt kann ich anfangen."', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'Ich brauche keine Anleitung.', status: 'Idee',
+    script: 'Reserve (verständlich/billig, aber noch zu generisch – nicht Oli-eigen genug für Pilot). Falsch zusammenbauen, Schraube übrig, heimlich Anleitung lesen.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Typisch Mann', title: 'Ich mach nur schnell ein Video.', status: 'Idee',
+    script: 'Reserve. Kamera/Licht aufbauen, Versprecher, Akku leer, falscher Winkel – alles selbst herstellbar, kein Tier/Kind. Bottom: "2 STUNDEN SPÄTER."', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Geht', title: 'Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen. Jetzt entscheidet ein Algorithmus, ob ich welche bekomme.', status: 'Skript fertig',
+    script: 'Richtung: Werbung vs. Creator-Leben. Selbstironie statt Algorithmus-Jammern. Konkreter Auslöser + eigene Beobachtung + Satz zum Landen nicht vergessen.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Geht', title: 'Warum ich Bewegung Körperpflege nenne.', status: 'Skript fertig',
+    script: 'Bleibt – echte Markenhaltung, gehört zu Oli. Vergleich: niemand fragt, wie viele Reps du beim Zähneputzen schaffst.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Geht', title: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden.', status: 'Skript fertig',
+    script: 'Produktionsabsurditäts-Beobachtung, kann als Oli Geht oder Comedy funktionieren.', src: 'V1.2-Audit' },
+  { id: uid(), format: 'Oli Geht', title: 'Freier Wochen-Slot', status: 'Idee',
+    script: 'Kein vorbereitetes Thema. Nur drehen, wenn in der Woche tatsächlich etwas passiert/auffällt. Regel: erst drehen, wenn konkreter Auslöser + eigene Beobachtung + Satz zum Landen existieren.', src: 'V1.2-Audit' },
+  // Route 1 — komplett fertig ausgearbeitet (Shotlists stehen), aber laut
+  // Strategie V1/V1.2-Audit bewusst geparkt bis nach Auswertung des
+  // 4-Wochen-FB-Tests (12.10.2026). Status "Idee" mit explizitem Parkhinweis,
+  // damit hier niemand aus Versehen einen Drehtag ansetzt.
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '1. Elbphilharmonie / Marco-Polo-Terrassen', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: großer Sidebend → Rotation → Reach. Charakter: groß, elegant, grafisch — genug Abstand für Hochformat mit Elphi im Bild, nicht der Touristen-Standardshot. Shotlist: Establisher weit → Oli geht Richtung Terrasse ins Bild → Move ×2 Takes → Abgang: Gehen Richtung Kamera, Schuhe/Treppe, Blick zurück zur Elphi.', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '2. Landungsbrücken', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Lunge → Rotation → Reach, dynamisch, passt zu Wasser/Schiffen im Hintergrund. Kamera mit Tiefe. + Oli Geht hier: "Warum ich mit 56 manche Dinge komplett anders sehe als mit 36."', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '3. Alter Elbtunnel', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Wide Squat → Side Shift/Reach, oder eine Balance. Kamera tief und exakt mittig — Symmetrie/Fluchtpunkt ist das Bild. Kein Oli Geht hier (Akustik im Tunnel schwierig).', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '4. Millerntor / St. Pauli', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Deep Squat → Rotation, oder kraftvoller Bodenmove. Charakter: rau, frontal. + Oli Geht hier: "Warum Männer so unglaublich schlecht darin sind zuzugeben, dass sie etwas nicht können." + Comedy-B-Roll (passt zum rauen Look von Typisch Mann).', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '5. Jungfernstieg / Binnenalster', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Standing Figure Four → Rotation/Balance. Charakter: bewusst urban, Passanten dürfen durchs Bild — Kontrast hektischer Ort vs. kontrollierter Oli ist das Bild.', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '6. Außenalster / Alsterpark', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: ein Balance-Move — nicht Tree Pose, zu klischeehaft. + Oli Geht hier (beste Location dafür): "Warum ich Bewegung inzwischen nicht mehr als Sport betrachte."', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '7. Stadtpark / Planetarium', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: etwas Großes, athletischer. Charakter: Planetarium als klarer Hamburg-Identifier, ohne wieder Hafen zu zeigen.', src: 'Oli-Content-Konzept' },
+  { id: uid(), format: 'Oli Bewegt Hamburg', title: '8. Bonus: Winterhude / Uhlenhorst', status: 'Idee',
+    script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: bewusst unspektakulär — "Hamburg ist nicht nur Elphi." Ort: Straßenecke, Kanal, Hofweg o. Ä. + Oli Geht hier (bewusst NICHT übers Bewegen): Vorschlag "Ich hab mein halbes Leben Werbung gemacht. Deshalb glaub ich fast nichts mehr, was auf einer Verpackung steht." (austauschbar).', src: 'Oli-Content-Konzept' },
+];
 
 /* ---------- UI-Bausteine ---------- */
 const Btn = ({ children, onClick, kind = 'ghost', small, disabled, className = '' }) => (
@@ -314,6 +377,62 @@ function Library({ state, update }) {
   );
 }
 
+/* ---------- Oli ---------- */
+function OliEditor({ initial, onSave, onCancel, onDelete }) {
+  const [m, setM] = useState({ ...initial });
+  const set = (k, v) => setM(x => ({ ...x, [k]: v }));
+  return (
+    <div className="sheet">
+      <Field label="Format"><select value={m.format} onChange={e => set('format', e.target.value)}>{OLI_FORMATS.map(f => <option key={f}>{f}</option>)}</select></Field>
+      <Field label="Titel / Hook / Prämisse"><input value={m.title} onChange={e => set('title', e.target.value)} /></Field>
+      <Field label="Status"><select value={m.status} onChange={e => set('status', e.target.value)}>{OLI_STATUS.map(s => <option key={s}>{s}</option>)}</select></Field>
+      <Field label="Skript / Notizen"><textarea rows={8} value={m.script} onChange={e => set('script', e.target.value)} /></Field>
+      <Field label="Quelle"><input value={m.src || ''} onChange={e => set('src', e.target.value)} placeholder="z. B. V1.2-Audit, eigen …" /></Field>
+      <div className="row end">
+        {onDelete && <Btn small onClick={onDelete}>Löschen</Btn>}
+        <Btn onClick={onCancel}>Abbrechen</Btn>
+        <Btn kind="primary" disabled={!m.title} onClick={() => onSave(m)}>Speichern</Btn>
+      </div>
+    </div>
+  );
+}
+
+function OliLibrary({ state, update }) {
+  const [format, setFormat] = useState('Alle');
+  const [status, setStatus] = useState('Alle');
+  const [q, setQ] = useState('');
+  const [edit, setEdit] = useState(null);
+  const fileRef = useRef();
+  const items = state.oliContent.filter(m => (format === 'Alle' || m.format === format) && (status === 'Alle' || m.status === status) && (!q || (m.title + m.script).toLowerCase().includes(q.toLowerCase())));
+  const save = (m) => { update(s => ({ ...s, oliContent: s.oliContent.some(x => x.id === m.id) ? s.oliContent.map(x => x.id === m.id ? m : x) : [...s.oliContent, m] })); setEdit(null); };
+  const del = (id) => { if (confirm('Eintrag löschen?')) update(s => ({ ...s, oliContent: s.oliContent.filter(x => x.id !== id) })); setEdit(null); };
+  const exportJSON = () => { const a = document.createElement('a'); a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.oliContent, null, 1)); a.download = 'joga-oli-content.json'; a.click(); };
+  const importJSON = (f) => { const rd = new FileReader(); rd.onload = () => { try { const arr = JSON.parse(rd.result); if (!Array.isArray(arr)) throw 0; update(s => { const ids = new Set(s.oliContent.map(m => m.id)); const add = arr.filter(m => m && m.title).map(m => ({ id: m.id && !ids.has(m.id) ? m.id : uid(), format: OLI_FORMATS.includes(m.format) ? m.format : OLI_FORMATS[0], title: m.title, status: OLI_STATUS.includes(m.status) ? m.status : 'Idee', script: m.script || '', src: m.src || 'Import' })); return { ...s, oliContent: [...s.oliContent, ...add] }; }); } catch { alert('Datei ist kein JSON-Array mit Oli-Content.'); } }; rd.readAsText(f); };
+  return (
+    <section>
+      <header className="head"><h1>Oli</h1><Btn kind="primary" onClick={() => setEdit({ id: uid(), format: OLI_FORMATS[0], title: '', status: 'Idee', script: '', src: 'eigen' })}>+ Eintrag</Btn></header>
+      {edit && <OliEditor initial={edit} onSave={save} onCancel={() => setEdit(null)} onDelete={state.oliContent.some(x => x.id === edit.id) ? () => del(edit.id) : null} />}
+      <input className="search" value={q} onChange={e => setQ(e.target.value)} placeholder="Suchen" />
+      <div className="row wrap">{['Alle', ...OLI_FORMATS].map(f => <Tag key={f} on={format === f} onClick={() => setFormat(f)}>{f}</Tag>)}</div>
+      <div className="row wrap dim">{['Alle', ...OLI_STATUS].map(s => <Tag key={s} on={status === s} onClick={() => setStatus(s)}>{s}</Tag>)}</div>
+      <ul className="list">
+        {items.map(m => (
+          <li key={m.id} className="card slim" onClick={() => setEdit(m)}>
+            <div className="hook">{m.title}</div>
+            <div className="meta">{m.format} · {m.status}</div>
+          </li>
+        ))}
+      </ul>
+      <div className="row end">
+        <Btn small onClick={() => fileRef.current.click()}>JSON importieren</Btn>
+        <Btn small onClick={exportJSON}>JSON exportieren</Btn>
+        <input ref={fileRef} type="file" accept="application/json" hidden onChange={e => e.target.files[0] && importJSON(e.target.files[0])} />
+      </div>
+      <p className="hint">{state.oliContent.length} Einträge. Import: JSON-Array mit title, format, status, script.</p>
+    </section>
+  );
+}
+
 /* ---------- Drehplan ---------- */
 const CUT_STATUS = ['geplant', 'gedreht', 'gepostet'];
 // Vorschläge für Schnitte. Vorausgewählt: 1 Routine, 1 JOGA-Minute, 1 REACH-Version. Der Rest ist Angebot.
@@ -506,7 +625,7 @@ function App() {
   const load = async () => {
     setSync('lädt');
     try { const remote = await api.load(); setState(remote && remote.reels ? { ...emptyState(), ...remote } : emptyState()); setSync('gespeichert'); setNeedPin(false); }
-    catch (e) { if (e.message === 'PIN') { setNeedPin(true); setSync('PIN'); } else { const local = localStorage.getItem('joga_state'); setState(local ? JSON.parse(local) : emptyState()); setSync('offline'); } }
+    catch (e) { if (e.message === 'PIN') { setNeedPin(true); setSync('PIN'); } else { const local = localStorage.getItem('joga_state'); setState(local ? { ...emptyState(), ...JSON.parse(local) } : emptyState()); setSync('offline'); } }
   };
   useEffect(() => { load(); }, []);
 
@@ -521,7 +640,7 @@ function App() {
   if (needPin) return <PinGate onDone={(p) => { localStorage.setItem(PIN_KEY, p); load(); }} />;
   if (!state) return <div className="gate"><div className="logo">JOGA</div><p>{sync}</p></div>;
 
-  const tabs = [['board', 'Board'], ['review', 'Review'], ['plan', 'Drehplan'], ['hooks', 'Hooks'], ['lib', 'Moves']];
+  const tabs = [['board', 'Board'], ['review', 'Review'], ['plan', 'Drehplan'], ['hooks', 'Hooks'], ['lib', 'Moves'], ['oli', 'Oli']];
   return (
     <div className="app">
       <div className="topbar"><span className="logo small">JOGA</span><span className={`sync ${sync}`}>{sync}{sync === 'offline' ? ' – lokal gespeichert' : ''}</span></div>
@@ -531,6 +650,7 @@ function App() {
         {tab === 'plan' && <ShootPlanner state={state} update={update} gotoHooks={(c) => { setHookCtx(c); setTab('hooks'); }} />}
         {tab === 'hooks' && <Hooks state={state} update={update} ctx={hookCtx} setCtx={setHookCtx} />}
         {tab === 'lib' && <Library state={state} update={update} />}
+        {tab === 'oli' && <OliLibrary state={state} update={update} />}
       </main>
       <nav className="tabs">{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{l}</button>)}</nav>
     </div>
