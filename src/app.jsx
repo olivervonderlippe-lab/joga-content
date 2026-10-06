@@ -1583,7 +1583,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Hybrid",
   "goal": "Alterskompetenz mit trockenem Satz und sichtbarer Kraftübung.",
   "speech": "Deine Muskeln haben keinen Rentenbescheid bekommen. Auch ältere Erwachsene können mit Krafttraining Muskelmasse und Kraft aufbauen. Die Reaktion wird nicht mit 50 abgeschaltet. Entscheidend sind Training, Belastung, Erholung und genug Zeit. Alt genug zum Trainieren bist du nicht. Höchstens alt genug, es vernünftig zu machen.",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-muskeln-1",
@@ -1651,7 +1651,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Silent/Musik",
   "goal": "Rotation visuell einfach und speicherbar.",
   "speech": "",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-joga-thread-1",
@@ -1710,7 +1710,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Hybrid",
   "goal": "Bewährtes Alters-/Haltungsfeld vertiefen, ohne Motivationscoach-Ton.",
   "speech": "Mit 56 ist mir wichtiger geworden, was mein Körper kann. Kraft. Beweglichkeit. Balance. Ausdauer. Natürlich darf ich gut aussehen wollen. Aber wenn das der einzige Maßstab ist, wird Training ziemlich klein. Ich will einen Körper, der mitmacht.",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-nicht-optik-1",
@@ -1777,7 +1777,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Silent/Musik",
   "goal": "Kompakter Full-Body-Flow mit klarer Struktur.",
   "speech": "",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-joga-squat-taps-1",
@@ -1835,7 +1835,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Silent/Musik",
   "goal": "Typisch-Mann-Format mit komplett kontrollierbarem Setup; bewusst kurz.",
   "speech": "",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.",
   "shots": [
    {
     "id": "v22-oli-anleitung-1",
@@ -1892,7 +1892,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Silent/Musik",
   "goal": "Athletischer JOGA-Post ohne Zirkusmove; Saves und Watchtime.",
   "speech": "",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-joga-dolphin-1",
@@ -1951,7 +1951,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Hybrid",
   "goal": "Differenzierte Kompetenz; explizit statisches Dehnen, keine pauschale Dehnkritik.",
   "speech": "Vor Sport erst mal lange statisch dehnen? Kommt drauf an, was du danach vorhast. Statisches Dehnen ist nicht grundsätzlich schlecht. Direkt vor explosiver Leistung ist langes statisches Halten aber nicht automatisch die beste Vorbereitung. Wenn du danach Leistung willst: warm werden, bewegen, spezifisch vorbereiten. Dehnen darf bleiben. Nur nicht als Religion.",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-stretch-vor-sport-1",
@@ -2078,7 +2078,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "On-Cam",
   "goal": "Nachfolger des Anfänger-Pieces; Haltung ohne Wiederholung derselben Hook.",
   "speech": "Gut sein ist bequem. Lernen nicht. Wenn du etwas lange kannst, weißt du, wie du gut aussiehst. Als Anfänger sieht man Fehler. Man fragt. Man probiert. Man scheitert sichtbar. Genau deshalb versuche ich, mir das zu erhalten. Nicht Anfänger bleiben. Aber immer wieder einer werden.",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-anfaenger2-1",
@@ -2193,7 +2193,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "Silent/Musik",
   "goal": "Meta-Humor über Vorproduktion; passt zum tatsächlichen 7-Wochen-System und benötigt keinen Urlaubsdreh.",
   "speech": "",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-video-urlaub-1",
@@ -2319,7 +2319,7 @@ const PRODUCTION_SEED_V22 = [
   "audio": "On-Cam",
   "goal": "Abschluss des Zeitraums; keine vorgetäuschte Erkenntnis, sondern Haltung zur Auswertung.",
   "speech": "Sieben Wochen Content. Natürlich schaue ich auf Views. Aber die größte Zahl ist nicht automatisch der beste Inhalt. Mich interessiert: Was wird gespeichert? Was wird geteilt? Wofür folgen Menschen? Und bei welchem Content bleibe ich selbst gern dran? Danach wird nicht alles neu. Nur klarer.",
-  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
   "shots": [
    {
     "id": "v22-oli-7wochen-1",
@@ -2369,6 +2369,1048 @@ const PRODUCTION_SEED_V22 = [
 // Ersetzt ein Feld NUR, wenn es noch exakt dem alten, fehlerhaften Wert entspricht; Nutzeränderungen bleiben unberührt.
 const V22_SEED_FIXES = {"v22-joga-aufstehen": {"variants": ["IG/TT 9--11 s; FB/YT gleicher Master.", "IG/TT 9–11 s; FB/YT gleicher Master."]}, "v22-joga-9090": {"variants": ["IG/FB 16 s; TT 12--14 s.", "IG/FB 16 s; TT 12–14 s."], "shots": {"v22-joga-9090-2": {"action": ["90/90 Switches 2--3 Wiederholungen.", "90/90 Switches 2–3 Wiederholungen."]}}}, "v22-oli-knie": {"variants": ["IG/FB Master 20 s; TT ggf. 17--18 s.", "IG/FB Master 20 s; TT ggf. 17–18 s."]}, "v22-joga-koerperwecker": {"variants": ["Master 18 s. Keine Moderation. ## W3/W4 --- 12.10.--25.10. --- BEREITS IN V2.1 VOLLSTÄNDIG AUSGEARBEITET Diese 14 Pieces werden **nicht neu erfunden oder überschrieben**. Sie bleiben mit ihren vorhandenen vollständigen Shotlists/Sprechtexten bestehen: - **12.10. · OLI:** MIT 56 BIN ICH WIEDER ANFÄNGER. ABSICHTLICH. - **13.10. · JOGA:** TORNADO-OPENER -- MORGENS EINGEROSTET - **14.10. · OLI:** FRÜHER KREATIVTEAM. HEUTE STATIV. - **15.10. · JOGA:** 1 MINUTE IN ALLE RICHTUNGEN -- RECUT - **16.10. · OLI:** WARUM KLINGT JEDE MARKE GLEICH? - **17.10. · JOGA:** ANTI-SCHREIBTISCH -- RÜCKEN - **18.10. · OLI:** KOPF: KANN ICH. - **19.10. · JOGA:** 3 MINUTEN AM TAG -- RECUT - **20.10. · OLI:** STEIF? MEHR DEHNEN. - **21.10. · JOGA:** TRY IT -- CHALLENGE RECUT - **22.10. · OLI:** WARUM ICH BEWEGUNG KÖRPERPFLEGE NENNE. - **23.10. · JOGA:** MOBILITY IST NICHT NUR DEHNEN -- RECUT - **24.10. · OLI:** 15 SEKUNDEN VIDEO. ZWEI STUNDEN ARBEIT. - **25.10. · JOGA:** BALANCE-CHECK -- WACKELN ERLAUBT ## W5 --- 26.10.--01.11. --- VERTIEFUNG", "Master 18 s. Keine Moderation."]}, "v22-oli-stretch37": {"variants": ["IG/TT 10--11 s.", "IG/TT 10–11 s."]}, "v22-oli-algorithmus": {"variants": ["Keine Algorithmus-Jammer-Caption. 17--20 s.", "Keine Algorithmus-Jammer-Caption. 17–20 s."]}, "v22-oli-schnellvideo": {"variants": ["Kein gesprochener CTA. ## W6 --- 02.11.--08.11. --- VORPRODUZIERT Alle Neudrehs dieser Woche vorab drehen; Recuts fertig exportieren.", "Kein gesprochener CTA."]}, "v22-oli-muskeln": {"variants": ["Keine medizinischen Versprechen. 20--22 s.", "Keine medizinischen Versprechen. 20–22 s."]}, "v22-joga-thread": {"shots": {"v22-joga-thread-3": {"onscreen": ["3--5 PRO SEITE.", "3–5 PRO SEITE."]}}}, "v22-oli-nicht-optik": {"variants": ["19--21 s.", "19–21 s."]}, "v22-oli-anleitung": {"scriptText": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."], "variants": ["Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst Reserve `v22-oli-setup-check` verwenden.", ""]}, "v22-joga-dolphin": {"variants": ["15 s. ## W7 --- 09.11.--15.11. --- VORPRODUZIERT Keine spontane Urlaubsproduktion erforderlich. Der 15.11.-Abschluss kann vollständig vorproduziert werden; nur optionale Zahlen als On-Screen-Text nachtragen.", "15 s."], "shots": {"v22-joga-dolphin-3": {"onscreen": ["6--10 LANGSAME.", "6–10 LANGSAME."]}}}, "v22-oli-stretch-vor-sport": {"variants": ["20 s; Caption muss `statisches Dehnen` präzise benennen.", "20 s; Caption muss statisches Dehnen präzise benennen."]}, "v22-oli-anfaenger2": {"variants": ["19--21 s.", "19–21 s."]}, "v22-oli-7wochen": {"variants": ["A-Version komplett vorproduzieren. Zahlen nicht sprechen; falls gewünscht am 15.11. nur On-Screen-Daten ergänzen. ## Qualitätsregeln für alle 28 neuen Seeds 1. Kein gesprochenes „Heute zeige ich...\". 2. Starker Bewegungscontent startet mit Bewegung in Frame 1. 3. Humor benötigt keine unkontrollierbaren Personen/Tiere/Ereignisse. 4. Kein künstliches Scheitern und kein künstliches „alt spielen\". 5. OLI-Haltung kurz, konkret, trocken; kein Motivationscoach-Ton. 6. On-Screen-Hooks ab Frame 1, wenn sie die Idee tragen. 7. Jeder Neudreh erhält 3--5 Sekunden sauberen Start/Ende ohne gesprochenen Text als zusätzliches Rohmaterial für spätere Recuts. 8. Maximal 5 Hashtags in späteren Captions; Hook nicht einfach in der Caption wiederholen. 9. Für W6/W7 sämtliche Dateien vorab exportieren und im Piece als fertig markieren. 10. Die 28 neuen Seeds plus die 14 V2.1-Pieces ergeben für W2--W7 genau 42 tägliche Hauptslots.", "A-Version komplett vorproduzieren. Zahlen nicht sprechen; falls gewünscht am 15.11. nur On-Screen-Daten ergänzen."]}};
 const productionSeedV22 = () => PRODUCTION_SEED_V22.map(p => normPiece({ ...p, created: '2026-10-05', updated: '2026-10-05' }));
+
+/* ---------- V2.2b: 14 neue Pieces 16.–29.11.2026 (Woche 6 und 7 des 7-Wochen-Plans 12.10.–29.11.) ---------- */
+const PRODUCTION_SEED_V22B = [
+ {
+  "id": "v22-joga-floor-rise",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge",
+  "title": "OHNE HÄNDE VOM BODEN HOCHKOMMEN",
+  "hook": "Kommst du ohne Hände vom Boden hoch?",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Sofort verständlicher funktioneller Bewegungscheck. Kein Alters-Test, keine medizinische Behauptung.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sekunden cleanes Ausgangsmaterial ohne Text drehen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [
+   {
+    "id": "v22-joga-floor-rise-1",
+    "camera": "",
+    "action": "Oli sitzt am Boden und steht unmittelbar ohne Hände auf.",
+    "speech": "",
+    "onscreen": "OHNE HÄNDE HOCHKOMMEN?",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-floor-rise-2",
+    "camera": "",
+    "action": "Bewegung sauber wiederholen, komplett im Bild.",
+    "speech": "",
+    "onscreen": "PROBIER'S.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–7 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-floor-rise-3",
+    "camera": "",
+    "action": "Kontrolliert wieder hinunter und erneut hoch.",
+    "speech": "",
+    "onscreen": "KRAFT + MOBILITÄT + KOORDINATION",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "7–11 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-floor-rise-4",
+    "camera": "",
+    "action": "Kurzer sauberer Endstand.",
+    "speech": "",
+    "onscreen": "EINFACH MACHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "11–13 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-16",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-fertigsein",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "ICH WILL NICHT FERTIG SEIN",
+  "hook": "Mit 56 könnte ich langsam wissen, was ich kann.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "Mit 56 könnte ich langsam wissen, was ich kann. Das Problem ist: Dann weiß ich auch ziemlich genau, was ich nicht mehr lernen muss. Darauf habe ich keine Lust. Ich lerne gerade Dinge, bei denen andere besser sind als ich. Das ist manchmal unangenehm. Und ziemlich gut. Fertig sein kann ich später.",
+  "scriptText": "9:16. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [
+   {
+    "id": "v22-oli-fertigsein-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Mit 56 könnte ich langsam wissen, was ich kann.",
+    "onscreen": "MIT 56 SOLLTE MAN DOCH...",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-fertigsein-2",
+    "camera": "",
+    "action": "Gehen/Umziehen auf zweite Position.",
+    "speech": "Das Problem ist: Dann weiß ich auch ziemlich genau, was ich nicht mehr lernen muss. Darauf habe ich keine Lust.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "4–11 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-fertigsein-3",
+    "camera": "",
+    "action": "Pilates-/Yoga-/Trainingsumgebung als kontrollierbares B-Roll.",
+    "speech": "Ich lerne gerade Dinge, bei denen andere besser sind als ich. Das ist manchmal unangenehm. Und ziemlich gut.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "11–19 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-fertigsein-4",
+    "camera": "",
+    "action": "Blick in Kamera.",
+    "speech": "Fertig sein kann ich später.",
+    "onscreen": "FERTIG SEIN KANN ICH SPÄTER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "19–22 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook"
+  ],
+  "publishDate": "2026-11-17",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-90-90-flow",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "90/90 – NICHT NUR SITZEN",
+  "hook": "Deine Hüfte kann mehr als vor und zurück.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Keine Erklärung vor der Bewegung. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [
+   {
+    "id": "v22-joga-90-90-flow-1",
+    "camera": "",
+    "action": "90/90 Switch rechts/links.",
+    "speech": "",
+    "onscreen": "DEINE HÜFTE KANN MEHR.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-90-90-flow-2",
+    "camera": "",
+    "action": "Switch + Reach.",
+    "speech": "",
+    "onscreen": "ROTIEREN",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "4–8 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-90-90-flow-3",
+    "camera": "",
+    "action": "90/90 Lift bzw. kontrollierte Variante.",
+    "speech": "",
+    "onscreen": "KONTROLLIEREN",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "8–12 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-90-90-flow-4",
+    "camera": "",
+    "action": "Flüssige Kombination.",
+    "speech": "",
+    "onscreen": "NICHT NUR DEHNEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "12–16 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-18",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-nochmal",
+  "world": "OLI",
+  "fn": "US",
+  "format": "TYPISCH MANN",
+  "title": "NUR NOCH EINMAL",
+  "hook": "Nur noch einmal.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Vollständig kontrollierbarer Running Gag beim Contentdreh.",
+  "speech": "Nur noch einmal. Der war's. Einen noch.",
+  "scriptText": "9:16. Keine Slapstick-Panne, keine fremden Personen, keine zufälligen Ereignisse. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-oli-nochmal-1",
+    "camera": "",
+    "action": "Oli stellt Kamera auf.",
+    "speech": "Nur noch einmal.",
+    "onscreen": "TAKE 8",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-nochmal-2",
+    "camera": "",
+    "action": "Cut. Neuer Take.",
+    "speech": "Der war's.",
+    "onscreen": "TAKE 14",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3–6 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-nochmal-3",
+    "camera": "",
+    "action": "Cut. Oli kontrolliert Aufnahme.",
+    "speech": "Einen noch.",
+    "onscreen": "TAKE 21",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "6–9 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-nochmal-4",
+    "camera": "",
+    "action": "Oli sitzt trocken neben Stativ.",
+    "speech": "",
+    "onscreen": "ICH MACH NUR SCHNELL EIN VIDEO.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–13 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok"
+  ],
+  "publishDate": "2026-11-19",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-lunge-rotate",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "LUNGE + ROTATION",
+  "hook": "Eine Bewegung. Mehrere Richtungen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Gesamtlänge ca. 15–18 Sekunden. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-joga-lunge-rotate-1",
+    "camera": "",
+    "action": "Reverse Lunge.",
+    "speech": "",
+    "onscreen": "ZURÜCK.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-lunge-rotate-2",
+    "camera": "",
+    "action": "Rotation über vorderes Bein.",
+    "speech": "",
+    "onscreen": "DREHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-lunge-rotate-3",
+    "camera": "",
+    "action": "Zurück zur Mitte.",
+    "speech": "",
+    "onscreen": "AUFRICHTEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-lunge-rotate-4",
+    "camera": "",
+    "action": "Seitenwechsel.",
+    "speech": "",
+    "onscreen": "WECHSEL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-lunge-rotate-5",
+    "camera": "",
+    "action": "Flüssiger Loop.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "12–16 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-20",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-kraft-beweglichkeit",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Oli Klärt",
+  "title": "BEWEGLICHKEIT NUR DURCH DEHNEN?",
+  "hook": "Für mehr Beweglichkeit musst du nicht nur dehnen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "",
+  "speech": "Beweglichkeit wird oft mit Dehnen gleichgesetzt. Aber du kannst Bewegungsumfang auch unter Belastung trainieren. Krafttraining über eine große, kontrollierte Bewegungsamplitude kann ebenfalls die Beweglichkeit verbessern. Ich will deshalb nicht nur irgendwo hinkommen. Ich will dort auch Kraft haben.",
+  "scriptText": "9:16. Keine Aussage „Dehnen ist unnötig“. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-oli-kraft-beweglichkeit-1",
+    "camera": "",
+    "action": "Tiefer kontrollierter Squat in sinnvoller Range.",
+    "speech": "Beweglichkeit wird oft mit Dehnen gleichgesetzt. Aber du kannst Bewegungsumfang auch unter Belastung trainieren.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "0–8 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-kraft-beweglichkeit-2",
+    "camera": "",
+    "action": "Split Squat in sinnvoller Range.",
+    "speech": "Krafttraining über eine große, kontrollierte Bewegungsamplitude kann ebenfalls die Beweglichkeit verbessern.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "8–15 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-kraft-beweglichkeit-3",
+    "camera": "",
+    "action": "RDL in sinnvoller Range.",
+    "speech": "Ich will deshalb nicht nur irgendwo hinkommen. Ich will dort auch Kraft haben.",
+    "onscreen": "RANGE OF MOTION + KRAFT",
+    "onscreenRequired": true,
+    "audio": "Voice-over",
+    "dur": "15–21 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook"
+  ],
+  "publishDate": "2026-11-21",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-balance-reaction",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge",
+  "title": "BALANCE WIRD SCHWERER, WENN DU NOCH ETWAS TUST",
+  "hook": "Stehen ist einfach. Mach jetzt noch das hier.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Kein „Balance-Alter“-Score. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-joga-balance-reaction-1",
+    "camera": "",
+    "action": "Einbeinstand.",
+    "speech": "",
+    "onscreen": "1 BEIN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-balance-reaction-2",
+    "camera": "",
+    "action": "Gegenstand kontrolliert von Hand zu Hand geben/werfen.",
+    "speech": "",
+    "onscreen": "JETZT ABLENKUNG DAZU.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–7 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-balance-reaction-3",
+    "camera": "",
+    "action": "Armposition verändern.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "7–10 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-balance-reaction-4",
+    "camera": "",
+    "action": "Seitenwechsel.",
+    "speech": "",
+    "onscreen": "SEITENWECHSEL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "10–14 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-22",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-koerper-kann",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "ICH WILL WISSEN, WAS MEIN KÖRPER KANN",
+  "hook": "Ich trainiere nicht gegen mein Alter.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "Hybrid",
+  "goal": "",
+  "speech": "Ich trainiere nicht gegen mein Alter. Ich bin 56. Das ist keine Krankheit. Mich interessiert auch nicht, ob ich mich wie 36 fühle. Mich interessiert, was mein Körper heute kann. Kraft. Beweglichkeit. Balance. Ausdauer. Und ob ich morgen noch Lust habe, weiterzumachen.",
+  "scriptText": "9:16. Nicht Anti-Aging, sondern Fähigkeit/Autonomie. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-oli-koerper-kann-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Ich trainiere nicht gegen mein Alter. Ich bin 56. Das ist keine Krankheit.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-koerper-kann-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Mich interessiert auch nicht, ob ich mich wie 36 fühle. Mich interessiert, was mein Körper heute kann.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "5–11 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-koerper-kann-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Kraft. Beweglichkeit. Balance. Ausdauer. Und ob ich morgen noch Lust habe, weiterzumachen.",
+    "onscreen": "NICHT JÜNGER. BEWEGLICHER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "11–17 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook"
+  ],
+  "publishDate": "2026-11-23",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-squat-rotate",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "SQUAT → SIDE TAP → ROTATION",
+  "hook": "Drei Richtungen statt zehn Übungen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Onscreen nur: RUNTER. SEITE. DREHEN. NOCHMAL. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-joga-squat-rotate-1",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "RUNTER.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-squat-rotate-2",
+    "camera": "",
+    "action": "Side Tap rechts.",
+    "speech": "",
+    "onscreen": "SEITE.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-squat-rotate-3",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-squat-rotate-4",
+    "camera": "",
+    "action": "Side Tap links.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-squat-rotate-5",
+    "camera": "",
+    "action": "Rotation.",
+    "speech": "",
+    "onscreen": "DREHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "12–15 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-squat-rotate-6",
+    "camera": "",
+    "action": "Kompletter Flow als Loop.",
+    "speech": "",
+    "onscreen": "NOCHMAL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "15–19 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-24",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-pause",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "MIT 56 TRAINIERE ICH AUCH PAUSE",
+  "hook": "Früher war Pause für mich: nichts tun.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "Früher war Pause für mich: nichts tun. Heute gehört Pause für mich zum Training. Nicht weil ich weniger will. Sondern weil ich morgen wieder etwas können will. Training setzt den Reiz. Erholung gehört dazu. Das musste ich tatsächlich erst lernen.",
+  "scriptText": "9:16. Keine medizinischen Recovery-Versprechen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-oli-pause-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Früher war Pause für mich: nichts tun. Heute gehört Pause für mich zum Training.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-pause-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Nicht weil ich weniger will. Sondern weil ich morgen wieder etwas können will.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "5–12 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-pause-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Training setzt den Reiz. Erholung gehört dazu. Das musste ich tatsächlich erst lernen.",
+    "onscreen": "PAUSE IST TEIL DES PLANS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "12–19 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook"
+  ],
+  "publishDate": "2026-11-25",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-dolphin-flow",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge/Routine",
+  "title": "DOLPHIN – SCHULTERN + CORE",
+  "hook": "Plank kennst du. Probier das.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-joga-dolphin-flow-1",
+    "camera": "",
+    "action": "Unterarmstütz.",
+    "speech": "",
+    "onscreen": "UNTERARME.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-dolphin-flow-2",
+    "camera": "",
+    "action": "Hüfte nach hinten/oben in Dolphin.",
+    "speech": "",
+    "onscreen": "HÜFTE HOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-dolphin-flow-3",
+    "camera": "",
+    "action": "Zurück nach vorne.",
+    "speech": "",
+    "onscreen": "VOR.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-dolphin-flow-4",
+    "camera": "",
+    "action": "3 kontrollierte Wiederholungen.",
+    "speech": "",
+    "onscreen": "ZURÜCK.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–15 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-dolphin-flow-5",
+    "camera": "",
+    "action": "Clean Loop.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "15–18 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-26",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-drei-sekunden",
+  "world": "OLI",
+  "fn": "US",
+  "format": "TYPISCH MANN",
+  "title": "DAS DAUERT DREI SEKUNDEN",
+  "hook": "Das dauert drei Sekunden.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Kontrollierter Gag: Oli versucht eine anspruchsvollere, aber sicher beherrschbare Bewegung für den Dreh.",
+  "speech": "",
+  "scriptText": "9:16. Kein Fake-Sturz. Kein absichtliches Scheitern. Keine Fremdpersonen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-oli-drei-sekunden-1",
+    "camera": "",
+    "action": "Oli versucht eine anspruchsvollere, aber sicher beherrschbare Bewegung für den Dreh.",
+    "speech": "",
+    "onscreen": "KOPF: 3 SEKUNDEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-drei-sekunden-2",
+    "camera": "",
+    "action": "Cut auf mehrere vorbereitende Versuche/Positionierungen.",
+    "speech": "",
+    "onscreen": "KÖRPER: WIR BESPRECHEN DAS NOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–9 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-drei-sekunden-3",
+    "camera": "",
+    "action": "Bewegung gelingt.",
+    "speech": "",
+    "onscreen": "GEHT DOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok"
+  ],
+  "publishDate": "2026-11-27",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-joga-fullbody-loop",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "30 SEKUNDEN GANZER KÖRPER",
+  "hook": "Wenn du heute nur 30 Sekunden hast.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Keine Unterbrechung für Erklärung. Der letzte Frame muss in den ersten übergehen können → Loop. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [
+   {
+    "id": "v22-joga-fullbody-loop-1",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-fullbody-loop-2",
+    "camera": "",
+    "action": "Rotation.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-fullbody-loop-3",
+    "camera": "",
+    "action": "Lunge.",
+    "speech": "",
+    "onscreen": "GANZER KÖRPER.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "10–15 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-fullbody-loop-4",
+    "camera": "",
+    "action": "Reach.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "15–20 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-fullbody-loop-5",
+    "camera": "",
+    "action": "Boden/90-90.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "20–25 s",
+    "note": ""
+   },
+   {
+    "id": "v22-joga-fullbody-loop-6",
+    "camera": "",
+    "action": "Zurück zum Stand.",
+    "speech": "",
+    "onscreen": "KEINE AUSREDE NÖTIG.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "25–30 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "2026-11-28",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ },
+ {
+  "id": "v22-oli-testfazit",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "7 WOCHEN. UND JETZT?",
+  "hook": "49 Tage später interessiert mich nicht nur, was die meisten Views hatte.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "49 Tage später interessiert mich natürlich, was viele Menschen gesehen haben. Aber noch mehr interessiert mich, was sie gespeichert haben. Was sie geteilt haben. Wofür sie mir gefolgt sind. Und ob JOGA besser funktioniert, wenn man nicht nur die Bewegung sieht, sondern auch den Menschen dahinter. Genau danach entscheide ich, was bleibt.",
+  "scriptText": "9:16. Wird in einer vorproduzierbaren A-Version gedreht. Tatsächliche Zahlen werden am 29.11. nur als Text ergänzt, kein neuer Dreh notwendig. Die echten Resultate dürfen am Veröffentlichungstag ausschließlich als zusätzliche Textlayer ergänzt werden. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [
+   {
+    "id": "v22-oli-testfazit-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "49 Tage später interessiert mich natürlich, was viele Menschen gesehen haben.",
+    "onscreen": "49 TAGE.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-testfazit-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Aber noch mehr interessiert mich, was sie gespeichert haben. Was sie geteilt haben. Wofür sie mir gefolgt sind.",
+    "onscreen": "SAVES · SHARES · FOLLOWS",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "5–13 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-testfazit-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Und ob JOGA besser funktioniert, wenn man nicht nur die Bewegung sieht, sondern auch den Menschen dahinter.",
+    "onscreen": "JOGA + OLI",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "13–21 s",
+    "note": ""
+   },
+   {
+    "id": "v22-oli-testfazit-4",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Genau danach entscheide ich, was bleibt.",
+    "onscreen": "WAS BLEIBT?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "21–25 s",
+    "note": ""
+   }
+  ],
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook"
+  ],
+  "publishDate": "2026-11-29",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+ }
+];
+const productionSeedV22b = () => PRODUCTION_SEED_V22B.map(p => normPiece({ ...p, created: '2026-10-06', updated: '2026-10-06' }));
+// Die Notiz „vor Beginn von W6 (02.11.)“ stammt aus der Zählung 28.09.–15.11. und ist mit dem Plan 12.10.–29.11. falsch. Ersetzt wird nur der exakte alte Seed-Text.
+const V22B_TEXT_FIXES = {"v22-oli-muskeln": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-thread": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-nicht-optik": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-squat-taps": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anleitung": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."], "v22-joga-dolphin": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-stretch-vor-sport": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anfaenger2": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-video-urlaub": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-7wochen": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."]};
 
 
 // Alt-Daten (Oli-Bibliothek) → Content-Modell. Deterministische IDs: mehrfaches Migrieren ist idempotent.
@@ -2420,6 +3462,15 @@ function migrateState(s) {
       return n;
     });
     out.seedCleanV22a = true;
+  }
+  // sevenWeekPlanFixV22b: Der 7-Wochen-Plan läuft 12.10.–29.11.2026 (49 Tage). Ergänzt werden nur die 14 fehlenden Pieces 16.–29.11.
+  // Nichts Bestehendes wird gelöscht oder überschrieben; die Pieces 05.–11.10. bleiben als Content erhalten und liegen schlicht außerhalb von Plan und Test.
+  // Alte Marker bleiben unberührt, V2.1/V2.2-Seeding läuft nicht erneut.
+  if (!out.sevenWeekPlanFixV22b) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV22b().filter(c => !have.has(c.id))];
+    out.content = out.content.map(c => { const fx = V22B_TEXT_FIXES[c.id]; return fx && c.scriptText === fx[0] ? { ...c, scriptText: fx[1] } : c; });
+    out.sevenWeekPlanFixV22b = true;
   }
   return out;
 }
@@ -2682,9 +3733,9 @@ const PreBadge = ({ s }) => !s ? null : <span data-pre={s} style={{ fontSize: 11
 const preCount = (list) => { const req = list.filter(p => p.preproductionRequired); return { n: req.length, done: req.filter(isDone).length }; };
 const readinessLabel = (p) => { if (p.status === 'Gepostet') return 'veröffentlicht'; if (isDone(p)) return 'fertig'; const m = readinessMissing(p); return m.length ? '⚠ ' + m.length + ' fehlt' : '✓ vollständig'; };
 
-const PLAN_START = '2026-09-28', PLAN_END = '2026-11-15';
+const PLAN_START = '2026-10-12', PLAN_END = '2026-11-29'; // 7 Wochen Mo–So = 49 Tage, keine Baseline-Woche
 const PLAN_WEEKS = Array.from({ length: 7 }, (_, i) => ({ n: i + 1, start: addDays(PLAN_START, 7 * i), end: addDays(PLAN_START, 7 * i + 6) }));
-const WEEK_LABEL = ['BASELINE · rückblickend', 'Übergang / Vorproduktion', 'Testphase', 'Testphase', 'Vertiefung', 'Vorproduktion', 'Vorproduktion'];
+const WEEK_LABEL = ['Testphase', 'Testphase', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Auswertung'];
 const weekIdxOf = (iso) => { const d = dayDiff(iso, PLAN_START); return d < 0 ? 0 : d > 48 ? 6 : Math.floor(d / 7); };
 const STAGES = [['ideen', 'IDEEN', 'Idee'], ['skripte', 'SKRIPTE', 'Skript fertig'], ['drehen', 'DREHEN', 'Drehbereit'], ['schneiden', 'SCHNEIDEN', 'Gedreht'], ['bereit', 'BEREIT', 'Geschnitten']];
 
@@ -2731,13 +3782,14 @@ function ProdCard({ p, idx, gotoContent, onStatus }) {
   );
 }
 
-function PieceRow({ p, onOpen, today }) {
+function PieceRow({ p, onOpen, today, actions }) {
   return (
     <li data-piece data-id={p.id} className="card slim" style={WRAP} onClick={() => onOpen(p.id)}>
       <div className="card-top"><div className="row" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span>{p.format && <span className="meta">{p.format}</span>}</div><span className="meta">{p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : 'ohne Datum'}</span></div>
       <div className="hook">{p.title || '(ohne Titel)'}</div>
       <div className="meta">{p.status} · {p.prodType} · {p.entry} · {AUDIO_SHORT[p.audio]}{p.platforms.length ? ' · ' + p.platforms.join(', ') : ''}</div>
       <div style={{ marginTop: 8 }}><PipeBar p={p} compact /></div>
+      {actions && <div className="row" onClick={e => e.stopPropagation()} style={{ marginTop: 8 }}>{actions}</div>}
     </li>
   );
 }
@@ -2797,7 +3849,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
   const today = todayISO();
   const wk = ui.planWeek, view = ui.planView, W = PLAN_WEEKS[wk];
   const piecesOn = (d) => state.content.filter(p => p.publishDate === d);
-  const plannedDays = (() => { let n = 0; for (let i = 7; i < 49; i++) if (piecesOn(addDays(PLAN_START, i)).length) n++; return n; })();
+  const plannedDays = (() => { let n = 0; for (let i = 0; i < 49; i++) if (piecesOn(addDays(PLAN_START, i)).length) n++; return n; })();
   const days = (w) => Array.from({ length: 7 }, (_, i) => addDays(w.start, i));
   const weekPieces = (w) => state.content.filter(p => p.publishDate >= w.start && p.publishDate <= w.end);
   const weekPre = preCount(weekPieces(W));
@@ -2813,18 +3865,17 @@ function PlanView({ state, gotoContent, ui, setUi }) {
   return (
     <section>
       <header className="head"><h1>7-Wochen-Plan</h1></header>
-      <div className="hint" data-plan-count style={{ marginTop: -4 }}>W2–W7: {plannedDays} von 42 Tagen belegt{allPre.n > 0 ? ' · Vorproduktion ' + allPre.done + ' von ' + allPre.n + ' geschnitten' : ''}</div>
+      <div className="hint" data-plan-count style={{ marginTop: -4 }}>{plannedDays} von 49 Tagen belegt{allPre.n > 0 ? ' · Vorproduktion ' + allPre.done + ' von ' + allPre.n + ' geschnitten' : ''}</div>
       <div className="row wrap" data-week-tabs>{PLAN_WEEKS.map((w, i) => <Tag key={i} on={wk === i} onClick={() => setUi({ planWeek: i })}>W{w.n}{today >= w.start && today <= w.end ? ' •' : ''}</Tag>)}</div>
       <div className="row wrap"><Tag on={view === 'wochen'} onClick={() => setUi({ planView: 'wochen' })}>Wochen</Tag><Tag on={view === 'kalender'} onClick={() => setUi({ planView: 'kalender' })}>Kalender</Tag></div>
       {view === 'wochen' && <>
-        <div className="row between" data-week-head><h2 style={{ margin: 0 }}>W{W.n} · {fmtD(W.start)}–{fmtD(W.end)}</h2>{(wk >= 5 || weekPre.n > 0) && <span data-week-pre style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span className="meta">{weekPre.done}/{weekPre.n}</span><PreBadge s={weekPre.n > 0 && weekPre.done === weekPre.n ? 'VORPRODUZIERT' : 'VORPRODUZIEREN'} /></span>}</div>
-        <div className="hint" style={{ marginTop: 2 }}>{WEEK_LABEL[wk]}{wk >= 5 ? ' · alle Pieces dieser Woche vorab drehen und schneiden. VORPRODUZIERT erst ab „Geschnitten“, keine spontane Aufnahme am Veröffentlichungstag' : ''}</div>
-        {days(W).map(d => { const ps = piecesOn(d), reels = wk === 0 ? state.reels.filter(r => r.date === d) : []; return (
+        <div className="row between" data-week-head><h2 style={{ margin: 0 }}>W{W.n} · {fmtD(W.start)}–{fmtD(W.end)}</h2>{weekPre.n > 0 && <span data-week-pre style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span className="meta">{weekPre.done}/{weekPre.n}</span><PreBadge s={weekPre.n > 0 && weekPre.done === weekPre.n ? 'VORPRODUZIERT' : 'VORPRODUZIEREN'} /></span>}</div>
+        <div className="hint" style={{ marginTop: 2 }}>{WEEK_LABEL[wk]}{weekPre.n > 0 ? ' · alle Pieces dieser Woche vorab drehen und schneiden. VORPRODUZIERT erst ab „Geschnitten“, keine spontane Aufnahme am Veröffentlichungstag' : ''}</div>
+        {days(W).map(d => { const ps = piecesOn(d); return (
           <div key={d} data-day={d} className="sheet" style={{ padding: 10, marginBottom: 8, borderColor: d === today ? 'var(--accent)' : undefined }}>
             <div className="row between" style={{ margin: 0 }}><b>{wdName(d)} {fmtD(d)}</b>{d === today && <span className="meta" style={{ color: 'var(--accent)' }}>HEUTE</span>}</div>
             {ps.map(p => <Slot key={p.id} p={p} />)}
-            {reels.map(r => <div key={r.id} data-reel className="meta" style={{ marginTop: 6, textTransform: 'none', letterSpacing: 0 }}>Reel (Board) · {r.type} · {r.hook}{r.views ? ' · ' + fmtN(r.views) + ' Views' : ''}</div>)}
-            {ps.length === 0 && reels.length === 0 && <div className="meta" data-empty style={{ marginTop: 6 }}>{wk === 0 ? 'Keine hinterlegten Daten' : 'Kein Slot geplant'}</div>}
+            {ps.length === 0 && <div className="meta" data-empty style={{ marginTop: 6 }}>Kein Slot geplant</div>}
           </div>); })}
       </>}
       {view === 'kalender' && (
@@ -2833,11 +3884,10 @@ function PlanView({ state, gotoContent, ui, setUi }) {
           {PLAN_WEEKS.map((w, i) => (
             <div key={i} data-cal-week={w.n} style={{ display: 'grid', gridTemplateColumns: '30px repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
               <span className="meta" style={{ alignSelf: 'center', lineHeight: 1.1 }}>W{w.n}{(() => { const c = preCount(weekPieces(w)); return c.n ? <small data-cal-pre style={{ display: 'block', fontSize: 9 }}>{c.done}/{c.n}</small> : null; })()}</span>
-              {days(w).map(d => { const ps = piecesOn(d), rl = i === 0 ? state.reels.filter(r => r.date === d).length : 0; return (
+              {days(w).map(d => { const ps = piecesOn(d); return (
                 <div key={d} data-cal-day={d} style={{ background: 'var(--panel)', border: '1px solid ' + (d === today ? 'var(--accent)' : 'var(--line)'), borderRadius: 6, minHeight: 46, padding: 3 }}>
                   <div style={{ fontSize: 10, color: 'var(--muted)' }}>{d.slice(8)}</div>
                   {ps.map(p => <div key={p.id} data-cal-piece onClick={() => gotoContent(p.id)} style={{ fontSize: 10, fontWeight: 800, textAlign: 'center', borderRadius: 3, marginTop: 2, padding: '1px 0', cursor: 'pointer', background: p.world === 'OLI' ? 'var(--accent)' : 'var(--panel2)', color: p.world === 'OLI' ? 'var(--accent-ink)' : 'var(--text)', outline: isDone(p) ? '2px solid ' + AMPEL_COL.green : 'none' }}>{p.world === 'OLI' ? 'O' : 'J'}</div>)}
-                  {rl > 0 && <div style={{ fontSize: 9, color: 'var(--muted)' }}>{rl} Reel</div>}
                 </div>); })}
             </div>))}
           <div className="hint">J = JOGA · O = OLI · grüner Rahmen = geschnitten/gepostet · n/7 unter der Woche = bereits vorproduziert (mind. „Geschnitten“). Tippen öffnet das Piece.</div>
@@ -2918,7 +3968,7 @@ function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
       {['ideen', 'skripte', 'schneiden', 'bereit'].includes(sec) && (() => { const st = STAGES.find(x => x[0] === sec)[2], L = stageList(st); return (
         <>
           <p className="hint" data-count>{L.length} Pieces im Status „{st}“{sec === 'bereit' ? '. Gepostete Pieces findest du unter ANALYSE.' : ''}</p>
-          <ul className="list">{L.map(p => <PieceRow key={p.id} p={p} onOpen={gotoContent} today={today} />)}</ul>
+          <ul className="list">{L.map(p => <PieceRow key={p.id} p={p} onOpen={gotoContent} today={today} actions={sec === 'schneiden' ? <><Btn small kind="primary" onClick={() => setStatus(p.id, 'Geschnitten')}>Als geschnitten markieren</Btn><Btn small onClick={() => gotoContent(p.id)}>Öffnen</Btn></> : null} />)}</ul>
           {L.length === 0 && <p className="empty">Nichts in dieser Phase.</p>}
         </>); })()}
 
@@ -2955,7 +4005,7 @@ function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
                 <li>On-Screen-Hooks ab Frame 1, wenn sie die Idee tragen.</li>
                 <li>Jeder Neudreh erhält 3–5 Sekunden sauberen Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.</li>
                 <li>Maximal 5 Hashtags in Captions; den Hook nicht einfach in der Caption wiederholen.</li>
-                <li>Für W6/W7 alle Dateien vorab fertig exportieren und im Piece auf mindestens „Geschnitten“ setzen.</li>
+                <li>Für Pieces mit Vorproduktionspflicht alle Dateien vorab fertig exportieren und im Piece auf mindestens „Geschnitten“ setzen.</li>
               </ol>
             </details>
             {L.map((p, i) => <ProdCard key={p.id} p={p} idx={i} gotoContent={gotoContent} onStatus={setStatus} />)}
