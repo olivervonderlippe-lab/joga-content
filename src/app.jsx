@@ -400,9 +400,10 @@ const FORMAT_RULES = [
   { key: 'humor', format: 'Typisch Mann / Humor', entry: 'Situation first', audio: 'Silent/Musik', note: 'Situation first. So wenig Sprache wie möglich, Pointe primär visuell.' },
 ];
 const FORMAT_ALIAS = { 'Oli Klärt': 'erklaerung', 'Oli Geht': 'persoenlich', 'Typisch Mann': 'humor', '1 Minute JOGA': 'routine' };
-const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut'];
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
 const ruleFor = (format) => { if (!format) return null; return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null; };
 
+const SERIES_DARK = 'Dunkle Jahreszeit';
 const newPerf = (platform = 'Instagram') => ({ id: uid(), platform, date: '', views: '', reach: '', nonFollower: '', avgWatch: '', completion: '', likes: '', comments: '', shares: '', saves: '', newFollowers: '' });
 const newShot = () => ({ id: uid(), camera: '', action: '', speech: '', onscreen: '', onscreenRequired: false, audio: 'On-Cam', dur: '', note: '' });
 const newPiece = (over = {}) => ({
@@ -411,6 +412,7 @@ const newPiece = (over = {}) => ({
   goal: '', speech: '', scriptText: '', shots: [], moveIds: [], material: '', variants: '',
   platforms: [], publishDate: '', perf: [], shootId: '', cutId: '', src: '',
   planPhase: '', preproductionRequired: false, productionDate: '', caption: '',
+  series: '', tip: '', evidence: '', // V2.3b: Serien-Kennzeichnung, Tipp/Kernaussage, interne redaktionelle Sicherheit/Quelle (alle optional)
   created: todayISO(), updated: todayISO(), ...over,
 });
 const normPiece = (p) => {
@@ -3409,6 +3411,1148 @@ const PRODUCTION_SEED_V22B = [
  }
 ];
 const productionSeedV22b = () => PRODUCTION_SEED_V22B.map(p => normPiece({ ...p, created: '2026-10-06', updated: '2026-10-06' }));
+// V2.3b: Nur noch der Pilot vom 08.10. Die Einzel-Ideen und die Doppel-/Zeitumstellungs-Platzhalter werden nicht mehr geseedet (Pool kommt separat, siehe DARK_SERIES_SEED).
+const PRODUCTION_SEED_V23 = [
+ {
+  "id": "v23-herbst-4tipps",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp (4 in 1)",
+  "title": "DUNKLE JAHRESZEIT: 4 MORGEN-TIPPS",
+  "hook": "Dunkel draußen? So kommst du morgens in Gang.",
+  "status": "Gedreht",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "On-Cam",
+  "goal": "Pilot/Auftakt der Serie „Tipps für die Dunkle Jahreszeit“ (1 Tipp = 1 Video). Die vier Tipps in diesem Video werden nicht noch einmal als Einzelvideos angelegt.",
+  "speech": "",
+  "scriptText": "Bereits am 08.10. gedreht. Inhalt laut Oli: 1) Vorhang auf, trotz Wolken Richtung Himmel schauen. 2) Körper wecken mit kaltem Wasser oder Wechseldusch. 3) Oder 10 Min an die frische Luft. 4) Nach dem Aufstehen gerade hinstellen, Schultern zurück, in die Luft schauen. Arbeitshook und Titel bitte durch den echten Wortlaut aus dem Video ersetzen. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Datum selbst setzen.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": [
+   "Instagram",
+   "TikTok"
+  ],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": "",
+  "series": "Dunkle Jahreszeit"
+ }
+];
+// Überholte V2.3-Platzhalter (reine Aufteilung der 4 Pilot-Tipps). Wird nur gelöscht, wenn das Piece noch exakt dem Seed entspricht (keine Nutzereingabe überschrieben).
+const V23_OBSOLETE = [
+ {
+  "id": "v23-herbst-licht",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: VORHANG AUF",
+  "hook": "Draußen grau? Vorhang trotzdem auf.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Draußen grau? Vorhang trotzdem auf. Auch bei Wolken ist es draußen heller als drinnen. Schau kurz Richtung Himmel. Nicht in die Sonne. Dann startet dein Tag nicht im Halbdunkel.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Oli zieht den Vorhang auf, Blick zum Himmel. Onscreen: VORHANG AUF. BLICK HOCH. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+ },
+ {
+  "id": "v23-herbst-raus",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: 10 MINUTEN RAUS",
+  "hook": "Zehn Minuten raus. Mehr nicht.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Zehn Minuten raus. Gehen reicht. Du bekommst Licht und Bewegung gleichzeitig. Auch bei Regen. Jacke an. Tür auf.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Jacke, Tür, erste Schritte, Schnitt auf Rückkehr. Onscreen: 10 MINUTEN. RAUS. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+ },
+ {
+  "id": "v23-herbst-kalt",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: 30 SEKUNDEN KALT",
+  "hook": "Duschen. Am Ende 30 Sekunden kalt.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Normal duschen. Am Ende 30 Sekunden kalt. Erst die Beine, dann der Rest. Manche werden davon wacher. Probier es aus. Bei Herz-Kreislauf-Problemen vorher ärztlich klären.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Hand am Mischer, Regler auf kalt, Atem. Onscreen: 30 SEKUNDEN KALT. Der Hinweis zu Herz-Kreislauf bleibt im Text oder als Einblendung. Keine Immun-Aussage. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+ },
+ {
+  "id": "v23-herbst-aufrichten",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: AUFRICHTEN",
+  "hook": "Kurz hinstellen. Schultern zurück. Blick hoch.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Nach dem Aufstehen: gerade hinstellen. Schultern zurück. Blick Richtung Decke oder Himmel. Drei tiefe Atemzüge. Kein Wundermittel. Aber es fühlt sich für viele wacher an.",
+  "scriptText": "1 Tipp, 10–15 Sek. Ehrlich bleiben: Mini-Reset, kein Energiebeweis. Onscreen: GERADE. SCHULTERN ZURÜCK. BLICK HOCH. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+ }
+];
+const sameAsSeed = (c, o) => Object.keys(o).every(k => k === 'created' || k === 'updated' || JSON.stringify(c[k]) === JSON.stringify(o[k]));
+// Pool „Tipps für die dunkle Jahreszeit“: 1 Tipp = 1 Video, 28 Stück. Die fertigen Briefings hier eintragen, dann DARK_SERIES_SEED_VERSION um 1 erhöhen.
+// Feldzuordnung: Titel→title · Hook→hook · Tipp/Kernaussage→tip · Sprechtext→speech · Umsetzung/Shot-Idee→scriptText (oder shots[]) · Audioart→audio · Sicherheit/Quelle→evidence · optional publishDate (Di/Do/Sa, siehe SERIES_SLOTS).
+// Pflicht je Eintrag: id (eindeutig, z. B. 'dj-01'). Alles andere hat Defaults (JOGA, DO, Format Herbst-Tipp, Status Idee, Neudreh, ohne Datum).
+const DARK_SERIES_SEED_VERSION = 2;
+const DARK_SERIES_SEED = [
+ {
+  "id": "dj-01",
+  "title": "10 MINUTEN NACH DEM ESSEN",
+  "hook": "NACH DEM ESSEN DIREKT AUFS SOFA?",
+  "speech": "Probier mal was anderes. Geh nach dem Essen zehn Minuten spazieren. Das kann helfen, den Blutzuckeranstieg nach der Mahlzeit abzuflachen. Und du hast dich gleich noch bewegt.",
+  "shots": [
+   {
+    "id": "dj-01-s1",
+    "camera": "",
+    "action": "Im Stehen sprechen, am Ende losgehen.",
+    "speech": "Probier mal was anderes. Geh nach dem Essen zehn Minuten spazieren. Das kann helfen, den Blutzuckeranstieg nach der Mahlzeit abzuflachen. Und du hast dich gleich noch bewegt.",
+    "onscreen": "NACH DEM ESSEN DIREKT AUFS SOFA?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-13",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach dem Essen zehn Minuten gehen statt direkt aufs Sofa.",
+  "evidence": "Plausibel bis gut belegt: kurze Spaziergänge nach Mahlzeiten dämpfen Blutzuckerspitzen. Quelle vor Dreh nachtragen. Grenze: nur „kann helfen“, nichts zu Diabetes oder Gewicht.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-02",
+  "title": "SITZEN UNTERBRECHEN",
+  "hook": "DU SITZT SEIT EINER STUNDE?",
+  "speech": "Dann steh auf. Geh zwei bis fünf Minuten durch die Wohnung oder durchs Büro. Regelmäßige Bewegungspausen sind besser, als stundenlang am Stück zu sitzen. So einfach.",
+  "shots": [
+   {
+    "id": "dj-02-s1",
+    "camera": "",
+    "action": "Im Sitzen beginnen, aufstehen und ein paar Schritte gehen.",
+    "speech": "Dann steh auf. Geh zwei bis fünf Minuten durch die Wohnung oder durchs Büro. Regelmäßige Bewegungspausen sind besser, als stundenlang am Stück zu sitzen. So einfach.",
+    "onscreen": "DU SITZT SEIT EINER STUNDE?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-15",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach etwa einer Stunde Sitzen aufstehen und 2–5 Minuten gehen.",
+  "evidence": "Gut belegt: Bewegungspausen unterbrechen langes Sitzen. Die 2–5 Minuten sind eine praktische Richtgröße, kein Studienwert. Grenze: kein Risiko- oder Gesundheitsversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-03",
+  "title": "KALT? LANGSAM STARTEN.",
+  "hook": "DRAUSSEN KALT? NICHT GLEICH VOLLGAS.",
+  "speech": "Wenn du bei Kälte trainierst, fang langsam an. Erst ein paar Minuten locker bewegen, dann das Tempo steigern. Dein Körper bekommt Zeit, sich auf die Belastung einzustellen.",
+  "shots": [
+   {
+    "id": "dj-03-s1",
+    "camera": "",
+    "action": "Im Stehen sprechen, locker marschieren/Arme bewegen.",
+    "speech": "Wenn du bei Kälte trainierst, fang langsam an. Erst ein paar Minuten locker bewegen, dann das Tempo steigern. Dein Körper bekommt Zeit, sich auf die Belastung einzustellen.",
+    "onscreen": "DRAUSSEN KALT? NICHT GLEICH VOLLGAS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-17",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei Kälte erst locker bewegen, dann das Tempo steigern.",
+  "evidence": "Standardempfehlung (Aufwärmen), plausibel. Grenze: keine Verletzungs- oder Herz-Kreislauf-Aussagen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-04",
+  "title": "TAGESLICHT BEIM ARBEITEN",
+  "hook": "DEIN ARBEITSPLATZ IST ZU DUNKEL?",
+  "speech": "Dann nutz tagsüber möglichst viel Tageslicht. Wenn du kannst, arbeite in Fensternähe. Helligkeit am Tag ist ein wichtiger Zeitgeber für deine innere Uhr.",
+  "shots": [
+   {
+    "id": "dj-04-s1",
+    "camera": "",
+    "action": "Am Arbeitsplatz/Fenster sprechen.",
+    "speech": "Dann nutz tagsüber möglichst viel Tageslicht. Wenn du kannst, arbeite in Fensternähe. Helligkeit am Tag ist ein wichtiger Zeitgeber für deine innere Uhr.",
+    "onscreen": "DEIN ARBEITSPLATZ IST ZU DUNKEL?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-20",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Tagsüber möglichst viel Tageslicht nutzen, wenn möglich am Fenster arbeiten.",
+  "evidence": "Gut belegt: Tageslicht ist ein zentraler Zeitgeber der inneren Uhr; draußen und am Fenster ist es deutlich heller als im Raum. Grenze: nichts zu Stimmung oder Winterdepression.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-05",
+  "title": "LICHT RUNTER",
+  "hook": "ABENDS HELLWACH?",
+  "speech": "Dann schau dir mal deine Beleuchtung an. Helles Licht am späten Abend kann deine innere Uhr beeinflussen. Also: Vor dem Schlafengehen lieber etwas dimmen.",
+  "shots": [
+   {
+    "id": "dj-05-s1",
+    "camera": "",
+    "action": "Im Raum sprechen, am Ende Licht dimmen.",
+    "speech": "Dann schau dir mal deine Beleuchtung an. Helles Licht am späten Abend kann deine innere Uhr beeinflussen. Also: Vor dem Schlafengehen lieber etwas dimmen.",
+    "onscreen": "ABENDS HELLWACH?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-22",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Abends vor dem Schlafen das Licht dimmen.",
+  "evidence": "Gut bis mittel belegt: helles Licht am späten Abend kann die innere Uhr beeinflussen; individuell verschieden. Grenze: „kann“, kein Schlafversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-06",
+  "title": "ZEITUMSTELLUNG",
+  "hook": "MORGEN WERDEN DIE UHREN ZURÜCKGESTELLT.",
+  "speech": "Mein Tipp zur Zeitumstellung: Versuch, deinen gewohnten Schlafrhythmus möglichst beizubehalten. Deine innere Uhr mag Regelmäßigkeit. Auch wenn die Uhr morgen etwas anderes behauptet.",
+  "shots": [
+   {
+    "id": "dj-06-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera.",
+    "speech": "Mein Tipp zur Zeitumstellung: Versuch, deinen gewohnten Schlafrhythmus möglichst beizubehalten. Deine innere Uhr mag Regelmäßigkeit. Auch wenn die Uhr morgen etwas anderes behauptet.",
+    "onscreen": "MORGEN WERDEN DIE UHREN ZURÜCKGESTELLT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-24",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Den gewohnten Schlafrhythmus rund um die Zeitumstellung möglichst beibehalten.",
+  "evidence": "Plausibel: regelmäßige Schlafzeiten stützen die innere Uhr. Fakt: Uhren gehen am 25.10.2026 zurück, „morgen“ passt zum Post am 24.10. Grenze: keine Aussagen zu Gesundheitsfolgen der Umstellung.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-07",
+  "title": "EINE MINUTE ZÄHLT",
+  "hook": "EINE MINUTE IST KEIN TRAINING?",
+  "speech": "Stimmt. Aber eine Minute Bewegung ist besser als gar keine. Ein paar Kniebeugen, Treppensteigen oder einfach zügig gehen. Bewegung zählt auch ohne Trainingsplan.",
+  "shots": [
+   {
+    "id": "dj-07-s1",
+    "camera": "",
+    "action": "Sprechen und einige Kniebeugen machen.",
+    "speech": "Stimmt. Aber eine Minute Bewegung ist besser als gar keine. Ein paar Kniebeugen, Treppensteigen oder einfach zügig gehen. Bewegung zählt auch ohne Trainingsplan.",
+    "onscreen": "EINE MINUTE IST KEIN TRAINING?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-27",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch eine Minute Bewegung ist besser als gar keine.",
+  "evidence": "Plausibel, deckt sich mit den WHO-Leitlinien („jede Bewegung zählt“). Grenze: nicht behaupten, eine Minute ersetze Training.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-08",
+  "title": "NIMM DIE TREPPE",
+  "hook": "DAS FITNESSSTUDIO HAT HEUTE TREPPEN.",
+  "speech": "Du willst dich im Alltag mehr bewegen? Nimm öfter die Treppe statt den Aufzug. Kostet dich meistens nur ein bisschen mehr Zeit. Und ist ziemlich unkompliziert.",
+  "shots": [
+   {
+    "id": "dj-08-s1",
+    "camera": "",
+    "action": "An einer Treppe sprechen, anschließend hochgehen.",
+    "speech": "Du willst dich im Alltag mehr bewegen? Nimm öfter die Treppe statt den Aufzug. Kostet dich meistens nur ein bisschen mehr Zeit. Und ist ziemlich unkompliziert.",
+    "onscreen": "DAS FITNESSSTUDIO HAT HEUTE TREPPEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-29",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Öfter die Treppe statt den Aufzug nehmen.",
+  "evidence": "Alltagstipp, Treppensteigen zählt als Bewegung. Keine Zahlen im Video. Grenze: keine Kalorien- oder Gewichtsaussagen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-09",
+  "title": "REGEN IST KEINE AUSREDE",
+  "hook": "REGEN IST KEIN BEWEGUNGSVERBOT.",
+  "speech": "Im Herbst ist das Wetter selten perfekt. Muss es auch nicht sein. Leg dir eine Regenjacke bereit. Dann fällt der Spaziergang nicht jedes Mal aus, nur weil es draußen nass ist.",
+  "shots": [
+   {
+    "id": "dj-09-s1",
+    "camera": "",
+    "action": "Regenjacke während des Sprechens anziehen.",
+    "speech": "Im Herbst ist das Wetter selten perfekt. Muss es auch nicht sein. Leg dir eine Regenjacke bereit. Dann fällt der Spaziergang nicht jedes Mal aus, nur weil es draußen nass ist.",
+    "onscreen": "REGEN IST KEIN BEWEGUNGSVERBOT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-10-31",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Regenjacke bereitlegen, damit der Spaziergang bei Nässe nicht ausfällt.",
+  "evidence": "Alltagstipp (Hürde senken), kein Beleg nötig. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-10",
+  "title": "NACKEN BEWEGEN",
+  "hook": "DEIN NACKEN IST KEIN BETONKLOTZ.",
+  "speech": "Wenn du lange am Bildschirm sitzt, beweg deinen Kopf zwischendurch langsam nach rechts und links. Dazu ein paar lockere Schulterkreise. Kein Reißen, kein Zerren. Einfach bewegen.",
+  "shots": [
+   {
+    "id": "dj-10-s1",
+    "camera": "",
+    "action": "Bewegungen direkt beim Sprechen zeigen.",
+    "speech": "Wenn du lange am Bildschirm sitzt, beweg deinen Kopf zwischendurch langsam nach rechts und links. Dazu ein paar lockere Schulterkreise. Kein Reißen, kein Zerren. Einfach bewegen.",
+    "onscreen": "DEIN NACKEN IST KEIN BETONKLOTZ.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-03",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei langem Bildschirmsitzen Kopf langsam seitlich drehen und Schultern kreisen.",
+  "evidence": "Plausibel: sanfte Mobilisation. Grenze: nicht als Behandlung von Nackenschmerzen darstellen; „kein Reißen, kein Zerren“ im Text lassen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-11",
+  "title": "HÜFTE AUS DEM SITZEN HOLEN",
+  "hook": "DEINE HÜFTE HAT GENUG GESESSEN.",
+  "speech": "Nach einem langen Tag am Schreibtisch mach ein paar kontrollierte Ausfallschritte. Geh nur so tief, wie es angenehm ist. Deine Hüfte darf sich auch mal anders bewegen als im Sitzen.",
+  "shots": [
+   {
+    "id": "dj-11-s1",
+    "camera": "",
+    "action": "Ausfallschritte beim Sprechen zeigen.",
+    "speech": "Nach einem langen Tag am Schreibtisch mach ein paar kontrollierte Ausfallschritte. Geh nur so tief, wie es angenehm ist. Deine Hüfte darf sich auch mal anders bewegen als im Sitzen.",
+    "onscreen": "DEINE HÜFTE HAT GENUG GESESSEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-05",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach langem Sitzen kontrollierte Ausfallschritte machen, nur so tief wie angenehm.",
+  "evidence": "Plausibel: Bewegung der Hüfte nach dem Sitzen. Grenze: keine Aussagen zu verkürzten Muskeln oder Haltungsschäden; „angenehme Tiefe“ im Text lassen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-12",
+  "title": "WADEN AKTIVIEREN",
+  "hook": "KALTE FÜSSE? BEWEG DEINE WADEN.",
+  "speech": "Stell dich hin und heb langsam die Fersen. Fünfzehnmal hoch und wieder runter. Das aktiviert deine Wadenmuskulatur. Ob deine Füße dadurch wärmer werden, probierst du am besten selbst.",
+  "shots": [
+   {
+    "id": "dj-12-s1",
+    "camera": "",
+    "action": "Wadenheben beim Sprechen.",
+    "speech": "Stell dich hin und heb langsam die Fersen. Fünfzehnmal hoch und wieder runter. Das aktiviert deine Wadenmuskulatur. Ob deine Füße dadurch wärmer werden, probierst du am besten selbst.",
+    "onscreen": "KALTE FÜSSE? BEWEG DEINE WADEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 19,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-07",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Fersen langsam heben (15 Wiederholungen), um die Waden zu aktivieren.",
+  "evidence": "Fakt: Wadenheben beansprucht die Wadenmuskulatur. Der Wärmeeffekt ist bewusst offen formuliert. Grenze: keine Durchblutungs-, Kreislauf- oder Venenaussagen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-13",
+  "title": "BEWEGUNG STATT SCROLLEN",
+  "hook": "NACHMITTAGS MÜDE? HANDY WEG.",
+  "speech": "Bevor du dich durch die nächsten zwanzig Videos scrollst: Steh auf und geh ein paar Minuten zügig. Das kann dich wieder etwas wacher machen. Scrollen kannst du danach immer noch.",
+  "shots": [
+   {
+    "id": "dj-13-s1",
+    "camera": "",
+    "action": "Handy weglegen, aufstehen und sprechen.",
+    "speech": "Bevor du dich durch die nächsten zwanzig Videos scrollst: Steh auf und geh ein paar Minuten zügig. Das kann dich wieder etwas wacher machen. Scrollen kannst du danach immer noch.",
+    "onscreen": "NACHMITTAGS MÜDE? HANDY WEG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-10",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei Nachmittagsmüdigkeit aufstehen und ein paar Minuten zügig gehen, statt zu scrollen.",
+  "evidence": "Plausibel: kurze Gehpausen können kurzfristig wacher machen. Quelle optional nachtragen. Grenze: „kann“, kein Energieversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-14",
+  "title": "MITTAGSSCHLAF",
+  "hook": "MITTAGSSCHLAF? NICHT BIS ZUM ABEND.",
+  "speech": "Wenn du nachts schlecht einschläfst, schau mal auf deinen Mittagsschlaf. Lange oder späte Nickerchen können deinen Nachtschlaf stören. Lieber kurz und nicht zu spät.",
+  "shots": [
+   {
+    "id": "dj-14-s1",
+    "camera": "",
+    "action": "Auf Sofa/Stuhl direkt sprechen.",
+    "speech": "Wenn du nachts schlecht einschläfst, schau mal auf deinen Mittagsschlaf. Lange oder späte Nickerchen können deinen Nachtschlaf stören. Lieber kurz und nicht zu spät.",
+    "onscreen": "MITTAGSSCHLAF? NICHT BIS ZUM ABEND.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-12",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mittagsschlaf kurz halten und nicht zu spät am Tag.",
+  "evidence": "Gängige Schlafempfehlung: lange oder späte Nickerchen können den Nachtschlaf stören. Grenze: kein Rat bei Schlafstörungen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-15",
+  "title": "WOCHENENDE UND SCHLAFRHYTHMUS",
+  "hook": "AM WOCHENENDE BIS MITTAGS SCHLAFEN?",
+  "speech": "Ausschlafen ist schön. Aber wenn deine Schlafzeiten ständig wechseln, kann das deine innere Uhr durcheinanderbringen. Versuch, auch am Wochenende ungefähr zur gleichen Zeit aufzustehen.",
+  "shots": [
+   {
+    "id": "dj-15-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera.",
+    "speech": "Ausschlafen ist schön. Aber wenn deine Schlafzeiten ständig wechseln, kann das deine innere Uhr durcheinanderbringen. Versuch, auch am Wochenende ungefähr zur gleichen Zeit aufzustehen.",
+    "onscreen": "AM WOCHENENDE BIS MITTAGS SCHLAFEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-14",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch am Wochenende ungefähr zur gleichen Zeit aufstehen.",
+  "evidence": "Gut belegt: stark schwankende Schlafzeiten stören den Rhythmus („Social Jetlag“). Grenze: „kann durcheinanderbringen“, keine Gesundheitsfolgen nennen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-16",
+  "title": "WENN-DANN",
+  "hook": "DEIN TRAININGSPLAN SCHEITERT AM ALLTAG?",
+  "speech": "Dann mach es konkret. Nicht: Ich müsste mich mehr bewegen. Sondern: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten. Ein fester Auslöser macht es einfacher.",
+  "shots": [
+   {
+    "id": "dj-16-s1",
+    "camera": "",
+    "action": "Laptop zuklappen, aufstehen, sprechen.",
+    "speech": "Dann mach es konkret. Nicht: Ich müsste mich mehr bewegen. Sondern: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten. Ein fester Auslöser macht es einfacher.",
+    "onscreen": "DEIN TRAININGSPLAN SCHEITERT AM ALLTAG?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 19,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-17",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung an einen festen Auslöser koppeln: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten.",
+  "evidence": "Gut belegt: Wenn-Dann-Pläne (Implementation Intentions) helfen bei der Umsetzung von Vorhaben. Grenze: kein Erfolgsversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-17",
+  "title": "MACH NUR FÜNF",
+  "hook": "KEINE LUST AUF TRAINING?",
+  "speech": "Dann mach fünf Kniebeugen. Nur fünf. Wenn du danach weitermachen willst, gut. Wenn nicht, hast du wenigstens angefangen. Manchmal ist genau das die größte Hürde.",
+  "shots": [
+   {
+    "id": "dj-17-s1",
+    "camera": "",
+    "action": "Fünf Kniebeugen beim Sprechen.",
+    "speech": "Dann mach fünf Kniebeugen. Nur fünf. Wenn du danach weitermachen willst, gut. Wenn nicht, hast du wenigstens angefangen. Manchmal ist genau das die größte Hürde.",
+    "onscreen": "KEINE LUST AUF TRAINING?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-19",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mit fünf Kniebeugen anfangen. Der Start ist die Hürde.",
+  "evidence": "Verhaltenstipp (Einstiegshürde senken), plausibel. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-18",
+  "title": "NICHT AUF MOTIVATION WARTEN",
+  "hook": "DU WARTEST AUF MOTIVATION? VIEL SPASS.",
+  "speech": "Mach Bewegung lieber zur Gewohnheit. Zum Beispiel immer nach dem ersten Kaffee eine Minute bewegen. Nicht erst überlegen, ob du Lust hast. Einfach machen.",
+  "shots": [
+   {
+    "id": "dj-18-s1",
+    "camera": "",
+    "action": "Kaffeetasse abstellen und Bewegung beginnen.",
+    "speech": "Mach Bewegung lieber zur Gewohnheit. Zum Beispiel immer nach dem ersten Kaffee eine Minute bewegen. Nicht erst überlegen, ob du Lust hast. Einfach machen.",
+    "onscreen": "DU WARTEST AUF MOTIVATION? VIEL SPASS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-21",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung an eine feste Gewohnheit koppeln, zum Beispiel eine Minute nach dem ersten Kaffee.",
+  "evidence": "Plausibel: Auslöser-Kopplung, verwandt mit Nr. 16. Grenze: kein Erfolgsversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-19",
+  "title": "BALANCE",
+  "hook": "DEIN GLEICHGEWICHT HAT KEINEN WINTERSCHLAF.",
+  "speech": "Stell dich regelmäßig mal auf ein Bein. Am Anfang ruhig neben einer Wand. Wenn du sicher stehst, versuch es etwas länger. Balance kann man trainieren.",
+  "shots": [
+   {
+    "id": "dj-19-s1",
+    "camera": "",
+    "action": "Einbeinstand beim Sprechen.",
+    "speech": "Stell dich regelmäßig mal auf ein Bein. Am Anfang ruhig neben einer Wand. Wenn du sicher stehst, versuch es etwas länger. Balance kann man trainieren.",
+    "onscreen": "DEIN GLEICHGEWICHT HAT KEINEN WINTERSCHLAF.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-24",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Regelmäßig auf einem Bein stehen, am Anfang neben einer Wand.",
+  "evidence": "Gut belegt: Gleichgewicht ist trainierbar. Im Video die Wand als Halt zeigen. Grenze: keine Aussagen zu Sturzprävention.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-20",
+  "title": "KRAFT GEHÖRT DAZU",
+  "hook": "BEWEGLICHKEIT ALLEIN REICHT NICHT.",
+  "speech": "Dein Körper braucht auch Kraft. Mindestens zweimal pro Woche Muskeltraining ist eine gute Empfehlung. Das geht im Fitnessstudio. Oder mit einfachen Übungen zu Hause.",
+  "shots": [
+   {
+    "id": "dj-20-s1",
+    "camera": "",
+    "action": "Sprechen und einfache Squats zeigen.",
+    "speech": "Dein Körper braucht auch Kraft. Mindestens zweimal pro Woche Muskeltraining ist eine gute Empfehlung. Das geht im Fitnessstudio. Oder mit einfachen Übungen zu Hause.",
+    "onscreen": "BEWEGLICHKEIT ALLEIN REICHT NICHT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-26",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mindestens zweimal pro Woche Muskeltraining.",
+  "evidence": "Gut belegt: entspricht den WHO-Bewegungsempfehlungen (mindestens 2 Tage pro Woche muskelkräftigend). Quelle in Caption oder Notiz, nicht ins Video.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-21",
+  "title": "KEINE SAISONPAUSE",
+  "hook": "DEIN KÖRPER KENNT KEINE SAISONPAUSE.",
+  "speech": "Nur weil es draußen kalt und dunkel ist, muss deine Bewegung nicht ausfallen. Lieber regelmäßig kleine Einheiten als gar nichts. Körperpflege hat schließlich auch keine Saison.",
+  "shots": [
+   {
+    "id": "dj-21-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera, gern leicht in Bewegung.",
+    "speech": "Nur weil es draußen kalt und dunkel ist, muss deine Bewegung nicht ausfallen. Lieber regelmäßig kleine Einheiten als gar nichts. Körperpflege hat schließlich auch keine Saison.",
+    "onscreen": "DEIN KÖRPER KENNT KEINE SAISONPAUSE.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "2026-11-28",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch bei Kälte und Dunkelheit in Bewegung bleiben, lieber regelmäßig kleine Einheiten.",
+  "evidence": "Haltung der Marke, keine Studienaussage. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-22",
+  "title": "SCHICHTEN STATT DICKE JACKE",
+  "hook": "BEIM SPORT IM WINTER FALSCH ANGEZOGEN?",
+  "speech": "Zieh lieber mehrere dünne Schichten an als eine richtig dicke. Dann kannst du unterwegs etwas ausziehen, wenn dir warm wird. Ziemlich praktisch.",
+  "shots": [
+   {
+    "id": "dj-22-s1",
+    "camera": "",
+    "action": "Mit Jacke/Pullover sprechen.",
+    "speech": "Zieh lieber mehrere dünne Schichten an als eine richtig dicke. Dann kannst du unterwegs etwas ausziehen, wenn dir warm wird. Ziemlich praktisch.",
+    "onscreen": "BEIM SPORT IM WINTER FALSCH ANGEZOGEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 14,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mehrere dünne Schichten statt einer dicken Jacke anziehen.",
+  "evidence": "Alltagswissen (Zwiebelprinzip), kein Beleg nötig. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-23",
+  "title": "SCHWITZEN BEI KÄLTE",
+  "hook": "BEI KÄLTE SCHWITZEN?",
+  "speech": "Wenn du draußen trainierst, zieh rechtzeitig eine Schicht aus. Stark verschwitzte Kleidung kann dich später schneller auskühlen lassen. Also nicht erst reagieren, wenn du komplett nass bist.",
+  "shots": [
+   {
+    "id": "dj-23-s1",
+    "camera": "",
+    "action": "Jacke öffnen/ausziehen und sprechen.",
+    "speech": "Wenn du draußen trainierst, zieh rechtzeitig eine Schicht aus. Stark verschwitzte Kleidung kann dich später schneller auskühlen lassen. Also nicht erst reagieren, wenn du komplett nass bist.",
+    "onscreen": "BEI KÄLTE SCHWITZEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Rechtzeitig eine Schicht ausziehen, bevor die Kleidung nass geschwitzt ist.",
+  "evidence": "Plausibel: nasse Kleidung kühlt schneller aus. Grenze: keine Unterkühlungs- oder Gesundheitsaussagen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-24",
+  "title": "WETTERFENSTER NUTZEN",
+  "hook": "DEINE WETTER-APP KANN MEHR ALS REGEN ANZEIGEN.",
+  "speech": "Schau morgens, wann das Wetter heute am besten ist. Und leg deinen Spaziergang genau dorthin. Dann musst du nicht ausgerechnet beim nächsten Regenschauer los.",
+  "shots": [
+   {
+    "id": "dj-24-s1",
+    "camera": "",
+    "action": "Handy/Wetter-App in der Hand.",
+    "speech": "Schau morgens, wann das Wetter heute am besten ist. Und leg deinen Spaziergang genau dorthin. Dann musst du nicht ausgerechnet beim nächsten Regenschauer los.",
+    "onscreen": "DEINE WETTER-APP KANN MEHR ALS REGEN ANZEIGEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Per Wetter-App das beste Wetterfenster für den Spaziergang nutzen.",
+  "evidence": "Alltagstipp, kein Beleg nötig. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-25",
+  "title": "INDOOR-PLAN",
+  "hook": "DRAUSSEN WELTUNTERGANG?",
+  "speech": "Dann beweg dich eben drinnen. Eine Minute Kniebeugen, eine Minute Rotation, eine Minute Arme nach oben strecken. Drei Minuten. Kein Wetterbericht notwendig.",
+  "shots": [
+   {
+    "id": "dj-25-s1",
+    "camera": "",
+    "action": "Drei Bewegungen während des Sprechens zeigen.",
+    "speech": "Dann beweg dich eben drinnen. Eine Minute Kniebeugen, eine Minute Rotation, eine Minute Arme nach oben strecken. Drei Minuten. Kein Wetterbericht notwendig.",
+    "onscreen": "DRAUSSEN WELTUNTERGANG?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei schlechtem Wetter drei Minuten drinnen bewegen: Kniebeugen, Rotation, Arme nach oben strecken.",
+  "evidence": "Beispielroutine, plausibel, kein Studienwert. Grenze: keine.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-26",
+  "title": "BEWEGUNG AUFTEILEN",
+  "hook": "DU BRAUCHST KEINE 30 MINUTEN AM STÜCK.",
+  "speech": "Zehn Minuten morgens, zehn mittags, zehn abends. Du kannst Bewegung über den Tag verteilen. Es muss nicht immer ein großes Workout sein.",
+  "shots": [
+   {
+    "id": "dj-26-s1",
+    "camera": "",
+    "action": "Beim Gehen direkt in die Kamera sprechen.",
+    "speech": "Zehn Minuten morgens, zehn mittags, zehn abends. Du kannst Bewegung über den Tag verteilen. Es muss nicht immer ein großes Workout sein.",
+    "onscreen": "DU BRAUCHST KEINE 30 MINUTEN AM STÜCK.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 14,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung über den Tag verteilen, zum Beispiel dreimal zehn Minuten statt 30 am Stück.",
+  "evidence": "Gut belegt: auch kurze Einheiten zählen zur Gesamtbewegung (WHO). Grenze: keine Aussage, dass Verteilen gleichwertig ist.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-27",
+  "title": "BEWEGLICHKEIT DURCH KRAFT",
+  "hook": "DEHNEN IST NICHT DIE EINZIGE LÖSUNG.",
+  "speech": "Du willst beweglicher werden? Auch Krafttraining über einen großen, kontrollierten Bewegungsumfang kann dabei helfen. Beweglichkeit kann man nicht nur dehnen. Sondern auch trainieren.",
+  "shots": [
+   {
+    "id": "dj-27-s1",
+    "camera": "",
+    "action": "Kontrollierten Squat im eigenen Bewegungsumfang zeigen.",
+    "speech": "Du willst beweglicher werden? Auch Krafttraining über einen großen, kontrollierten Bewegungsumfang kann dabei helfen. Beweglichkeit kann man nicht nur dehnen. Sondern auch trainieren.",
+    "onscreen": "DEHNEN IST NICHT DIE EINZIGE LÖSUNG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Beweglichkeit auch durch Krafttraining über einen großen, kontrollierten Bewegungsumfang trainieren.",
+  "evidence": "Mittel bis gut belegt: Krafttraining über große Bewegungsamplitude kann die Beweglichkeit verbessern. Quelle vor Dreh nachtragen. Grenze: „kann helfen“, nicht „besser als Dehnen“.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ },
+ {
+  "id": "dj-28",
+  "title": "TERMIN STATT VORSATZ",
+  "hook": "DER BESTE TRAININGSTIPP IST ZIEMLICH LANGWEILIG.",
+  "speech": "Trag deine Bewegung in den Kalender ein. Ein konkreter Termin ist oft hilfreicher als der Vorsatz, irgendwann mal wieder Sport zu machen. Irgendwann ist nämlich ziemlich unzuverlässig.",
+  "shots": [
+   {
+    "id": "dj-28-s1",
+    "camera": "",
+    "action": "Handy/Kalender in der Hand.",
+    "speech": "Trag deine Bewegung in den Kalender ein. Ein konkreter Termin ist oft hilfreicher als der Vorsatz, irgendwann mal wieder Sport zu machen. Irgendwann ist nämlich ziemlich unzuverlässig.",
+    "onscreen": "DER BESTE TRAININGSTIPP IST ZIEMLICH LANGWEILIG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 20,
+    "note": "Ein durchgehender Shot, Originalton."
+   }
+  ],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung als festen Termin in den Kalender eintragen.",
+  "evidence": "Gut belegt: konkrete Planung erhöht die Umsetzung (Nähe zu Nr. 16). Grenze: kein Erfolgsversprechen.",
+  "platforms": [
+   "Instagram",
+   "TikTok",
+   "Facebook",
+   "YouTube"
+  ]
+ }
+];
+// Korrekturen an bereits ausgelieferten Seed-Werten (wie *_TEXT_FIXES): je Version und Piece {Feld: [alter Seed-Wert, neuer Wert]}.
+// Ein Feld wird nur geändert, wenn es noch EXAKT dem alten Seed-Wert entspricht. Nutzeränderungen bleiben immer erhalten.
+// V2: tip + evidence ergänzt (vorher leer), Plattformen auf 4 erweitert (vorher Instagram + TikTok).
+const DARK_SERIES_FIXES = [{ v: 2, fixes: {"dj-01": {"tip": ["", "Nach dem Essen zehn Minuten gehen statt direkt aufs Sofa."], "evidence": ["", "Plausibel bis gut belegt: kurze Spaziergänge nach Mahlzeiten dämpfen Blutzuckerspitzen. Quelle vor Dreh nachtragen. Grenze: nur „kann helfen“, nichts zu Diabetes oder Gewicht."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-02": {"tip": ["", "Nach etwa einer Stunde Sitzen aufstehen und 2–5 Minuten gehen."], "evidence": ["", "Gut belegt: Bewegungspausen unterbrechen langes Sitzen. Die 2–5 Minuten sind eine praktische Richtgröße, kein Studienwert. Grenze: kein Risiko- oder Gesundheitsversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-03": {"tip": ["", "Bei Kälte erst locker bewegen, dann das Tempo steigern."], "evidence": ["", "Standardempfehlung (Aufwärmen), plausibel. Grenze: keine Verletzungs- oder Herz-Kreislauf-Aussagen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-04": {"tip": ["", "Tagsüber möglichst viel Tageslicht nutzen, wenn möglich am Fenster arbeiten."], "evidence": ["", "Gut belegt: Tageslicht ist ein zentraler Zeitgeber der inneren Uhr; draußen und am Fenster ist es deutlich heller als im Raum. Grenze: nichts zu Stimmung oder Winterdepression."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-05": {"tip": ["", "Abends vor dem Schlafen das Licht dimmen."], "evidence": ["", "Gut bis mittel belegt: helles Licht am späten Abend kann die innere Uhr beeinflussen; individuell verschieden. Grenze: „kann“, kein Schlafversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-06": {"tip": ["", "Den gewohnten Schlafrhythmus rund um die Zeitumstellung möglichst beibehalten."], "evidence": ["", "Plausibel: regelmäßige Schlafzeiten stützen die innere Uhr. Fakt: Uhren gehen am 25.10.2026 zurück, „morgen“ passt zum Post am 24.10. Grenze: keine Aussagen zu Gesundheitsfolgen der Umstellung."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-07": {"tip": ["", "Auch eine Minute Bewegung ist besser als gar keine."], "evidence": ["", "Plausibel, deckt sich mit den WHO-Leitlinien („jede Bewegung zählt“). Grenze: nicht behaupten, eine Minute ersetze Training."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-08": {"tip": ["", "Öfter die Treppe statt den Aufzug nehmen."], "evidence": ["", "Alltagstipp, Treppensteigen zählt als Bewegung. Keine Zahlen im Video. Grenze: keine Kalorien- oder Gewichtsaussagen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-09": {"tip": ["", "Regenjacke bereitlegen, damit der Spaziergang bei Nässe nicht ausfällt."], "evidence": ["", "Alltagstipp (Hürde senken), kein Beleg nötig. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-10": {"tip": ["", "Bei langem Bildschirmsitzen Kopf langsam seitlich drehen und Schultern kreisen."], "evidence": ["", "Plausibel: sanfte Mobilisation. Grenze: nicht als Behandlung von Nackenschmerzen darstellen; „kein Reißen, kein Zerren“ im Text lassen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-11": {"tip": ["", "Nach langem Sitzen kontrollierte Ausfallschritte machen, nur so tief wie angenehm."], "evidence": ["", "Plausibel: Bewegung der Hüfte nach dem Sitzen. Grenze: keine Aussagen zu verkürzten Muskeln oder Haltungsschäden; „angenehme Tiefe“ im Text lassen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-12": {"tip": ["", "Fersen langsam heben (15 Wiederholungen), um die Waden zu aktivieren."], "evidence": ["", "Fakt: Wadenheben beansprucht die Wadenmuskulatur. Der Wärmeeffekt ist bewusst offen formuliert. Grenze: keine Durchblutungs-, Kreislauf- oder Venenaussagen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-13": {"tip": ["", "Bei Nachmittagsmüdigkeit aufstehen und ein paar Minuten zügig gehen, statt zu scrollen."], "evidence": ["", "Plausibel: kurze Gehpausen können kurzfristig wacher machen. Quelle optional nachtragen. Grenze: „kann“, kein Energieversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-14": {"tip": ["", "Mittagsschlaf kurz halten und nicht zu spät am Tag."], "evidence": ["", "Gängige Schlafempfehlung: lange oder späte Nickerchen können den Nachtschlaf stören. Grenze: kein Rat bei Schlafstörungen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-15": {"tip": ["", "Auch am Wochenende ungefähr zur gleichen Zeit aufstehen."], "evidence": ["", "Gut belegt: stark schwankende Schlafzeiten stören den Rhythmus („Social Jetlag“). Grenze: „kann durcheinanderbringen“, keine Gesundheitsfolgen nennen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-16": {"tip": ["", "Bewegung an einen festen Auslöser koppeln: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten."], "evidence": ["", "Gut belegt: Wenn-Dann-Pläne (Implementation Intentions) helfen bei der Umsetzung von Vorhaben. Grenze: kein Erfolgsversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-17": {"tip": ["", "Mit fünf Kniebeugen anfangen. Der Start ist die Hürde."], "evidence": ["", "Verhaltenstipp (Einstiegshürde senken), plausibel. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-18": {"tip": ["", "Bewegung an eine feste Gewohnheit koppeln, zum Beispiel eine Minute nach dem ersten Kaffee."], "evidence": ["", "Plausibel: Auslöser-Kopplung, verwandt mit Nr. 16. Grenze: kein Erfolgsversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-19": {"tip": ["", "Regelmäßig auf einem Bein stehen, am Anfang neben einer Wand."], "evidence": ["", "Gut belegt: Gleichgewicht ist trainierbar. Im Video die Wand als Halt zeigen. Grenze: keine Aussagen zu Sturzprävention."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-20": {"tip": ["", "Mindestens zweimal pro Woche Muskeltraining."], "evidence": ["", "Gut belegt: entspricht den WHO-Bewegungsempfehlungen (mindestens 2 Tage pro Woche muskelkräftigend). Quelle in Caption oder Notiz, nicht ins Video."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-21": {"tip": ["", "Auch bei Kälte und Dunkelheit in Bewegung bleiben, lieber regelmäßig kleine Einheiten."], "evidence": ["", "Haltung der Marke, keine Studienaussage. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-22": {"tip": ["", "Mehrere dünne Schichten statt einer dicken Jacke anziehen."], "evidence": ["", "Alltagswissen (Zwiebelprinzip), kein Beleg nötig. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-23": {"tip": ["", "Rechtzeitig eine Schicht ausziehen, bevor die Kleidung nass geschwitzt ist."], "evidence": ["", "Plausibel: nasse Kleidung kühlt schneller aus. Grenze: keine Unterkühlungs- oder Gesundheitsaussagen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-24": {"tip": ["", "Per Wetter-App das beste Wetterfenster für den Spaziergang nutzen."], "evidence": ["", "Alltagstipp, kein Beleg nötig. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-25": {"tip": ["", "Bei schlechtem Wetter drei Minuten drinnen bewegen: Kniebeugen, Rotation, Arme nach oben strecken."], "evidence": ["", "Beispielroutine, plausibel, kein Studienwert. Grenze: keine."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-26": {"tip": ["", "Bewegung über den Tag verteilen, zum Beispiel dreimal zehn Minuten statt 30 am Stück."], "evidence": ["", "Gut belegt: auch kurze Einheiten zählen zur Gesamtbewegung (WHO). Grenze: keine Aussage, dass Verteilen gleichwertig ist."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-27": {"tip": ["", "Beweglichkeit auch durch Krafttraining über einen großen, kontrollierten Bewegungsumfang trainieren."], "evidence": ["", "Mittel bis gut belegt: Krafttraining über große Bewegungsamplitude kann die Beweglichkeit verbessern. Quelle vor Dreh nachtragen. Grenze: „kann helfen“, nicht „besser als Dehnen“."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}, "dj-28": {"tip": ["", "Bewegung als festen Termin in den Kalender eintragen."], "evidence": ["", "Gut belegt: konkrete Planung erhöht die Umsetzung (Nähe zu Nr. 16). Grenze: kein Erfolgsversprechen."], "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]}} }];
+const applyDarkFixes = (c, prev) => { let n = c; DARK_SERIES_FIXES.filter(f => f.v > prev).forEach(f => { const fx = f.fixes[c.id]; if (!fx) return; Object.entries(fx).forEach(([k, [o, nw]]) => { if (JSON.stringify(n[k]) === JSON.stringify(o)) n = { ...n, [k]: nw }; }); }); return n; };
+const darkSeriesSeed = () => DARK_SERIES_SEED.map(({ seedSince, ...p }) => normPiece({ world: 'JOGA', fn: 'DO', format: 'Freeshot', status: 'Idee', prodType: 'Neudreh', platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'], publishDate: '', ...p, series: SERIES_DARK, created: '2026-10-08', updated: '2026-10-08' }));
+
+const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({ ...p, created: '2026-10-08', updated: '2026-10-08' }));
 // Die Notiz „vor Beginn von W6 (02.11.)“ stammt aus der Zählung 28.09.–15.11. und ist mit dem Plan 12.10.–29.11. falsch. Ersetzt wird nur der exakte alte Seed-Text.
 const V22B_TEXT_FIXES = {"v22-oli-muskeln": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-thread": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-nicht-optik": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-squat-taps": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anleitung": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."], "v22-joga-dolphin": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-stretch-vor-sport": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anfaenger2": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-video-urlaub": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-7wochen": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."]};
 
@@ -3471,6 +4615,31 @@ function migrateState(s) {
     out.content = [...out.content, ...productionSeedV22b().filter(c => !have.has(c.id))];
     out.content = out.content.map(c => { const fx = V22B_TEXT_FIXES[c.id]; return fx && c.scriptText === fx[0] ? { ...c, scriptText: fx[1] } : c; });
     out.sevenWeekPlanFixV22b = true;
+  }
+  // V2.3: Serie „Herbst-Tipp“ (Test-Piece 08.10. + 6 Ideen, alle ohne Datum, außerhalb des Plans). Eigener Marker, nur fehlende IDs.
+  if (!out.autumnSeriesV23) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV23().filter(c => !have.has(c.id))];
+    out.autumnSeriesV23 = true;
+  }
+  // V2.3b (einmalig): Pilot als Serie kennzeichnen; die 4 überholten Platzhalter nur löschen, wenn sie noch unverändert sind.
+  // Alle anderen Pieces (inkl. der 49 Plan-Pieces) bleiben unberührt.
+  if (!out.autumnSeriesV23b) {
+    out.content = out.content.filter(c => { const o = V23_OBSOLETE.find(x => x.id === c.id); return !(o && sameAsSeed(c, o)); });
+    out.content = out.content.map(c => c.id === 'v23-herbst-4tipps' && !c.series ? { ...c, series: SERIES_DARK } : c);
+    out.autumnSeriesV23b = true;
+  }
+  // Serien-Pool: erst aktiv, sobald DARK_SERIES_SEED gefüllt ist. Versionsgebunden und idempotent (nur fehlende IDs, nichts überschrieben).
+  // Neue Seed-Pieces kommen nur einmal je ID dazu (darkSeriesSeededIds): ein von dir gelöschtes dj-Piece taucht bei Versionssprüngen nicht wieder auf.
+  // Vorhandene Pieces werden nie pauschal ersetzt; Seed-Korrekturen laufen über DARK_SERIES_FIXES (nur bei unverändertem Altwert).
+  if (DARK_SERIES_SEED.length && out.darkSeriesSeedVer !== DARK_SERIES_SEED_VERSION) {
+    const prev = out.darkSeriesSeedVer || 0;
+    const have = new Set(out.content.map(c => c.id));
+    const seeded = new Set(out.darkSeriesSeededIds || (prev >= 1 ? DARK_SERIES_SEED.filter(p => (p.seedSince || 1) <= prev).map(p => p.id) : []));
+    const add = darkSeriesSeed().filter(c => !seeded.has(c.id) && !have.has(c.id));
+    out.content = [...out.content, ...add].map(c => /^dj-\d+$/.test(c.id) ? applyDarkFixes(c, prev) : c);
+    out.darkSeriesSeededIds = [...new Set([...seeded, ...add.map(c => c.id)])];
+    out.darkSeriesSeedVer = DARK_SERIES_SEED_VERSION;
   }
   return out;
 }
@@ -3625,6 +4794,11 @@ function ContentDetail({ id, state, update, onClose, gotoContent }) {
           <option value="">Hook aus Bibliothek wählen …</option>
           {hookOptions.map(h => <option key={h.v} value={h.v}>{h.l}</option>)}
         </select>}
+        <div style={lblStyle}>Serie</div>{choice(['–', SERIES_DARK], p.series || '–', v => set({ series: v === '–' ? '' : v }))}
+        {p.series && <>
+          <Field label="Tipp / Kernaussage"><input value={p.tip || ''} onChange={e => set({ tip: e.target.value })} placeholder="Der eine Tipp dieses Videos in einem Satz" /></Field>
+          <Field label="Redaktionelle Sicherheit / Quelle (intern)"><textarea rows={2} value={p.evidence || ''} onChange={e => set({ evidence: e.target.value })} placeholder="Wie gut belegt? Quelle? Formulierungsgrenze (kein Gesundheitsversprechen)" /></Field>
+        </>}
         <Field label="Ziel / Hypothese des Posts"><textarea rows={3} value={p.goal} onChange={e => set({ goal: e.target.value })} placeholder="Was soll dieser Post zeigen oder testen?" /></Field>
       </>)}
 
@@ -3735,6 +4909,8 @@ const readinessLabel = (p) => { if (p.status === 'Gepostet') return 'veröffentl
 
 const PLAN_START = '2026-10-12', PLAN_END = '2026-11-29'; // 7 Wochen Mo–So = 49 Tage, keine Baseline-Woche
 const PLAN_WEEKS = Array.from({ length: 7 }, (_, i) => ({ n: i + 1, start: addDays(PLAN_START, 7 * i), end: addDays(PLAN_START, 7 * i + 6) }));
+// Zusätzliche Serien-Slots: Di/Do/Sa je Woche = 21 Termine. Rein informativ (Zähler in PRODUKTION); es wird kein Datum automatisch vergeben.
+const SERIES_SLOTS = PLAN_WEEKS.flatMap(w => [1, 3, 5].map(o => addDays(w.start, o)));
 const WEEK_LABEL = ['Testphase', 'Testphase', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Auswertung'];
 const weekIdxOf = (iso) => { const d = dayDiff(iso, PLAN_START); return d < 0 ? 0 : d > 48 ? 6 : Math.floor(d / 7); };
 const STAGES = [['ideen', 'IDEEN', 'Idee'], ['skripte', 'SKRIPTE', 'Skript fertig'], ['drehen', 'DREHEN', 'Drehbereit'], ['schneiden', 'SCHNEIDEN', 'Gedreht'], ['bereit', 'BEREIT', 'Geschnitten']];
@@ -3816,7 +4992,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
       <header className="head"><h1>Heute</h1><span className="meta" data-today>{wdName(today)} {fmtD(today)}{today.slice(0, 4)}</span></header>
       {sec('A', 'Heute posten', A.length ? A.length + ' Piece' + (A.length > 1 ? 's' : '') : null, A.length === 0 ? <div className="meta" data-empty>Heute ist nichts zum Posten geplant.</div> : A.map(p => (
         <div key={p.id} data-card className="card slim" style={{ marginTop: 8 }}>
-          <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.prodType} · {p.status}</span></div>
+          <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.prodType} · {p.status}</span>{p.series && <span className="meta" data-series-badge>· Serie {p.series}</span>}</div>
           <div className="hook" style={{ marginTop: 4 }}>{p.title}</div>
           <div className="meta">{p.platforms.join(' · ') || 'keine Plattform gewählt'}</div>
           <div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(p.id)}>Öffnen</Btn>{p.status !== 'Gepostet' ? <Btn small kind="primary" onClick={() => markPosted(p)}>Als gepostet markieren</Btn> : <span className="meta">✓ gepostet</span>}</div>
@@ -3844,7 +5020,53 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
   );
 }
 
-/* ---- 7-WOCHEN-PLAN: 28.09.–15.11.2026, ein Hauptslot pro Tag; öffnet immer das Original ---- */
+/* ---- Serien-Sammlung: pro Serie/Format-Gruppe alle Videos gesammelt, nicht nach Tag sortiert ---- */
+const seriesNo = (p) => { const m = /^dj-(\d+)$/.exec(p.id); return p.id === 'v23-herbst-4tipps' ? 0 : m ? parseInt(m[1], 10) : 999; };
+// Anzeige-Gruppierung (nur Darstellung, die Pieces bleiben unverändert): uneinheitliche Formatnamen werden zu einer Reihe zusammengefasst.
+const REIHE_ALIAS = [
+  [/^typisch mann/i, 'Typisch Mann'], [/^oli geht/i, 'Oli Geht'], [/^oli klärt/i, 'Oli Klärt'], [/^oli bewegt hamburg/i, 'Oli Bewegt Hamburg'],
+  [/^routine|^challenge\/routine|^1 minute joga/i, 'Routine / 1 Minute JOGA'], [/^wow|^challenge/i, 'WOW / Challenge'],
+  [/^persönlichkeit|^erklärung/i, 'Haltung & Erklärung'],
+];
+const reiheOf = (p) => { if (p.series) return p.series; const f = (p.format || '').trim(); if (!f) return '(ohne Format)'; const a = REIHE_ALIAS.find(([re]) => re.test(f)); return a ? a[1] : f; };
+function SeriesCollection({ state, gotoContent, ui, setUi }) {
+  const groups = {};
+  state.content.forEach(p => { (groups[reiheOf(p)] = groups[reiheOf(p)] || []).push(p); });
+  const isSeries = (n) => state.content.some(p => p.series === n);
+  const names = Object.keys(groups).sort((a, b) => (isSeries(b) - isSeries(a)) || groups[b].length - groups[a].length || a.localeCompare(b));
+  if (names.length === 0) return <p className="empty" data-empty>Noch keine Inhalte.</p>;
+  const cur = (names.includes(ui.reihe) || ui.reihe === '__alle') ? ui.reihe : names[0]; // Standard: erste Serie
+  const shown = cur === '__alle' ? names : [cur];
+  const idx = names.indexOf(cur); // bei „Alle“ = -1 → Pfeile ohne Wirkung
+  return <div data-series-collection style={{ marginTop: 8 }}>
+    <div className="row" style={{ margin: 0, gap: 6 }}>
+      <Btn small onClick={() => idx > 0 && setUi({ reihe: names[idx - 1] })}>‹</Btn>
+      <select data-reihe-select value={cur} onChange={e => setUi({ reihe: e.target.value })} style={{ flex: 1, minWidth: 0 }}>
+        {names.map(n => <option key={n} value={n}>{isSeries(n) ? '★ ' : ''}{n} ({groups[n].length})</option>)}
+        <option value="__alle">Alle Serien untereinander</option>
+      </select>
+      <Btn small onClick={() => idx >= 0 && idx < names.length - 1 && setUi({ reihe: names[idx + 1] })}>›</Btn>
+    </div>
+    <div className="hint" style={{ marginTop: 4 }}>Eine Serie wählen. ★ = Serie mit fester Reihenfolge, sonst nach Datum. Ähnliche Formate sind zusammengefasst.</div>
+    {shown.map(n => {
+    const ser = isSeries(n);
+    const ps = groups[n].slice().sort((a, b) => ser ? (seriesNo(a) - seriesNo(b) || a.title.localeCompare(b.title)) : ((a.publishDate || '9999') < (b.publishDate || '9999') ? -1 : (a.publishDate || '9999') > (b.publishDate || '9999') ? 1 : a.title.localeCompare(b.title)));
+    const dated = ps.filter(p => p.publishDate).length, posted = ps.filter(p => p.status === 'Gepostet').length;
+    return (
+      <div key={n} className="sheet" data-series={n} style={WRAP}>
+        <h2 style={{ marginBottom: 2 }}>{n}</h2>
+        <div className="hint" style={{ marginTop: 0 }}>{ps.length} Videos · {C_STATUS.map(st => [st, ps.filter(p => p.status === st).length]).filter(x => x[1]).map(x => x[1] + ' ' + x[0]).join(' · ')} · {dated} terminiert · {ps.length - dated} ohne Datum</div>
+        {ps.map(p => { const no = seriesNo(p); return (
+          <div key={p.id} data-series-item data-id={p.id} className="card slim" onClick={() => gotoContent(p.id)} style={{ marginTop: 6, ...WRAP }}>
+            <div className="row between" style={{ margin: 0 }}><span className="meta"><b>{!ser ? p.world : no === 0 ? 'Pilot' : no === 999 ? '·' : '#' + String(no).padStart(2, '0')}</b></span><span className="meta">{p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : (ser && no === 0 ? '08.10. gedreht' : ser ? 'Reserve · ohne Datum' : 'ohne Datum')}</span></div>
+            <div className="hook" style={{ marginTop: 4 }}>{p.title || '(ohne Titel)'}</div>
+            <div className="meta">{p.status} · {readinessLabel(p)}</div>
+          </div>); })}
+      </div>);
+  })}</div>;
+}
+
+/* ---- 7-WOCHEN-PLAN: 12.10.–29.11.2026, ein Hauptslot pro Tag plus optionale Serien-Zusatzposts (mehrere Pieces pro Tag möglich); öffnet immer das Original ---- */
 function PlanView({ state, gotoContent, ui, setUi }) {
   const today = todayISO();
   const wk = ui.planWeek, view = ui.planView, W = PLAN_WEEKS[wk];
@@ -3856,7 +5078,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
   const allPre = preCount(state.content);
   const Slot = ({ p }) => (
     <div data-slot data-id={p.id} className="card slim" onClick={() => gotoContent(p.id)} style={{ marginTop: 6, ...WRAP }}>
-      <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.format}</span></div>
+      <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.format}</span>{p.series && <span className="meta" data-series-badge>· Serie</span>}</div>
       <div className="hook" style={{ marginTop: 4 }}>{p.title}</div>
       <div className="meta">{p.prodType} · {p.platforms.join(', ') || '–'}</div>
       <div className="row between" style={{ margin: '2px 0 0' }}><span className="meta" data-readiness>{p.status} · {readinessLabel(p)}</span>{p.preproductionRequired && <PreBadge s={preState(p)} />}</div>
@@ -3867,7 +5089,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
       <header className="head"><h1>7-Wochen-Plan</h1></header>
       <div className="hint" data-plan-count style={{ marginTop: -4 }}>{plannedDays} von 49 Tagen belegt{allPre.n > 0 ? ' · Vorproduktion ' + allPre.done + ' von ' + allPre.n + ' geschnitten' : ''}</div>
       <div className="row wrap" data-week-tabs>{PLAN_WEEKS.map((w, i) => <Tag key={i} on={wk === i} onClick={() => setUi({ planWeek: i })}>W{w.n}{today >= w.start && today <= w.end ? ' •' : ''}</Tag>)}</div>
-      <div className="row wrap"><Tag on={view === 'wochen'} onClick={() => setUi({ planView: 'wochen' })}>Wochen</Tag><Tag on={view === 'kalender'} onClick={() => setUi({ planView: 'kalender' })}>Kalender</Tag></div>
+      <div className="row wrap"><Tag on={view === 'wochen'} onClick={() => setUi({ planView: 'wochen' })}>Wochen</Tag><Tag on={view === 'kalender'} onClick={() => setUi({ planView: 'kalender' })}>Kalender</Tag><Tag on={view === 'serien'} onClick={() => setUi({ planView: 'serien' })}>Serien</Tag></div>
       {view === 'wochen' && <>
         <div className="row between" data-week-head><h2 style={{ margin: 0 }}>W{W.n} · {fmtD(W.start)}–{fmtD(W.end)}</h2>{weekPre.n > 0 && <span data-week-pre style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span className="meta">{weekPre.done}/{weekPre.n}</span><PreBadge s={weekPre.n > 0 && weekPre.done === weekPre.n ? 'VORPRODUZIERT' : 'VORPRODUZIEREN'} /></span>}</div>
         <div className="hint" style={{ marginTop: 2 }}>{WEEK_LABEL[wk]}{weekPre.n > 0 ? ' · alle Pieces dieser Woche vorab drehen und schneiden. VORPRODUZIERT erst ab „Geschnitten“, keine spontane Aufnahme am Veröffentlichungstag' : ''}</div>
@@ -3878,6 +5100,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
             {ps.length === 0 && <div className="meta" data-empty style={{ marginTop: 6 }}>Kein Slot geplant</div>}
           </div>); })}
       </>}
+      {view === 'serien' && <SeriesCollection state={state} gotoContent={gotoContent} ui={ui} setUi={setUi} />}
       {view === 'kalender' && (
         <div data-calendar style={{ marginTop: 8 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '30px repeat(7, 1fr)', gap: 4, marginBottom: 4 }}><span />{['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(x => <span key={x} className="meta" style={{ textAlign: 'center' }}>{x}</span>)}</div>
@@ -3887,10 +5110,10 @@ function PlanView({ state, gotoContent, ui, setUi }) {
               {days(w).map(d => { const ps = piecesOn(d); return (
                 <div key={d} data-cal-day={d} style={{ background: 'var(--panel)', border: '1px solid ' + (d === today ? 'var(--accent)' : 'var(--line)'), borderRadius: 6, minHeight: 46, padding: 3 }}>
                   <div style={{ fontSize: 10, color: 'var(--muted)' }}>{d.slice(8)}</div>
-                  {ps.map(p => <div key={p.id} data-cal-piece onClick={() => gotoContent(p.id)} style={{ fontSize: 10, fontWeight: 800, textAlign: 'center', borderRadius: 3, marginTop: 2, padding: '1px 0', cursor: 'pointer', background: p.world === 'OLI' ? 'var(--accent)' : 'var(--panel2)', color: p.world === 'OLI' ? 'var(--accent-ink)' : 'var(--text)', outline: isDone(p) ? '2px solid ' + AMPEL_COL.green : 'none' }}>{p.world === 'OLI' ? 'O' : 'J'}</div>)}
+                  {ps.map(p => <div key={p.id} data-cal-piece onClick={() => gotoContent(p.id)} style={{ fontSize: 10, fontWeight: 800, textAlign: 'center', borderRadius: 3, marginTop: 2, padding: '1px 0', cursor: 'pointer', background: p.world === 'OLI' ? 'var(--accent)' : 'var(--panel2)', color: p.world === 'OLI' ? 'var(--accent-ink)' : 'var(--text)', outline: isDone(p) ? '2px solid ' + AMPEL_COL.green : 'none' }}>{p.series ? 'S' : p.world === 'OLI' ? 'O' : 'J'}</div>)}
                 </div>); })}
             </div>))}
-          <div className="hint">J = JOGA · O = OLI · grüner Rahmen = geschnitten/gepostet · n/7 unter der Woche = bereits vorproduziert (mind. „Geschnitten“). Tippen öffnet das Piece.</div>
+          <div className="hint">J = JOGA · O = OLI · S = Serie (zusätzlicher Post) · grüner Rahmen = geschnitten/gepostet · n/7 unter der Woche = bereits vorproduziert (mind. „Geschnitten“). Tippen öffnet das Piece.</div>
         </div>)}
     </section>
   );
@@ -3898,7 +5121,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
 
 /* ---- PRODUKTION: Übersicht (Liste | Board) · Ideen · Skripte · Drehen · Schneiden · Bereit ---- */
 function applyPf(list, pf) {
-  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' || p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status));
+  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' || p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
 }
 function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
   const fileRef = useRef();
@@ -3941,6 +5164,8 @@ function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
       </div>
       <div className="row wrap" data-world-filter>{['Alle', ...WORLDS].map(w => <Tag key={w} on={pf.world === w} onClick={() => setPf({ world: w })}>{w}</Tag>)}</div>
       <div className="row wrap">{['Alle', ...TYPES].map(t => <Tag key={t} on={pf.fn === t} onClick={() => setPf({ fn: t })}>{t}</Tag>)}</div>
+      <div className="row wrap" data-series-filter><span className="meta">Serie</span>{['Alle', SERIES_DARK].map(x => <Tag key={x} on={(pf.series || 'Alle') === x} onClick={() => setPf({ series: x })}>{x}</Tag>)}</div>
+      {pf.series === SERIES_DARK && (() => { const sp = state.content.filter(c => c.series === SERIES_DARK); const pool = sp.filter(c => c.id !== 'v23-herbst-4tipps'); const slot = pool.filter(c => SERIES_SLOTS.includes(c.publishDate)).length; return <div className="hint" data-series-count>Pool {pool.length} von 28 (ohne Pilot) · terminiert {pool.filter(c => c.publishDate).length} · Serien-Slots Di/Do/Sa belegt {slot} von {SERIES_SLOTS.length}</div>; })()}
       <div className="grid2">
         {sel('Produktionsart', pf.prodType, 'prodType', PROD_TYPES)}
         {sel('Plattform', pf.platform, 'platform', PLATFORMS)}
@@ -4019,14 +5244,14 @@ function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
 }
 
 /* ---- ANALYSE: Übersicht · Posts · Muster (nur real eingetragene Daten, rein deskriptiv) ---- */
-function perfRows(state, from, to) {
+function perfRows(state, from, to, serOk = () => true) {
   const rows = []; let undated = 0;
-  state.content.forEach(p => p.perf.forEach(e => {
+  state.content.filter(serOk).forEach(p => p.perf.forEach(e => {
     if (!(Number(e.views) > 0)) return;
     const d = e.date || p.publishDate || '';
     if (!d) { undated++; return; }
     if (d < from || d > to) return;
-    rows.push({ p, e, d, world: p.world, fn: p.fn, entry: p.entry, audio: p.audio, prodType: p.prodType, format: p.format || '(ohne Format)', platform: e.platform, combo: [p.world, p.fn, p.entry, p.audio].join(' · ') });
+    rows.push({ p, e, d, world: p.world, fn: p.fn, entry: p.entry, audio: p.audio, prodType: p.prodType, format: p.format || '(ohne Format)', series: p.series || '(ohne Serie)', platform: e.platform, combo: [p.world, p.fn, p.entry, p.audio].join(' · ') });
   }));
   return { rows, undated };
 }
@@ -4047,7 +5272,7 @@ const COLS = [
   ['comp', 'Compl. %', r => avgOf(r, 'completion')],
 ];
 const showCol = (k, v) => v == null ? '–' : k === 'n' ? fmtN(v) : (k === 'avgv' || k === 'medv') ? fmtN(Math.round(v)) : k === 'watch' ? fmtF(v, 1) : k === 'comp' ? fmtF(v, 0) : fmtP(v);
-const DIMS = [['JOGA vs. OLI', 'world'], ['Funktion (REACH / DO / ME / US)', 'fn'], ['Einstieg', 'entry'], ['Audio', 'audio'], ['Produktionsart', 'prodType'], ['Format', 'format'], ['Plattform', 'platform'], ['Kombination (Welt · Funktion · Einstieg · Audio)', 'combo']];
+const DIMS = [['JOGA vs. OLI', 'world'], ['Funktion (REACH / DO / ME / US)', 'fn'], ['Einstieg', 'entry'], ['Audio', 'audio'], ['Produktionsart', 'prodType'], ['Format', 'format'], ['Serie', 'series'], ['Plattform', 'platform'], ['Kombination (Welt · Funktion · Einstieg · Audio)', 'combo']];
 function GroupTable({ title, rows, dim }) {
   const [sortKey, setSortKey] = useState('n');
   const groups = {};
@@ -4068,8 +5293,10 @@ function AnalyseView({ state, update, ui, setUi, gotoContent }) {
   const ar = ui.ar, tab = ui.ana;
   const presets = [{ key: 'plan', label: '7-Wochen-Test', from: PLAN_START, to: PLAN_END }];
   const setRange = (patch) => setUi({ ar: { ...ar, ...patch } });
-  const { rows, undated } = perfRows(state, ar.from, ar.to);
-  const inRange = state.content.filter(p => p.publishDate >= ar.from && p.publishDate <= ar.to);
+  const sf = ui.anaSeries || 'Alle'; // Serienfilter: Alle (wie bisher) | Dunkle Jahreszeit | Ohne Serie
+  const serOk = (p) => sf === 'Alle' || (sf === 'Ohne Serie' ? !p.series : p.series === sf);
+  const { rows, undated } = perfRows(state, ar.from, ar.to, serOk);
+  const inRange = state.content.filter(p => p.publishDate >= ar.from && p.publishDate <= ar.to && serOk(p));
   const posted = inRange.filter(p => p.status === 'Gepostet').length;
   const views = rows.reduce((a, r) => a + Number(r.e.views), 0);
   const weekRows = PLAN_WEEKS.map(w => ({ w, rs: rows.filter(r => r.d >= w.start && r.d <= w.end), planned: state.content.filter(p => p.publishDate >= w.start && p.publishDate <= w.end).length })).filter(x => x.w.end >= ar.from && x.w.start <= ar.to);
@@ -4077,6 +5304,7 @@ function AnalyseView({ state, update, ui, setUi, gotoContent }) {
     <section>
       <header className="head"><h1>Analyse</h1><span className="meta" data-window>{fmtD(ar.from)}–{fmtD(ar.to)}</span></header>
       <div className="row wrap" data-ana-nav>{[['uebersicht', 'ÜBERSICHT'], ['posts', 'POSTS'], ['muster', 'MUSTER']].map(([k, l]) => <Tag key={k} on={tab === k} onClick={() => setUi({ ana: k })}>{l}</Tag>)}</div>
+      <div className="row wrap" data-ana-series><span className="meta">Serie</span>{['Alle', SERIES_DARK, 'Ohne Serie'].map(x => <Tag key={x} on={sf === x} onClick={() => setUi({ anaSeries: x })}>{x}</Tag>)}</div>
       <div className="sheet">
         <div className="row wrap" data-presets>{presets.map(pr => <Tag key={pr.key} on={ar.key === pr.key} onClick={() => setRange({ key: pr.key, from: pr.from, to: pr.to })}>{pr.label}</Tag>)}<Tag on={ar.key === 'custom'} onClick={() => setRange({ key: 'custom' })}>Eigener Zeitraum</Tag></div>
         <div className="grid2" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}><Field label="Von"><input style={{ minWidth: 0 }} type="date" value={ar.from} onChange={e => setRange({ key: 'custom', from: e.target.value })} /></Field><Field label="Bis"><input style={{ minWidth: 0 }} type="date" value={ar.to} onChange={e => setRange({ key: 'custom', to: e.target.value })} /></Field></div>
@@ -4337,7 +5565,7 @@ function App() {
   const [lib, setLib] = useState(null); // null | 'hooks' | 'moves'
   const [ui, setUiRaw] = useState(() => ({
     planWeek: weekIdxOf(todayISO()), planView: 'wochen',
-    prodSec: 'uebersicht', prodView: 'liste', pf: { world: 'Alle', fn: 'Alle', prodType: 'Alle', platform: 'Alle', format: 'Alle', status: 'Alle' },
+    prodSec: 'uebersicht', prodView: 'liste', pf: { world: 'Alle', fn: 'Alle', prodType: 'Alle', platform: 'Alle', format: 'Alle', status: 'Alle', series: 'Alle' }, anaSeries: 'Alle',
     ana: 'uebersicht', ar: { key: 'plan', from: PLAN_START, to: PLAN_END },
   }));
   const setUi = (patch) => setUiRaw(u => ({ ...u, ...patch }));
