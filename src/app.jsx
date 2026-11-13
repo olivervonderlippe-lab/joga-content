@@ -5334,7 +5334,13 @@ const scoreForWeek = (p) => {
   if ((p.speech || '').split(/\s+/).filter(Boolean).length > 55) { s -= 1; why.push('Text eher lang (über ca. 30 Sek.)'); }
   return { s, why };
 };
-function suggestWeek(content, today, skip) {
+const mulberry32 = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+// seed 0 = beste zuerst. seed > 0 = Würfeln: Mix und Slots bleiben datenbasiert, Reihenfolge, Auswahl im Slot (Treffer-Nähe als Gewicht) und Videoideen sind zufällig.
+function suggestWeek(content, today, skip, seed = 0) {
+  const rng = seed ? mulberry32(seed) : null;
+  let pattern = WEEK_PATTERN.slice();
+  if (rng) for (let t = 0; t < 30; t++) { for (let i = pattern.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pattern[i], pattern[j]] = [pattern[j], pattern[i]]; } if (pattern.every((k, i) => i === 0 || k !== pattern[i - 1])) break; }
+  const pick = (list) => { if (!rng || list.length < 2) return list[0]; const w = list.map(x => 1 + Math.max(0, x.s)); let r = rng() * w.reduce((a, b) => a + b, 0); for (let i = 0; i < list.length; i++) { r -= w[i]; if (r <= 0) return list[i]; } return list[0]; };
   const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
   const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today) && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || ''))
     .map(p => ({ p, ...scoreForWeek(p) })).sort((a, b) => b.s - a.s);
@@ -5343,20 +5349,22 @@ function suggestWeek(content, today, skip) {
   return days.map((day, i) => {
     const fixed = content.find(c => c.publishDate === day);
     if (fixed) { const k = SLOT_ORDER.find(k => SLOT_MATCH[k](fixed)); if (k && left[k] > 0) left[k]--; prev = k || prev; return { day, fixed }; }
-    let slot = WEEK_PATTERN[i];
+    let slot = pattern[i];
     if (!(left[slot] > 0)) slot = SLOT_ORDER.filter(k => left[k] > 0 && k !== prev)[0] || SLOT_ORDER.filter(k => left[k] > 0)[0] || slot;
     left[slot] = Math.max(0, left[slot] - 1); prev = slot;
-    const hit = pool.find(x => SLOT_MATCH[slot](x.p));
+    const hit = pick(pool.filter(x => SLOT_MATCH[slot](x.p)));
     if (hit) { pool.splice(pool.indexOf(hit), 1); return { day, slot, piece: hit.p, why: hit.why }; }
     const ideas = GAP_IDEAS[slot]; const n = gapN[slot] || 0; gapN[slot] = n + 1;
     const taken = new Set(content.map(c => c.title));
-    const idea = ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length];
+    const free = ideas.filter(g => !taken.has(g.title));
+    const idea = rng ? (free.length ? free[Math.floor(rng() * free.length)] : ideas[Math.floor(rng() * ideas.length)]) : (ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length]);
     return { day, slot, gap: idea };
   });
 }
 
 function HeuteView({ state, update, gotoContent, gotoBriefing }) {
   const [skip, setSkip] = useState([]);
+  const [seed, setSeed] = useState(0);
   const today = todayISO(), horizon = addDays(today, 7);
   const markPosted = (p) => {
     if (stIdx(p) < 4 && !confirm('„' + (p.title || 'Piece') + '“ ist noch nicht geschnitten. Trotzdem als gepostet markieren?')) return;
@@ -5385,7 +5393,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
         </div>
       )))}
       {(() => {
-        const plan = suggestWeek(state.content, today, skip);
+        const plan = suggestWeek(state.content, today, skip, seed);
         const assigns = plan.filter(r => r.piece);
         const accept = () => update(s => ({ ...s, content: s.content.map(c => { const r = assigns.find(a => a.piece.id === c.id); return r ? { ...c, publishDate: r.day, platforms: PLATFORMS.slice(), updated: todayISO() } : c; }) }));
         const addIdea = (g, day) => update(s => ({ ...s, content: [...s.content, newPiece({ fn: g.fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: day })] }));
@@ -5400,7 +5408,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
               {r.gap && <><div className="hook" style={{ marginTop: 4 }}>{r.gap.title}</div>{r.gap.hook && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Hook-Richtung: „{r.gap.hook}“</div>}<div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}</div></>}
             </div>
           ))}
-          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Vorhandene übernehmen ({assigns.length})</Btn> : <span className="meta">Keine vorhandenen Pieces zu übernehmen.</span>}{skip.length > 0 && <Btn small onClick={() => setSkip([])}>Zurücksetzen</Btn>}</div>
+          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Vorhandene übernehmen ({assigns.length})</Btn> : <span className="meta">Keine vorhandenen Pieces zu übernehmen.</span>}<Btn small onClick={() => { setSkip([]); setSeed(Math.floor(Math.random() * 1e9) + 1); }}>🎲 Würfeln</Btn>{(skip.length > 0 || seed > 0) && <Btn small onClick={() => { setSkip([]); setSeed(0); }}>Beste zuerst</Btn>}</div>{seed > 0 && <div className="hint">Gewürfelt: Mix und Slots bleiben datenbasiert, Auswahl und Reihenfolge sind zufällig. Treffer-Nähe erhöht nur die Chance, garantiert nichts.</div>}
           {assigns.length > 0 && <div className="hint">Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite).</div>}
         </>);
       })()}
