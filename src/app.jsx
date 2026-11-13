@@ -5274,8 +5274,23 @@ function PieceRow({ p, onOpen, today, actions }) {
 
 /* ---- HEUTE: Was muss ich jetzt tun? (berechnet, kein eigener Datentopf) ---- */
 
-// Wochenvorschlag: regelbasiert aus den Datenbefunden (Facebook/Instagram, Aug–Nov 2026). Kleine Stichprobe, daher Vorschlag und kein Gesetz.
-const WEEK_MIX = { REACH: 3, DO: 2, ME: 1, US: 1 };
+// Wochenvorschlag: gemischter Plan aus Videotypen, abgeleitet aus den Facebook-/Instagram-Daten (Aug–Nov 2026). Grobe Einteilung nach Wörtern in der Caption, kleine Stichprobe: Vorschlag, kein Gesetz.
+const SLOTS = {
+  funktion: { label: 'Funktions-Move', why: 'Funktions-Hooks (Aufstehen, Bücken, Boden, Balance): in deinen Facebook-Daten 26 % Treffer und 57 % aller Aufrufe', n: 2 },
+  routine: { label: '1 Minute JOGA / Routine', why: 'Routinen und „Eine Minute“: 10 % Treffer, 24 % der Aufrufe', n: 2 },
+  alter: { label: 'Alters-Test', why: 'Alters-Hooks: 12 % Treffer mit einzelnen Ausreißern (139.000), wird gegen Funktion getestet', n: 1 },
+  frage: { label: 'US-Frage', why: 'Fragen holen Antworten statt Reichweite, kleine Stichprobe (14 Beiträge)', n: 1 },
+  statement: { label: 'Statement', why: 'Eigene Stimme. Captions ohne Funktion oder Routine liefen schwächer (3 % Treffer bei 174 Beiträgen), daher nur eins pro Woche', n: 1 },
+};
+const SLOT_MATCH = {
+  funktion: (p) => /aufstehen|hochkomm|boden|bücken|treppe|balance|gleichgewicht|hocke|einbein|ein bein/i.test([p.title, p.hook].join(' ')) || /Funktion/i.test(p.format || ''),
+  routine: (p) => /Routine|1 Minute|WOW|Challenge/i.test(p.format || '') || /\b(eine|1|zwei|2|drei|3|5) (minute|minuten|moves|übungen)|\b\d+ (moves|übungen)|routine/i.test([p.title, p.hook].join(' ')),
+  alter: (p) => ALTER_RE.test([p.title, p.hook].join(' ')),
+  frage: (p) => p.fn === 'US' || /US-Frage/i.test(p.format || ''),
+  statement: (p) => /Statement/i.test(p.format || ''),
+};
+const SLOT_ORDER = ['funktion', 'routine', 'alter', 'frage', 'statement'];
+const WEEK_PATTERN = ['funktion', 'routine', 'alter', 'statement', 'funktion', 'routine', 'frage'];
 const HIT_RULES = [
   [/aufstehen|hochkomm|boden|bücken|treppe/i, 3, 'Alltags-Funktion (Aufstehen, Bücken, Boden) wie deine stärksten Treffer'],
   [/wichtigste kraft/i, 3, 'ähnelt deinem Instagram-Treffer „Die wichtigste Kraft im Alter“ (7.000 Aufrufe)'],
@@ -5292,35 +5307,51 @@ const PLAT_GUIDE = [
   ['TikTok', 'Gleiches Video ohne Instagram-Logo.'],
   ['YouTube', 'Als Short, gleicher Master, kein Extra-Aufwand (niedrigste Priorität).'],
 ];
+// Briefs für Lücken: Videoidee mit Hook-Richtung aus den Treffern. Reihenfolge = Rotation, damit nicht jede Woche dasselbe vorgeschlagen wird.
 const GAP_IDEAS = {
-  REACH: { format: 'Statement', title: 'REACH: Alltagsfähigkeit (Aufstehen, Bücken, Boden), 10–30 Sek.', hook: '' },
-  DO: { format: '1 Minute JOGA', title: '1 Minute JOGA: Aufstehen vom Boden', hook: 'Eine Minute. Mehr will ich gar nicht von dir.' },
-  ME: { format: 'Statement', title: 'ME: Haltung in einem Satz, mit 56', hook: '' },
-  US: { format: 'US-Frage', title: 'Was willst du mit 70 noch können?', hook: 'Was willst du mit 70 noch können?' },
+  funktion: [
+    { fn: 'REACH', format: 'Funktions-Move', title: 'Funktions-Move: Aufstehen vom Boden (10–30 Sek.)', hook: 'Wann bist du das letzte Mal vom Boden aufgestanden, ohne dich abzustützen?' },
+    { fn: 'REACH', format: 'Funktions-Move', title: 'Funktions-Move: Bücken (10–30 Sek.)', hook: 'Bücken ist keine Altersfrage. Es ist eine Benutzungsfrage.' },
+    { fn: 'REACH', format: 'Funktions-Move', title: 'Funktions-Move: Einbeinstand (10–20 Sek.)', hook: 'Ein Bein. Kein Festhalten. Kein Trick.' },
+    { fn: 'REACH', format: 'Funktions-Move', title: 'Funktions-Move: Treppe und Hocke (10–30 Sek.)', hook: 'Dein späteres Ich nimmt die Treppe. Oder auch nicht.' },
+  ],
+  routine: [
+    { fn: 'DO', format: '1 Minute JOGA', title: '1 Minute JOGA: Hüfte nach langem Sitzen', hook: 'Eine Minute. Mehr will ich gar nicht von dir.' },
+    { fn: 'DO', format: 'Routine / 1 Minute JOGA', title: 'Zwei Minuten, zwei Moves', hook: 'Zwei Minuten. Zwei Moves.' },
+    { fn: 'DO', format: '1 Minute JOGA', title: '1 Minute JOGA: Rücken und Schultern', hook: 'Eine Minute für später.' },
+  ],
+  alter: [
+    { fn: 'REACH', format: 'Statement', title: 'Alters-Test: Neuauflage „Dein Alter steht im Ausweis“', hook: 'Dein Alter steht im Ausweis. Wie alt sich dein Körper verhält, ist eine andere Geschichte.' },
+    { fn: 'ME', format: 'Statement', title: 'Alters-Test: Mit 56 beweglicher als mit 36?', hook: 'Mit 56 beweglicher sein als mit 36?' },
+  ],
+  frage: [{ fn: 'US', format: 'US-Frage', title: 'Was willst du mit 70 noch können?', hook: 'Was willst du mit 70 noch können?' }],
+  statement: [{ fn: 'ME', format: 'Statement', title: 'Statement einsprechen (03, 15 oder 16)', hook: '' }],
 };
 const scoreForWeek = (p) => {
   let s = 0; const why = [];
   const t = [p.title, p.hook].join(' ');
   HIT_RULES.forEach(([re, w, m]) => { if (re.test(t)) { s += w; why.push(m); } });
   if ((p.speech || '').split(/\s+/).filter(Boolean).length > 55) { s -= 1; why.push('Text eher lang (über ca. 30 Sek.)'); }
-  return { s, why, alter: ALTER_RE.test([p.title, p.hook].join(' ')) };
+  return { s, why };
 };
 function suggestWeek(content, today, skip) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
-  const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && !p.publishDate && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || ''))
+  const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today) && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || ''))
     .map(p => ({ p, ...scoreForWeek(p) })).sort((a, b) => b.s - a.s);
-  const rem = { ...WEEK_MIX }; let alterLeft = 2, prev = null, reachPicked = 0;
-  return days.map(day => {
+  const left = {}; SLOT_ORDER.forEach(k => { left[k] = SLOTS[k].n; });
+  const gapN = {}; let prev = null;
+  return days.map((day, i) => {
     const fixed = content.find(c => c.publishDate === day);
-    if (fixed) { if (rem[fixed.fn] > 0) rem[fixed.fn]--; prev = fixed.fn; return { day, fixed }; }
-    const fns = Object.keys(rem).filter(f => rem[f] > 0).sort((a, b) => rem[b] - rem[a]);
-    const order = [...fns.filter(f => f !== prev), ...fns.filter(f => f === prev)];
-    for (const fn of order) {
-      const wantAlter = fn === 'REACH' && reachPicked === 1 && alterLeft === 2; // pro Woche mindestens ein Alters-Test gegen die Funktions-Hooks
-      const hit = (wantAlter && pool.find(x => x.p.fn === fn && x.alter)) || pool.find(x => x.p.fn === fn && (!x.alter || alterLeft > 0));
-      if (hit) { pool.splice(pool.indexOf(hit), 1); rem[fn]--; if (fn === 'REACH') reachPicked++; if (hit.alter) alterLeft--; prev = fn; return { day, piece: hit.p, why: hit.why, alter: hit.alter, fn }; }
-    }
-    const fn = order[0] || 'DO'; prev = fn; return { day, gap: fn };
+    if (fixed) { const k = SLOT_ORDER.find(k => SLOT_MATCH[k](fixed)); if (k && left[k] > 0) left[k]--; prev = k || prev; return { day, fixed }; }
+    let slot = WEEK_PATTERN[i];
+    if (!(left[slot] > 0)) slot = SLOT_ORDER.filter(k => left[k] > 0 && k !== prev)[0] || SLOT_ORDER.filter(k => left[k] > 0)[0] || slot;
+    left[slot] = Math.max(0, left[slot] - 1); prev = slot;
+    const hit = pool.find(x => SLOT_MATCH[slot](x.p));
+    if (hit) { pool.splice(pool.indexOf(hit), 1); return { day, slot, piece: hit.p, why: hit.why }; }
+    const ideas = GAP_IDEAS[slot]; const n = gapN[slot] || 0; gapN[slot] = n + 1;
+    const taken = new Set(content.map(c => c.title));
+    const idea = ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length];
+    return { day, slot, gap: idea };
   });
 }
 
@@ -5357,18 +5388,19 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
         const plan = suggestWeek(state.content, today, skip);
         const assigns = plan.filter(r => r.piece);
         const accept = () => update(s => ({ ...s, content: s.content.map(c => { const r = assigns.find(a => a.piece.id === c.id); return r ? { ...c, publishDate: r.day, platforms: PLATFORMS.slice(), updated: todayISO() } : c; }) }));
-        const addIdea = (fn, day) => { const g = GAP_IDEAS[fn]; update(s => ({ ...s, content: [...s.content, newPiece({ fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: day })] })); };
-        const hasIdea = (fn, day) => state.content.some(c => c.title === GAP_IDEAS[fn].title && c.status === 'Idee' && c.publishDate === day);
-        return sec('V', 'Wochenvorschlag aus den Daten', 'Regelbasiert aus deinen Facebook-/Instagram-Treffern (Aug–Nov 2026): Mix 3 REACH, 2 DO, 1 ME, 1 US pro Woche, Alltags-Hooks zuerst, höchstens 2 Alters-Tests. Kleine Stichprobe, also ein Vorschlag. Nur JOGA-Pieces mit fertigem Skript.', <>
+        const addIdea = (g, day) => update(s => ({ ...s, content: [...s.content, newPiece({ fn: g.fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: day })] }));
+        const hasIdea = (g, day) => state.content.some(c => c.title === g.title && c.status === 'Idee' && c.publishDate === day);
+        const cnt = {}; plan.forEach(r => { if (r.slot) cnt[r.slot] = (cnt[r.slot] || 0) + 1; });
+        return sec('V', 'Wochenvorschlag aus den Daten', 'Gemischter Plan aus Videotypen: je Woche 2 Funktions-Moves, 2 Routinen („1 Minute JOGA“), 1 Alters-Test, 1 Statement, 1 US-Frage. Grobe Einteilung nach Caption-Wörtern aus deinen Facebook-/Instagram-Daten (Aug–Nov 2026), kleine Stichprobe, also ein Vorschlag. Vorhandene JOGA-Pieces mit Skript werden eingesetzt, sonst entsteht eine Videoidee zum Produzieren.', <>
           {plan.map(r => (
             <div key={r.day} data-plan-row className="card slim" style={{ marginTop: 8 }}>
-              <div className="row wrap" style={{ margin: 0 }}><b>{wdName(r.day)} {fmtD(r.day)}</b>{r.fixed && <><span className={`type type-${r.fixed.fn}`}>{r.fixed.fn}</span><span className="meta">✓ geplant</span></>}{r.piece && <><span className={`type type-${r.fn}`}>{r.fn}</span>{r.alter && <span className="meta">· Test: Alters-Hook</span>}</>}{r.gap && <span className={`type type-${r.gap}`}>{r.gap}</span>}</div>
+              <div className="row wrap" style={{ margin: 0 }}><b>{wdName(r.day)} {fmtD(r.day)}</b>{r.slot && <span className="meta">{SLOTS[r.slot].label}</span>}{r.fixed && <><span className={`type type-${r.fixed.fn}`}>{r.fixed.fn}</span><span className="meta">✓ geplant</span></>}{r.piece && <span className={`type type-${r.piece.fn}`}>{r.piece.fn}</span>}{r.gap && <span className="meta">· Neu produzieren</span>}</div>
               {r.fixed && <div className="hook" style={{ marginTop: 4 }}>{r.fixed.title}</div>}
-              {r.piece && <><div className="hook" style={{ marginTop: 4 }}>{r.piece.title}</div><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{r.why.length ? r.why.join(' · ') : 'ohne bekannten Treffer-Bezug, füllt den Mix'}</div><div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(r.piece.id)}>Öffnen</Btn><Btn small onClick={() => setSkip([...skip, r.piece.id])}>Anderes</Btn></div></>}
-              {r.gap && <><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Kein fertiges {r.gap}-Piece im Vorrat. Idee: {GAP_IDEAS[r.gap].title}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}</div></>}
+              {r.piece && <><div className="hook" style={{ marginTop: 4 }}>{r.piece.title}</div><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{r.why.length ? r.why.join(' · ') : SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(r.piece.id)}>Öffnen</Btn><Btn small onClick={() => setSkip([...skip, r.piece.id])}>Anderes</Btn></div></>}
+              {r.gap && <><div className="hook" style={{ marginTop: 4 }}>{r.gap.title}</div>{r.gap.hook && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Hook-Richtung: „{r.gap.hook}“</div>}<div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}</div></>}
             </div>
           ))}
-          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Plan übernehmen ({assigns.length})</Btn> : <span className="meta">Nichts zu übernehmen.</span>}{skip.length > 0 && <Btn small onClick={() => setSkip([])}>Zurücksetzen</Btn>}</div>
+          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Vorhandene übernehmen ({assigns.length})</Btn> : <span className="meta">Keine vorhandenen Pieces zu übernehmen.</span>}{skip.length > 0 && <Btn small onClick={() => setSkip([])}>Zurücksetzen</Btn>}</div>
           {assigns.length > 0 && <div className="hint">Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite).</div>}
         </>);
       })()}
