@@ -8127,12 +8127,187 @@ function PieceRow({
 }
 
 /* ---- HEUTE: Was muss ich jetzt tun? (berechnet, kein eigener Datentopf) ---- */
+
+// Wochenvorschlag: gemischter Plan aus Videotypen, abgeleitet aus den Facebook-/Instagram-Daten (Aug–Nov 2026). Grobe Einteilung nach Wörtern in der Caption, kleine Stichprobe: Vorschlag, kein Gesetz.
+const SLOTS = {
+  funktion: {
+    label: 'Funktions-Move',
+    why: 'Funktions-Hooks (Aufstehen, Bücken, Boden, Balance): in deinen Facebook-Daten 26 % Treffer und 57 % aller Aufrufe',
+    n: 2
+  },
+  routine: {
+    label: '1 Minute JOGA / Routine',
+    why: 'Routinen und „Eine Minute“: 10 % Treffer, 24 % der Aufrufe',
+    n: 2
+  },
+  alter: {
+    label: 'Alters-Test',
+    why: 'Alters-Hooks: 12 % Treffer mit einzelnen Ausreißern (139.000), wird gegen Funktion getestet',
+    n: 1
+  },
+  frage: {
+    label: 'US-Frage',
+    why: 'Fragen holen Antworten statt Reichweite, kleine Stichprobe (14 Beiträge)',
+    n: 1
+  },
+  statement: {
+    label: 'Statement',
+    why: 'Eigene Stimme. Captions ohne Funktion oder Routine liefen schwächer (3 % Treffer bei 174 Beiträgen), daher nur eins pro Woche',
+    n: 1
+  }
+};
+const SLOT_MATCH = {
+  funktion: p => /aufstehen|hochkomm|boden|bücken|treppe|balance|gleichgewicht|hocke|einbein|ein bein/i.test([p.title, p.hook].join(' ')) || /Funktion/i.test(p.format || ''),
+  routine: p => /Routine|1 Minute|WOW|Challenge/i.test(p.format || '') || /\b(eine|1|zwei|2|drei|3|5) (minute|minuten|moves|übungen)|\b\d+ (moves|übungen)|routine/i.test([p.title, p.hook].join(' ')),
+  alter: p => ALTER_RE.test([p.title, p.hook].join(' ')),
+  frage: p => p.fn === 'US' || /US-Frage/i.test(p.format || ''),
+  statement: p => /Statement/i.test(p.format || '')
+};
+const SLOT_ORDER = ['funktion', 'routine', 'alter', 'frage', 'statement'];
+const WEEK_PATTERN = ['funktion', 'routine', 'alter', 'statement', 'funktion', 'routine', 'frage'];
+const HIT_RULES = [[/aufstehen|hochkomm|boden|bücken|treppe/i, 3, 'Alltags-Funktion (Aufstehen, Bücken, Boden) wie deine stärksten Treffer'], [/wichtigste kraft/i, 3, 'ähnelt deinem Instagram-Treffer „Die wichtigste Kraft im Alter“ (7.000 Aufrufe)'], [/geburtsdatum|ausweis/i, 2, 'Geburtsdatum-Hook lief auf Facebook (bis 139.000 Aufrufe)'], [/sixpack|waschbrett/i, 2, 'ähnelt „Kein Waschbrettbauch…“ (Instagram, 2.800 Aufrufe)'], [/mit 70/i, 2, '„Was du mit 70 noch können möchtest“ lief auf Facebook (60.000 Aufrufe)'], [/(eine|1) minute(?!n)/i, 2, '„Eine Minute“ lief bei dir bis 91.000 Aufrufe'], [/\?/, 1, 'Frage']];
+const ALTER_RE = /(^|[^a-zäöüß])(alt|alter|jung|jünger|56|70|geburtsdatum)([^a-zäöüß]|$)/i;
+const PLAT_GUIDE = [['Instagram', 'Reel. Hook als Text im ersten Bild und am Anfang der Caption.'], ['Facebook', 'Gleiches Video. Caption immer mit Hook-Text, nie leer oder „Dein Reel“. Höchstens 3–4 Beiträge pro Tag.'], ['TikTok', 'Gleiches Video ohne Instagram-Logo.'], ['YouTube', 'Als Short, gleicher Master, kein Extra-Aufwand (niedrigste Priorität).']];
+// Briefs für Lücken: Videoidee mit Hook-Richtung aus den Treffern. Reihenfolge = Rotation, damit nicht jede Woche dasselbe vorgeschlagen wird.
+const GAP_IDEAS = {
+  funktion: [{
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Aufstehen vom Boden (10–30 Sek.)',
+    hook: 'Wann bist du das letzte Mal vom Boden aufgestanden, ohne dich abzustützen?'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Bücken (10–30 Sek.)',
+    hook: 'Bücken ist keine Altersfrage. Es ist eine Benutzungsfrage.'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Einbeinstand (10–20 Sek.)',
+    hook: 'Ein Bein. Kein Festhalten. Kein Trick.'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Treppe und Hocke (10–30 Sek.)',
+    hook: 'Dein späteres Ich nimmt die Treppe. Oder auch nicht.'
+  }],
+  routine: [{
+    fn: 'DO',
+    format: '1 Minute JOGA',
+    title: '1 Minute JOGA: Hüfte nach langem Sitzen',
+    hook: 'Eine Minute. Mehr will ich gar nicht von dir.'
+  }, {
+    fn: 'DO',
+    format: 'Routine / 1 Minute JOGA',
+    title: 'Zwei Minuten, zwei Moves',
+    hook: 'Zwei Minuten. Zwei Moves.'
+  }, {
+    fn: 'DO',
+    format: '1 Minute JOGA',
+    title: '1 Minute JOGA: Rücken und Schultern',
+    hook: 'Eine Minute für später.'
+  }],
+  alter: [{
+    fn: 'REACH',
+    format: 'Statement',
+    title: 'Alters-Test: Neuauflage „Dein Alter steht im Ausweis“',
+    hook: 'Dein Alter steht im Ausweis. Wie alt sich dein Körper verhält, ist eine andere Geschichte.'
+  }, {
+    fn: 'ME',
+    format: 'Statement',
+    title: 'Alters-Test: Mit 56 beweglicher als mit 36?',
+    hook: 'Mit 56 beweglicher sein als mit 36?'
+  }],
+  frage: [{
+    fn: 'US',
+    format: 'US-Frage',
+    title: 'Was willst du mit 70 noch können?',
+    hook: 'Was willst du mit 70 noch können?'
+  }],
+  statement: [{
+    fn: 'ME',
+    format: 'Statement',
+    title: 'Statement einsprechen (03, 15 oder 16)',
+    hook: ''
+  }]
+};
+const scoreForWeek = p => {
+  let s = 0;
+  const why = [];
+  const t = [p.title, p.hook].join(' ');
+  HIT_RULES.forEach(([re, w, m]) => {
+    if (re.test(t)) {
+      s += w;
+      why.push(m);
+    }
+  });
+  if ((p.speech || '').split(/\s+/).filter(Boolean).length > 55) {
+    s -= 1;
+    why.push('Text eher lang (über ca. 30 Sek.)');
+  }
+  return {
+    s,
+    why
+  };
+};
+function suggestWeek(content, today, skip) {
+  const days = Array.from({
+    length: 7
+  }, (_, i) => addDays(today, i));
+  const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today) && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || '')).map(p => ({
+    p,
+    ...scoreForWeek(p)
+  })).sort((a, b) => b.s - a.s);
+  const left = {};
+  SLOT_ORDER.forEach(k => {
+    left[k] = SLOTS[k].n;
+  });
+  const gapN = {};
+  let prev = null;
+  return days.map((day, i) => {
+    const fixed = content.find(c => c.publishDate === day);
+    if (fixed) {
+      const k = SLOT_ORDER.find(k => SLOT_MATCH[k](fixed));
+      if (k && left[k] > 0) left[k]--;
+      prev = k || prev;
+      return {
+        day,
+        fixed
+      };
+    }
+    let slot = WEEK_PATTERN[i];
+    if (!(left[slot] > 0)) slot = SLOT_ORDER.filter(k => left[k] > 0 && k !== prev)[0] || SLOT_ORDER.filter(k => left[k] > 0)[0] || slot;
+    left[slot] = Math.max(0, left[slot] - 1);
+    prev = slot;
+    const hit = pool.find(x => SLOT_MATCH[slot](x.p));
+    if (hit) {
+      pool.splice(pool.indexOf(hit), 1);
+      return {
+        day,
+        slot,
+        piece: hit.p,
+        why: hit.why
+      };
+    }
+    const ideas = GAP_IDEAS[slot];
+    const n = gapN[slot] || 0;
+    gapN[slot] = n + 1;
+    const taken = new Set(content.map(c => c.title));
+    const idea = ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length];
+    return {
+      day,
+      slot,
+      gap: idea
+    };
+  });
+}
 function HeuteView({
   state,
   update,
   gotoContent,
   gotoBriefing
 }) {
+  const [skip, setSkip] = useState([]);
   const today = todayISO(),
     horizon = addDays(today, 7);
   const markPosted = p => {
@@ -8206,6 +8381,15 @@ function HeuteView({
   }, p.title), /*#__PURE__*/React.createElement("div", {
     className: "meta"
   }, p.platforms.join(' · ') || 'keine Plattform gewählt'), /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0,
+      marginTop: 6
+    }
+  }, PLAT_GUIDE.filter(([pl]) => p.platforms.includes(pl)).map(([pl, txt]) => /*#__PURE__*/React.createElement("div", {
+    key: pl
+  }, /*#__PURE__*/React.createElement("b", null, pl, ":"), " ", txt)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Caption:"), " ", p.caption || p.hook || p.title)), /*#__PURE__*/React.createElement("div", {
     className: "row",
     style: {
       marginTop: 8
@@ -8219,7 +8403,131 @@ function HeuteView({
     onClick: () => markPosted(p)
   }, "Als gepostet markieren") : /*#__PURE__*/React.createElement("span", {
     className: "meta"
-  }, "✓ gepostet"))))), sec('B', 'Heute produzieren', B.length ? 'Fällig in den nächsten 7 Tagen und noch nicht geschnitten. Drehbereite Neudrehs zuerst.' : null, B.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, "✓ gepostet"))))), (() => {
+    const plan = suggestWeek(state.content, today, skip);
+    const assigns = plan.filter(r => r.piece);
+    const accept = () => update(s => ({
+      ...s,
+      content: s.content.map(c => {
+        const r = assigns.find(a => a.piece.id === c.id);
+        return r ? {
+          ...c,
+          publishDate: r.day,
+          platforms: PLATFORMS.slice(),
+          updated: todayISO()
+        } : c;
+      })
+    }));
+    const addIdea = (g, day) => update(s => ({
+      ...s,
+      content: [...s.content, newPiece({
+        fn: g.fn,
+        format: g.format,
+        title: g.title,
+        hook: g.hook,
+        status: 'Idee',
+        platforms: PLATFORMS.slice(),
+        publishDate: day
+      })]
+    }));
+    const hasIdea = (g, day) => state.content.some(c => c.title === g.title && c.status === 'Idee' && c.publishDate === day);
+    const cnt = {};
+    plan.forEach(r => {
+      if (r.slot) cnt[r.slot] = (cnt[r.slot] || 0) + 1;
+    });
+    return sec('V', 'Wochenvorschlag aus den Daten', 'Gemischter Plan aus Videotypen: je Woche 2 Funktions-Moves, 2 Routinen („1 Minute JOGA“), 1 Alters-Test, 1 Statement, 1 US-Frage. Grobe Einteilung nach Caption-Wörtern aus deinen Facebook-/Instagram-Daten (Aug–Nov 2026), kleine Stichprobe, also ein Vorschlag. Vorhandene JOGA-Pieces mit Skript werden eingesetzt, sonst entsteht eine Videoidee zum Produzieren.', /*#__PURE__*/React.createElement(React.Fragment, null, plan.map(r => /*#__PURE__*/React.createElement("div", {
+      key: r.day,
+      "data-plan-row": true,
+      className: "card slim",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      style: {
+        margin: 0
+      }
+    }, /*#__PURE__*/React.createElement("b", null, wdName(r.day), " ", fmtD(r.day)), r.slot && /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, SLOTS[r.slot].label), r.fixed && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+      className: `type type-${r.fixed.fn}`
+    }, r.fixed.fn), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "✓ geplant")), r.piece && /*#__PURE__*/React.createElement("span", {
+      className: `type type-${r.piece.fn}`
+    }, r.piece.fn), r.gap && /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "· Neu produzieren")), r.fixed && /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.fixed.title), r.piece && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.piece.title), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, r.why.length ? r.why.join(' · ') : SLOTS[r.slot].why), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => gotoContent(r.piece.id)
+    }, "Öffnen"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setSkip([...skip, r.piece.id])
+    }, "Anderes"))), r.gap && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.gap.title), r.gap.hook && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, "Hook-Richtung: „", r.gap.hook, "“"), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, SLOTS[r.slot].why), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, hasIdea(r.gap, r.day) ? /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "✓ als Idee angelegt") : /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => addIdea(r.gap, r.day)
+    }, "Als Idee anlegen"))))), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 10
+      }
+    }, assigns.length ? /*#__PURE__*/React.createElement(Btn, {
+      kind: "primary",
+      onClick: accept
+    }, "Vorhandene übernehmen (", assigns.length, ")") : /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Keine vorhandenen Pieces zu übernehmen."), skip.length > 0 && /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setSkip([])
+    }, "Zurücksetzen")), assigns.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "hint"
+    }, "Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite).")));
+  })(), sec('B', 'Heute produzieren', B.length ? 'Fällig in den nächsten 7 Tagen und noch nicht geschnitten. Drehbereite Neudrehs zuerst.' : null, B.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "meta",
     "data-empty": true
   }, "Nichts zu produzieren.") : B.map(p => /*#__PURE__*/React.createElement("div", {
