@@ -5335,8 +5335,40 @@ const scoreForWeek = (p) => {
   return { s, why };
 };
 const mulberry32 = (a) => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+// Zufallsziehung für einen einzelnen Beitrag (Tageswürfel und Zufallsgenerator). Art: v = vorhanden (noch nicht gepostet), n = Neuauflage (schon gepostet, Treffer mit mehr Gewicht), i = neue Videoidee.
+function rollOne(content, today, { slot = null, source = 'mix', exclude = [] }, rng) {
+  const kinds = { vorhanden: ['v'], neuauflage: ['n'], neu: ['i'], mix: ['v', 'n', 'i'], plan: ['v', 'i'] }[source] || ['v', 'n', 'i'];
+  const slots = slot ? [slot] : SLOT_ORDER;
+  const cands = [];
+  content.forEach(p => {
+    if (p.world !== 'JOGA' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
+    const ready = ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today);
+    const kind = ready ? 'v' : p.status === 'Gepostet' ? 'n' : null;
+    if (!kind || !kinds.includes(kind)) return;
+    const k = SLOT_ORDER.find(x => slots.includes(x) && SLOT_MATCH[x](p)); if (!k) return;
+    const sc = scoreForWeek(p);
+    const views = Math.max(0, ...(p.perf || []).map(x => Number(x.views) || 0));
+    cands.push({ kind, slot: k, piece: p, views, why: sc.why, w: 1 + Math.max(0, sc.s) + Math.min(views / 1000, 8) });
+  });
+  if (kinds.includes('i')) {
+    const taken = new Set(content.map(c => c.title));
+    slots.forEach(k => { const fresh = GAP_IDEAS[k].filter(g => !taken.has(g.title)); (fresh.length ? fresh : GAP_IDEAS[k]).forEach(g => cands.push({ kind: 'i', slot: k, gap: g, why: [], w: 1 })); });
+  }
+  if (!cands.length) return null;
+  const R = rng || Math.random;
+  const avail = kinds.filter(kd => cands.some(c => c.kind === kd));
+  const kd = avail[Math.floor(R() * avail.length)];
+  const ofKind = cands.filter(c => c.kind === kd);
+  const slotsHere = [...new Set(ofKind.map(c => c.slot))];
+  let r = R() * slotsHere.reduce((a, k) => a + SLOTS[k].n, 0), sl = slotsHere[0];
+  for (const k of slotsHere) { r -= SLOTS[k].n; if (r <= 0) { sl = k; break; } }
+  const list = ofKind.filter(c => c.slot === sl);
+  let t = R() * list.reduce((a, c) => a + c.w, 0);
+  for (const c of list) { t -= c.w; if (t <= 0) return c; }
+  return list[0];
+}
 // seed 0 = beste zuerst. seed > 0 = Würfeln: Mix und Slots bleiben datenbasiert, Reihenfolge, Auswahl im Slot (Treffer-Nähe als Gewicht) und Videoideen sind zufällig.
-function suggestWeek(content, today, skip, seed = 0) {
+function suggestWeek(content, today, skip, seed = 0, dayRolls = {}) {
   const rng = seed ? mulberry32(seed) : null;
   let pattern = WEEK_PATTERN.slice();
   if (rng) for (let t = 0; t < 30; t++) { for (let i = pattern.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [pattern[i], pattern[j]] = [pattern[j], pattern[i]]; } if (pattern.every((k, i) => i === 0 || k !== pattern[i - 1])) break; }
@@ -5346,7 +5378,7 @@ function suggestWeek(content, today, skip, seed = 0) {
     .map(p => ({ p, ...scoreForWeek(p) })).sort((a, b) => b.s - a.s);
   const left = {}; SLOT_ORDER.forEach(k => { left[k] = SLOTS[k].n; });
   const gapN = {}; let prev = null;
-  return days.map((day, i) => {
+  const rows = days.map((day, i) => {
     const fixed = content.find(c => c.publishDate === day);
     if (fixed) { const k = SLOT_ORDER.find(k => SLOT_MATCH[k](fixed)); if (k && left[k] > 0) left[k]--; prev = k || prev; return { day, fixed }; }
     let slot = pattern[i];
@@ -5360,11 +5392,20 @@ function suggestWeek(content, today, skip, seed = 0) {
     const idea = rng ? (free.length ? free[Math.floor(rng() * free.length)] : ideas[Math.floor(rng() * ideas.length)]) : (ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length]);
     return { day, slot, gap: idea };
   });
+  Object.keys(dayRolls).forEach(day => {
+    const i = rows.findIndex(r => r.day === day); if (i < 0 || rows[i].fixed) return;
+    const used = rows.filter((r, j) => j !== i && r.piece).map(r => r.piece.id).concat(skip);
+    const c = rollOne(content, today, { source: 'plan', exclude: used }, mulberry32(dayRolls[day]));
+    if (c) rows[i] = c.piece ? { day, slot: c.slot, piece: c.piece, why: c.why } : { day, slot: c.slot, gap: c.gap };
+  });
+  return rows;
 }
 
 function HeuteView({ state, update, gotoContent, gotoBriefing }) {
   const [skip, setSkip] = useState([]);
   const [seed, setSeed] = useState(0);
+  const [rolls, setRolls] = useState({});
+  const [gen, setGen] = useState({ slot: '', source: 'mix', res: null, none: false });
   const today = todayISO(), horizon = addDays(today, 7);
   const markPosted = (p) => {
     if (stIdx(p) < 4 && !confirm('„' + (p.title || 'Piece') + '“ ist noch nicht geschnitten. Trotzdem als gepostet markieren?')) return;
@@ -5393,7 +5434,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
         </div>
       )))}
       {(() => {
-        const plan = suggestWeek(state.content, today, skip, seed);
+        const plan = suggestWeek(state.content, today, skip, seed, rolls);
         const assigns = plan.filter(r => r.piece);
         const accept = () => update(s => ({ ...s, content: s.content.map(c => { const r = assigns.find(a => a.piece.id === c.id); return r ? { ...c, publishDate: r.day, platforms: PLATFORMS.slice(), updated: todayISO() } : c; }) }));
         const addIdea = (g, day) => update(s => ({ ...s, content: [...s.content, newPiece({ fn: g.fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: day })] }));
@@ -5404,12 +5445,39 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
             <div key={r.day} data-plan-row className="card slim" style={{ marginTop: 8 }}>
               <div className="row wrap" style={{ margin: 0 }}><b>{wdName(r.day)} {fmtD(r.day)}</b>{r.slot && <span className="meta">{SLOTS[r.slot].label}</span>}{r.fixed && <><span className={`type type-${r.fixed.fn}`}>{r.fixed.fn}</span><span className="meta">✓ geplant</span></>}{r.piece && <span className={`type type-${r.piece.fn}`}>{r.piece.fn}</span>}{r.gap && <span className="meta">· Neu produzieren</span>}</div>
               {r.fixed && <div className="hook" style={{ marginTop: 4 }}>{r.fixed.title}</div>}
-              {r.piece && <><div className="hook" style={{ marginTop: 4 }}>{r.piece.title}</div><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{r.why.length ? r.why.join(' · ') : SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(r.piece.id)}>Öffnen</Btn><Btn small onClick={() => setSkip([...skip, r.piece.id])}>Anderes</Btn></div></>}
-              {r.gap && <><div className="hook" style={{ marginTop: 4 }}>{r.gap.title}</div>{r.gap.hook && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Hook-Richtung: „{r.gap.hook}“</div>}<div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}</div></>}
+              {r.piece && <><div className="hook" style={{ marginTop: 4 }}>{r.piece.title}</div><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{r.why.length ? r.why.join(' · ') : SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(r.piece.id)}>Öffnen</Btn><Btn small onClick={() => setSkip([...skip, r.piece.id])}>Anderes</Btn><Btn small onClick={() => setRolls({ ...rolls, [r.day]: Math.floor(Math.random() * 1e9) + 1 })}>🎲 Tag</Btn></div></>}
+              {r.gap && <><div className="hook" style={{ marginTop: 4 }}>{r.gap.title}</div>{r.gap.hook && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Hook-Richtung: „{r.gap.hook}“</div>}<div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{SLOTS[r.slot].why}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}<Btn small onClick={() => setRolls({ ...rolls, [r.day]: Math.floor(Math.random() * 1e9) + 1 })}>🎲 Tag</Btn></div></>}
             </div>
           ))}
-          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Vorhandene übernehmen ({assigns.length})</Btn> : <span className="meta">Keine vorhandenen Pieces zu übernehmen.</span>}<Btn small onClick={() => { setSkip([]); setSeed(Math.floor(Math.random() * 1e9) + 1); }}>🎲 Würfeln</Btn>{(skip.length > 0 || seed > 0) && <Btn small onClick={() => { setSkip([]); setSeed(0); }}>Beste zuerst</Btn>}</div>{seed > 0 && <div className="hint">Gewürfelt: Mix und Slots bleiben datenbasiert, Auswahl und Reihenfolge sind zufällig. Treffer-Nähe erhöht nur die Chance, garantiert nichts.</div>}
+          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Vorhandene übernehmen ({assigns.length})</Btn> : <span className="meta">Keine vorhandenen Pieces zu übernehmen.</span>}<Btn small onClick={() => { setSkip([]); setRolls({}); setSeed(Math.floor(Math.random() * 1e9) + 1); }}>🎲 Ganze Woche würfeln</Btn>{(skip.length > 0 || seed > 0 || Object.keys(rolls).length > 0) && <Btn small onClick={() => { setSkip([]); setSeed(0); setRolls({}); }}>Beste zuerst</Btn>}</div>{seed > 0 && <div className="hint">Gewürfelt: Mix und Slots bleiben datenbasiert, Auswahl und Reihenfolge sind zufällig. Treffer-Nähe erhöht nur die Chance, garantiert nichts.</div>}
           {assigns.length > 0 && <div className="hint">Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite).</div>}
+        </>);
+      })()}
+      {(() => {
+        const KIND = { v: 'Vorhanden', n: 'Neuauflage', i: 'Neu produzieren' };
+        const roll = () => { const c = rollOne(state.content, today, { slot: gen.slot || null, source: gen.source }, null); setGen({ ...gen, res: c, none: !c }); };
+        const c = gen.res;
+        const plan = (piece) => update(s => ({ ...s, content: s.content.map(x => x.id === piece.id ? { ...x, publishDate: today, platforms: PLATFORMS.slice(), updated: todayISO() } : x) }));
+        const idea = (g, extra = {}) => update(s => ({ ...s, content: [...s.content, newPiece({ fn: g.fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: today, ...extra })] }));
+        const done = c && state.content.some(x => x.publishDate === today && (c.piece ? (x.id === c.piece.id || x.material === 'Neuauflage von „' + c.piece.title + '“') : x.title === c.gap.title));
+        return sec('Z', 'Zufallsgenerator', 'Für Beiträge außerhalb des Plans. Kategorie und Quelle wählen, dann würfeln. Treffer-Nähe erhöht nur die Chance, garantiert nichts.', <>
+          <div className="row wrap"><span className="meta">Kategorie</span><Tag on={!gen.slot} onClick={() => setGen({ ...gen, slot: '' })}>Alle</Tag>{SLOT_ORDER.map(k => <Tag key={k} on={gen.slot === k} onClick={() => setGen({ ...gen, slot: k })}>{SLOTS[k].label}</Tag>)}</div>
+          <div className="row wrap"><span className="meta">Quelle</span>{[['mix', 'Alles'], ['vorhanden', 'Vorhanden'], ['neuauflage', 'Neuauflage'], ['neu', 'Neu produzieren']].map(([k, l]) => <Tag key={k} on={gen.source === k} onClick={() => setGen({ ...gen, source: k })}>{l}</Tag>)}</div>
+          <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Vorhanden = Piece mit Skript, noch nicht gepostet. Neuauflage = schon gepostetes Piece (Treffer bevorzugt) als neue Version. Neu produzieren = Videoidee mit Hook-Richtung.</div>
+          <div className="row" style={{ marginTop: 8 }}><Btn kind="primary" onClick={roll}>🎲 Würfeln</Btn></div>
+          {gen.none && <div className="meta" data-empty>Dazu gibt es nichts. Wähle eine andere Kategorie oder Quelle.</div>}
+          {c && <div data-gen-result className="card slim" style={{ marginTop: 8 }}>
+            <div className="row wrap" style={{ margin: 0 }}><span className="meta">{SLOTS[c.slot].label}</span><span className="meta">· {KIND[c.kind]}</span>{c.piece && <span className={`type type-${c.piece.fn}`}>{c.piece.fn}</span>}</div>
+            <div className="hook" style={{ marginTop: 4 }}>{c.piece ? c.piece.title : c.gap.title}</div>
+            {c.gap && c.gap.hook && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Hook-Richtung: „{c.gap.hook}“</div>}
+            {c.kind === 'n' && c.views > 0 && <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Beim ersten Mal: {c.views} Aufrufe</div>}
+            <div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{c.why.length ? c.why.join(' · ') : SLOTS[c.slot].why}</div>
+            <div className="row" style={{ marginTop: 8 }}>
+              {c.piece && <Btn small onClick={() => gotoContent(c.piece.id)}>Öffnen</Btn>}
+              {done ? <span className="meta">✓ für heute eingeplant</span> : c.kind === 'v' ? <Btn small kind="primary" onClick={() => plan(c.piece)}>Für heute einplanen</Btn> : c.kind === 'n' ? <Btn small kind="primary" onClick={() => idea({ fn: c.piece.fn, format: c.piece.format, title: c.piece.title, hook: c.piece.hook }, { speech: c.piece.speech, scriptText: c.piece.scriptText, material: 'Neuauflage von „' + c.piece.title + '“' })}>Als Neuauflage für heute anlegen</Btn> : <Btn small kind="primary" onClick={() => idea(c.gap)}>Als Idee für heute anlegen</Btn>}
+              <Btn small onClick={roll}>Nochmal</Btn>
+            </div>
+          </div>}
         </>);
       })()}
       {sec('B', 'Heute produzieren', B.length ? 'Fällig in den nächsten 7 Tagen und noch nicht geschnitten. Drehbereite Neudrehs zuerst.' : null, B.length === 0 ? <div className="meta" data-empty>Nichts zu produzieren.</div> : B.map(p => (
