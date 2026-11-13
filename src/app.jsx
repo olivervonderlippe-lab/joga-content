@@ -400,6 +400,15 @@ const FORMAT_RULES = [
   { key: 'humor', format: 'Typisch Mann / Humor', entry: 'Situation first', audio: 'Silent/Musik', note: 'Situation first. So wenig Sprache wie möglich, Pointe primär visuell.' },
 ];
 const FORMAT_ALIAS = { 'Oli Klärt': 'erklaerung', 'Oli Geht': 'persoenlich', 'Typisch Mann': 'humor', '1 Minute JOGA': 'routine' };
+const FORMAT_GROUPS = [
+  ['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor']],
+  ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']],
+  ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']],
+  ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']],
+  ['Varianten', ['REACH-Version', 'Recut']],
+  ['Auswertung', ['IG-Treffer']],
+];
+const formatGroupOf = (f) => { const g = FORMAT_GROUPS.find(([, l]) => l.includes(f)); return g ? g[0] : (/-Treffer$/.test(f) ? 'Auswertung' : 'Weitere'); };
 const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
 const ruleFor = (format) => { if (!format) return null; return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null; };
 
@@ -5462,7 +5471,13 @@ function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
       <div className="grid2">
         {sel('Produktionsart', pf.prodType, 'prodType', PROD_TYPES)}
         {sel('Plattform', pf.platform, 'platform', PLATFORMS)}
-        {sel('Format', pf.format, 'format', formats)}
+        <Field label="Format"><select value={pf.format} onChange={e => setPf({ format: e.target.value })}>
+          <option value="Alle">Alle ({state.content.length})</option>
+          {[...FORMAT_GROUPS.map(([g]) => g), 'Weitere'].map(g => {
+            const items = formats.filter(f => formatGroupOf(f) === g).map(f => [f, state.content.filter(c => c.format === f).length]).sort((x, y) => y[1] - x[1]);
+            return items.length ? <optgroup key={g} label={g}>{items.map(([f, n]) => <option key={f} value={f}>{f} ({n})</option>)}</optgroup> : null;
+          })}
+        </select></Field>
         {sec === 'uebersicht' && sel('Status', pf.status, 'status', C_STATUS)}
       </div>
 
