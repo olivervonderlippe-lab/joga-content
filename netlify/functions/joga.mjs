@@ -13,7 +13,17 @@ Der Gegner ist der Stillstand, nie der faule Mensch.
 Oliver (56) ist der Beweis, nicht das Vorbild. Alter ist Kontext, kein Hook-Material – wenn Alter, dann IMMER 56.
 Hoffnung/Freiheit sind Ergebnisse beim Zuschauer, nie Olivers Vokabular. JOGA spielt NIE mit Verlustangst.
 NIEMALS: Kalendersprüche, Achtsamkeitsphrasen, Sanskrit, Fitnessstudio-Sprache, "weiser 56-Jähriger"-Ton, Anti-Aging-Optik-Versprechen.
-Texte sollen sein: kurz, merkbar, sprechbar, menschlich, pointiert, alltagsnah. Kein Erklären. Direkt liefern.`;
+Texte sollen sein: kurz, merkbar, sprechbar, menschlich, pointiert, alltagsnah. Kein Erklären. Direkt liefern.
+
+STIMME – so klingt Oliver:
+- Gesprochen, nicht geschrieben. Kurze Sätze, direkt an "du". Umgangssprache ist erwünscht: "klar", "keine Frage", "kein Bock", "einfach machen".
+- Ich plus konkrete Szene oder Zahl statt Lebensweisheit. Dinge nennen, keine Adjektive stapeln.
+- Ehrlich, auch über Zweifel und Flops ("mal so, mal so", "ich bin auch nicht immer motiviert").
+- Trocken, bei Sprüchen darf es derb und frech sein. Bei ernsten Themen (Gesundheit, Psyche) ruhiger, kein Witz.
+- Einordnung statt Heilsversprechen: "kann helfen", nie "löst".
+- Ende mit einer Handlung ("Video raussuchen, bewegen"), nicht mit einer Weisheit.
+Stilproben von Oliver (Machart, nicht kopieren): "Joga ist auch: Namasteh dumm rum. Besser als sitzen." / "Im Joga sagt man statt Namaste: Na, Moin!" / "Kein Joga ist auch keine Lösung. Is klar!" / "Life happens, shit auch. Joga." / "Im Joga machste die Taube oder den sterbenden Schwan. Völlig egal."
+SO NICHT: "Nicht X, sondern Y" als Standardgerüst, Dreierlisten aus gleich langen Teilen als Reflex, Schlusssätze, die wie Kalendersprüche klingen, "Und genau das ist der Punkt", Wörter wie Reise, Freiheit, Hoffnung, Gedankenstriche als Stilmittel.`;
 
 const MUSTER = {
   REACH: `Muster REACH (holt neue Leute): konkretes Versprechen + Zahl (Moves, Minuten). Belegte Gewinner: "2 Moves, die dich 20 Jahre jünger wirken lassen", "Die geilste Bewegungsroutine der Welt". Ziel: Follower.`,
@@ -34,7 +44,7 @@ Thema/Körperbereich: ${p.thema}
 Moves im Video: ${p.moves || 'offen'}
 ${p.notiz ? 'Notiz von Oliver: ' + p.notiz : ''}
 
-Format: 6 Zeilen, je max. 12 Wörter, nummeriert 1–6. Mindestens zwei mit einer Zahl, mindestens eine mit Kontrast (nicht X, sondern Y), keine zwei mit demselben Mechanismus. Nichts davor, nichts danach.`;
+Format: 6 Zeilen, je max. 12 Wörter, nummeriert 1–6. Mindestens zwei mit einer Zahl, Kontrast (nicht X, sondern Y) nur, wenn er echt ist, höchstens bei einem Impuls. Keine zwei mit demselben Mechanismus. Nichts davor, nichts danach.`;
   }
   if (type === 'minuteTitel') {
     return `${JOGA_BRAIN}

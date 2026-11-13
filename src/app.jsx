@@ -400,7 +400,7 @@ const FORMAT_RULES = [
   { key: 'humor', format: 'Typisch Mann / Humor', entry: 'Situation first', audio: 'Silent/Musik', note: 'Situation first. So wenig Sprache wie möglich, Pointe primär visuell.' },
 ];
 const FORMAT_ALIAS = { 'Oli Klärt': 'erklaerung', 'Oli Geht': 'persoenlich', 'Typisch Mann': 'humor', '1 Minute JOGA': 'routine' };
-const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
 const ruleFor = (format) => { if (!format) return null; return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null; };
 
 const SERIES_DARK = 'Dunkle Jahreszeit';
@@ -4552,6 +4552,292 @@ const DARK_SERIES_FIXES = [{ v: 2, fixes: {"dj-01": {"tip": ["", "Nach dem Essen
 const applyDarkFixes = (c, prev) => { let n = c; DARK_SERIES_FIXES.filter(f => f.v > prev).forEach(f => { const fx = f.fixes[c.id]; if (!fx) return; Object.entries(fx).forEach(([k, [o, nw]]) => { if (JSON.stringify(n[k]) === JSON.stringify(o)) n = { ...n, [k]: nw }; }); }); return n; };
 const darkSeriesSeed = () => DARK_SERIES_SEED.map(({ seedSince, ...p }) => normPiece({ world: 'JOGA', fn: 'DO', format: 'Freeshot', status: 'Idee', prodType: 'Neudreh', platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'], publishDate: '', ...p, series: SERIES_DARK, created: '2026-10-08', updated: '2026-10-08' }));
 
+/* ---------- Statement-Bibliothek (Nov 2026): 28 Statements in Olivers Stimme, eigenes Format „Statement“ ---------- */
+// Feldzuordnung: Titel→title · erster Satz→hook · Sprechtext→speech · Dauer/Bildmaterial/Hinweise→scriptText · Einordnung/Quelle→evidence.
+// Annahmen: Typ je Gruppe (A/B REACH, C ME, D/E DO), Audio Voice-over, Einstieg Move first. Alles im Piece änderbar.
+const STATEMENT_SEED = [
+ {
+  "id": "st-01",
+  "title": "DU BIST NICHT ZU ALT. DU HAST NUR AUFGEHÖRT.",
+  "hook": "Du bist nicht zu alt.",
+  "speech": "Du bist nicht zu alt. Du hast nur aufgehört. Aufgehört, in die Hocke zu gehen, zu springen, dich auf dem Boden zu bewegen. Irgendwann fühlt sich das fremd an. Klar verändert sich der Körper mit dem Alter. Aber längst nicht alles, was wir aufs Alter schieben, liegt am Alter. Manches haben wir einfach verlernt.",
+  "scriptText": "Dauer: ca. 20–25 Sekunden. Bildmaterial: Hocke, Sprünge, Balance, Bodenbewegungen.\n\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "Einordnung: Bewusst provokante Hook. Altersbedingte Einschränkungen sind real; viele Fähigkeiten bleiben jedoch trainierbar.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-02",
+  "title": "DEIN FITNESSSTUDIO KANN DICH NICHT RETTEN.",
+  "hook": "Das Studio kann dich nicht retten.",
+  "speech": "Das Studio kann dich nicht retten. Du gehst vielleicht zwei, drei Mal die Woche hin, meistens mit Überwindung. Oft lässt man es aus, weil der Schritt dahin einfach zu groß ist. Bau Bewegung in deinen Alltag ein. Stündlich, minütlich. Mach aus jeder Situation deine Bewegungssituation.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Mobility, Alltag, dynamische Bewegungsfolgen.",
+  "evidence": "Einordnung: Regelmäßiges Training ist gesundheitlich wertvoll. Zusätzliche Alltagsbewegung und weniger langes Sitzen sind ebenfalls sinnvoll.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-03",
+  "title": "ICH WILL MIT 70 NICHT JÜNGER AUSSEHEN.",
+  "hook": "Ich will mit 70 nicht jünger aussehen.",
+  "speech": "Ich will mit 70 nicht jünger aussehen. Ich will mit 70 noch vom Boden aufstehen. Mich bücken, balancieren, vielleicht sogar springen. Mein Leben soll nicht kleiner werden, nur weil mein Körper weniger kann. Deshalb bewege ich mich heute. Für alles, was ich später noch erleben will.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Bodenaufstehen, Balance, anspruchsvolle Flows.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "Einordnung: Persönliches Statement über körperliche Selbstständigkeit im Alter.",
+  "status": "Idee",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-04",
+  "title": "DU BRAUCHST KEINEN SIXPACK.",
+  "hook": "Du brauchst keinen Sixpack.",
+  "speech": "Du brauchst keinen Sixpack. Kannst du haben, keine Frage. Aber der kommt nicht allein vom Training. Wichtig ist, dass du dir Beweglichkeit antrainierst. Beweglichkeit jetzt, im Alter und fürs Alter. Das ist das Entscheidende, um gut durchs Leben zu gehen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Kraft, Balance, Körperkontrolle.",
+  "evidence": "Einordnung: Funktionelle Fähigkeiten statt rein ästhetischer Fitnessziele.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-05",
+  "title": "BEWEGLICHKEIT IST KEIN TALENT.",
+  "hook": "Du musst nicht beweglich sein, um anzufangen.",
+  "speech": "Du musst nicht beweglich sein, um anzufangen. Das ist, als würdest du sagen: Ich geh erst schwimmen, wenn ich schwimmen kann. Beweglichkeit kannst du trainieren. Fang da an, wo du bist. Nicht da, wo irgendein Fitness-Influencer schon steht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Einfache und anspruchsvolle Varianten einer Bewegung.",
+  "evidence": "Einordnung: Beweglichkeit lässt sich trainieren, auch wenn individuelle Voraussetzungen unterschiedlich sind.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-06",
+  "title": "WER HAT EIGENTLICH BESCHLOSSEN, DASS ERWACHSENE NICHT MEHR SPIELEN?",
+  "hook": "Wer hat eigentlich beschlossen, dass Erwachsene nicht mehr spielen?",
+  "speech": "Wer hat eigentlich beschlossen, dass Erwachsene nicht mehr spielen? Kinder springen, rennen, klettern, probieren was aus. Und wir? Zählen Wiederholungen, Schritte und Kalorien. Spiel doch mal wieder. Ganz ohne Leistungsnachweis.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Sprünge, spielerische Flows, kreative Übergänge.",
+  "evidence": "Einordnung: Markenstatement über Bewegungsfreude.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-07",
+  "title": "1,8 MILLIARDEN MENSCHEN BEWEGEN SICH ZU WENIG.",
+  "hook": "1,8 Milliarden Erwachsene.",
+  "speech": "1,8 Milliarden Erwachsene. So viele haben sich laut WHO im Jahr 2022 nicht ausreichend bewegt. Fast jeder Dritte. Und da geht es nicht um Marathon oder Extremsport, sondern um ganz normale Bewegung im Alltag. Unser größtes Fitnessproblem ist vielleicht gar nicht, dass wir zu wenig trainieren. Wir bewegen uns insgesamt zu wenig.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Einfache Mobility-Routine, Spaziergang, Ganzkörperbewegung.",
+  "evidence": "Quelle: WHO, 2024. Weltweite Schätzung für 2022: rund 31 % der Erwachsenen erreichten die empfohlenen Aktivitätswerte nicht.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-08",
+  "title": "150 MINUTEN. DAS IST DIE ZAHL.",
+  "hook": "150 Minuten.",
+  "speech": "150 Minuten. So viel moderate Ausdauerbewegung pro Woche empfiehlt die WHO Erwachsenen mindestens. Klingt viel? Sind im Schnitt gut 21 Minuten am Tag. Dafür musst du nicht ins Studio. Gehen, Radfahren, Tanzen zählt auch. Such dir was aus, das dir Spaß macht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Gehen, Mobility, dynamische Alltagsbewegung.",
+  "evidence": "Quelle: WHO-Leitlinien 2020. Zusätzlich wird muskelkräftigende Aktivität an mindestens zwei Tagen empfohlen.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-09",
+  "title": "DEIN KÖRPER KENNT KEINE ZEHN-MINUTEN-GRENZE.",
+  "hook": "Du hast nur fünf Minuten?",
+  "speech": "Du hast nur fünf Minuten? Dann beweg dich fünf Minuten. Früher mussten Einheiten mindestens zehn Minuten dauern, damit sie bei bestimmten Empfehlungen mitzählen. Die aktuellen WHO-Empfehlungen haben diese Mindestdauer nicht mehr. Jede Bewegung zählt. Also warte nicht auf die perfekte Stunde.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Kurze Bewegungssequenzen, Morning Moves.",
+  "evidence": "Quelle: WHO-Leitlinien 2020.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-10",
+  "title": "TRAINIERST DU EIGENTLICH DEIN GLEICHGEWICHT?",
+  "hook": "Arme, Beine, vielleicht der Bauch: Das trainierst du.",
+  "speech": "Arme, Beine, vielleicht der Bauch: Das trainierst du. Aber wann hast du zuletzt dein Gleichgewicht trainiert? Gerade im höheren Alter wird Balance wichtiger. Nicht für irgendeine Pose, sondern damit du sicher stehst und gehst. Balance ist keine Nebensache.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Einbeinstand, Balance-Übergänge.",
+  "evidence": "Quelle: CDC-Bewegungsempfehlungen für ältere Erwachsene.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-11",
+  "title": "BEWEGUNG KANN MEHR ALS KALORIEN VERBRENNEN.",
+  "hook": "Beim Sport reden wir dauernd über Kalorien.",
+  "speech": "Beim Sport reden wir dauernd über Kalorien. Dabei kann Bewegung viel mehr. Sie kann den Schlaf verbessern, Ängste verringern und den Blutdruck günstig beeinflussen. Langfristig kann sie außerdem das Risiko für verschiedene chronische Erkrankungen senken. Miss Bewegung nicht nur daran, was sie verbrennt, sondern daran, was sie dir gibt.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Flow, Spaziergang, ruhigere Bewegung.",
+  "evidence": "Quelle: CDC, Health Benefits of Physical Activity.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-12",
+  "title": "KRAFTTRAINING IST NICHT NUR FÜR MUSKELN DA.",
+  "hook": "Krafttraining ist nicht nur für den Spiegel.",
+  "speech": "Krafttraining ist nicht nur für den Spiegel. Es hilft dir beim Aufstehen, beim Tragen, beim Treppensteigen. Kurz: Du bleibst selbstständig. Die WHO empfiehlt Erwachsenen mindestens zweimal pro Woche muskelkräftige Aktivität. Nicht für den perfekten Bizeps. Für einen Körper, auf den du dich verlassen kannst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Bodyweight, Stützpositionen, kontrollierte Übergänge.",
+  "evidence": "Quelle: WHO-Leitlinien 2020.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+ },
+ {
+  "id": "st-13",
+  "title": "DEIN GEBURTSDATUM IST KEIN TRAININGSPLAN.",
+  "hook": "Dein Geburtsdatum ist kein Trainingsplan.",
+  "speech": "Dein Geburtsdatum ist kein Trainingsplan. Nur weil du 40, 50 oder 60 wirst, musst du nicht aufhören, Neues auszuprobieren. Der Körper verändert sich, klar. Aber er bleibt anpassungsfähig. Du musst nicht mehr trainieren wie mit 20. Aber probier weiter was aus.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Anspruchsvoller Flow, Balance, Kraft.\n\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "ME"
+ },
+ {
+  "id": "st-14",
+  "title": "DIE WICHTIGSTE KRAFT SIEHT MAN NICHT IM SPIEGEL.",
+  "hook": "Die wichtigste Kraft siehst du nicht im Spiegel.",
+  "speech": "Die wichtigste Kraft siehst du nicht im Spiegel. Du merkst sie, wenn du vom Boden aufstehst. Wenn du eine schwere Tasche trägst. Wenn du dich abfangen kannst. Muskeln sehen gut aus. Wichtiger ist, was du mit ihnen kannst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Aufstehen vom Boden, tiefe Hocke, Stützbewegungen.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "ME"
+ },
+ {
+  "id": "st-15",
+  "title": "ICH TRAINIERE NICHT FÜR DEN SOMMER.",
+  "hook": "Ich trainiere nicht für den Sommer.",
+  "speech": "Ich trainiere nicht für den Sommer. Nicht für den Strandurlaub, nicht für ein Vorher-nachher-Foto. Ich trainiere für die nächsten 20 Jahre. Für Reisen, für Bewegung, für Selbstständigkeit.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Ganzkörperflow, ruhige und kräftige Bewegungen.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.",
+  "evidence": "",
+  "status": "Idee",
+  "fn": "ME"
+ },
+ {
+  "id": "st-16",
+  "title": "ALT WERDEN IST KEIN GRUND, KLEINER ZU DENKEN.",
+  "hook": "Beim Älterwerden reden wir ständig darüber, was irgendwann nicht mehr geht.",
+  "speech": "Beim Älterwerden reden wir ständig darüber, was irgendwann nicht mehr geht. Warum nicht darüber, was wir noch lernen können? Eine neue Bewegung, eine neue Fähigkeit. Ich muss nicht alles können. Aber ich bleibe neugierig. Auch körperlich.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Anspruchsvolle Yoga-Skills, Handstand, Balance.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "",
+  "status": "Idee",
+  "fn": "ME"
+ },
+ {
+  "id": "st-17",
+  "title": "DU MUSST DICH NICHT FERTIG MACHEN.",
+  "hook": "Du musst dich beim Sport nicht jedes Mal fertigmachen.",
+  "speech": "Du musst dich beim Sport nicht jedes Mal fertigmachen. Nicht jede Bewegung braucht Schweiß, Muskelkater oder einen neuen Rekord. Manchmal reichen ein paar Minuten, und dein Körper ist wieder in Bewegung. Nicht jede Bewegung muss ein Workout werden.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Sanfte Mobility, entspannter Flow, Morning Moves.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-18",
+  "title": "DEIN KOPF HAT FEIERABEND. DEIN KÖRPER NOCH NICHT.",
+  "hook": "Acht Stunden gearbeitet, Kopf voll, Akku leer.",
+  "speech": "Acht Stunden gearbeitet, Kopf voll, Akku leer. Und jetzt noch Sport? Musst du nicht. Beweg dich einfach ein bisschen. Ein paar Schritte, ein paar Drehungen, bisschen Mobility. Kein Pflichtprogramm. Damit auch dein Körper Feierabend machen kann.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Abendroutine, Stretching, ruhiger Flow.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-19",
+  "title": "MOTIVATION IST ÜBERSCHÄTZT.",
+  "hook": "Motivation ist überschätzt?",
+  "speech": "Motivation ist überschätzt? Mal so, mal so. Ich bin auch nicht immer motiviert. Aber dann hilft nur: einfach machen. Nicht lange nachdenken. Eine Bewegung nachmachen, die du bei mir gesehen hast, Video raussuchen, bewegen. Überall, jederzeit. Dafür musst du nicht ins Studio.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Wiederkehrende Morning-Moves-Sequenzen.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-20",
+  "title": "DEIN KÖRPER IST KEIN PROJEKT MIT ABGABETERMIN.",
+  "hook": "Dein Körper ist kein Projekt mit Abgabetermin.",
+  "speech": "Dein Körper ist kein Projekt mit Abgabetermin. Du musst nicht in zwölf Wochen ein neuer Mensch sein. Du darfst langsam besser werden, Pausen machen und Bewegung einfach genießen. Im besten Fall begleitet sie dich ein Leben lang, nicht zwölf Wochen.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Unterschiedliche Flows, Alltag, kleine Fortschritte.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-21",
+  "title": "DIE BESTE BEWEGUNG IST DIE, DIE DU WIRKLICH MACHST.",
+  "hook": "Die beste Bewegung ist die, die du wirklich machst.",
+  "speech": "Die beste Bewegung ist die, die du wirklich machst. Deshalb gibt es bei mir einfache Einheiten. Klar, hier und da auch mal eine Challenge, man soll sich ja auch herausfordern. Aber im Idealfall bewegst du dich einfach. Wie es dir Spaß macht, wie es dir in den Sinn kommt. Nur nicht dauernd sitzen oder rumliegen. Nimm meine Videos als Inspiration.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Unterschiedliche JOGA-Flows, einfache Alltagsbewegungen.",
+  "evidence": "Einordnung: Regelmäßigkeit und langfristige Umsetzbarkeit sind zentrale Faktoren. Die beste Trainingsform hängt zusätzlich vom jeweiligen Gesundheitsziel ab.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-22",
+  "title": "BEWEGUNG KANN DEINE STIMMUNG VERÄNDERN.",
+  "hook": "Manchmal ist nicht der Körper das Hindernis, sondern der Kopf.",
+  "speech": "Manchmal ist nicht der Körper das Hindernis, sondern der Kopf. Da kann Bewegung helfen. Eine große Auswertung mit über 14.000 Menschen zeigt: Gehen, Joggen, Yoga und Krafttraining können depressive Symptome lindern. Bewegung löst nicht jedes Problem. Aber sie kann mehr verändern als nur deine Fitness.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Gehen, ruhige Flows, Mobility.",
+  "evidence": "Quelle: Noetel et al., BMJ 2024, 218 randomisierte Studien mit 14.170 Teilnehmenden. Die Evidenzsicherheit war überwiegend niedrig bis sehr niedrig.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-23",
+  "title": "TANZEN IST ERNSTHAFTE BEWEGUNG.",
+  "hook": "Du denkst, Tanzen ist kein richtiges Training?",
+  "speech": "Du denkst, Tanzen ist kein richtiges Training? Dann unterschätzt du, was da passiert. Du bewegst dich, koordinierst deinen Körper, reagierst auf Rhythmus. Und hast vielleicht sogar Spaß. In einer großen Analyse zeigte Tanzen vielversprechende Effekte auf depressive Symptome. Wir müssen Bewegung nicht immer so verdammt ernst nehmen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Spielerische Flows, rhythmische Bewegungen.",
+  "evidence": "Quelle: BMJ 2024. Der besonders große geschätzte Effekt des Tanzens beruht auf einer kleinen Datenbasis und ist entsprechend unsicher.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-24",
+  "title": "DEIN GEHIRN WILL AUCH TRAINIEREN.",
+  "hook": "Dein Gehirn will auch trainieren.",
+  "speech": "Dein Gehirn will auch trainieren. Und dafür brauchst du kein Kreuzworträtsel. Lern eine neue Bewegung. Balance halten, Arme und Beine anders koordinieren, eine Abfolge merken. Dann arbeitet nicht nur dein Körper, sondern auch dein Kopf.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Koordination, Balance, ungewohnte Bewegungsübergänge.",
+  "evidence": "Einordnung: Motorisches Lernen beansprucht neuronale Lernprozesse. Ein allgemeiner kognitiver Nutzen jeder beliebigen Übung ist damit nicht automatisch belegt.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-25",
+  "title": "KRAFTTRAINING IST AUCH KOPFSACHE.",
+  "hook": "Beim Krafttraining geht es nicht nur um Muskelaufbau.",
+  "speech": "Beim Krafttraining geht es nicht nur um Muskelaufbau. Du lernst, Bewegungen zu kontrollieren, Kraft gezielt einzusetzen und deinen Körper besser zu koordinieren. Dazu gibt es wissenschaftliche Hinweise, dass Krafttraining auch depressive Symptome lindern kann. Ein starker Körper ist also nicht die einzige gute Nachricht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Stützpositionen, kontrollierte Kraftübungen, Balance.",
+  "evidence": "Quelle: BMJ 2024. Die Analyse berichtet positive Effekte von Krafttraining auf depressive Symptome.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-26",
+  "title": "DU MUSST NICHT IMMER MEHR MACHEN.",
+  "hook": "Schneller.",
+  "speech": "Schneller. Härter. Mehr. So klingt ein Großteil von dem, was wir heute Fitness nennen. Aber dein Körper braucht nicht dauernd die nächste Herausforderung. Manchmal braucht er Ruhe, langsame Bewegung und einen Moment, in dem du wieder bewusst atmest. Nicht jede Bewegung muss dich auspowern. Manche darf dich einfach runterbringen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Yin-Flow, Atembewegungen, langsame Mobilität.",
+  "evidence": "Einordnung: Entspannungsverfahren und langsame Atmung können kurzfristig Stressreaktionen beeinflussen.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-27",
+  "title": "DEPRESSION IST KEIN FITNESSPROBLEM.",
+  "hook": "Depression ist kein Fitnessproblem.",
+  "speech": "Depression ist kein Fitnessproblem. Und niemand muss sich anhören, er solle einfach nur mehr Sport machen. Aber Bewegung kann Teil der Behandlung sein. Studien zeigen, dass verschiedene Bewegungsformen depressive Symptome lindern können. Kein Vorwurf, keine Wunderheilung. Sondern eine zusätzliche Möglichkeit, die helfen kann.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Ruhiges Talking-Head-Statement, sanfte Bewegung.\n\nERNSTES THEMA: ruhig sprechen, kein Humor, vor Dreh selbst prüfen.",
+  "evidence": "Quelle: BMJ 2024. Bewegung kann therapeutisch unterstützen, ersetzt aber nicht pauschal eine individuell notwendige medizinische oder psychotherapeutische Behandlung.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ },
+ {
+  "id": "st-28",
+  "title": "DIE BESTE BEWEGUNG HAT KEINEN NAMEN.",
+  "hook": "Die beste Bewegung hat keinen Namen.",
+  "speech": "Die beste Bewegung hat keinen Namen. Oder doch? Oliver ist ein Name, Mensch ist keiner, das ist eine Gattung. Bewegung auch. Egal, wie du dich bewegst: Es bleibt Bewegung. Und sie ist genau dann richtig für dich, wenn du sie ausführst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Unterschiedliche JOGA-Formate, Yoga, Pilates, freie Bewegung.",
+  "evidence": "Einordnung: JOGA-Markenstatement. Unterschiedliche Trainingsformen haben je nach Ziel unterschiedliche Vorteile.",
+  "status": "Skript fertig",
+  "fn": "DO"
+ }
+];
+const statementSeed = () => STATEMENT_SEED.map(p => normPiece({ world: 'JOGA', format: 'Statement', prodType: 'Neudreh', entry: 'Move first', audio: 'Voice-over', platforms: ['Instagram', 'TikTok', 'YouTube'], publishDate: '', ...p, created: '2026-11-13', updated: '2026-11-13' }));
 const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({ ...p, created: '2026-10-08', updated: '2026-10-08' }));
 // Die Notiz „vor Beginn von W6 (02.11.)“ stammt aus der Zählung 28.09.–15.11. und ist mit dem Plan 12.10.–29.11. falsch. Ersetzt wird nur der exakte alte Seed-Text.
 const V22B_TEXT_FIXES = {"v22-oli-muskeln": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-thread": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-nicht-optik": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-joga-squat-taps": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anleitung": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."], "v22-joga-dolphin": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-stretch-vor-sport": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-anfaenger2": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-video-urlaub": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."], "v22-oli-7wochen": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."]};
@@ -4640,6 +4926,13 @@ function migrateState(s) {
     out.content = [...out.content, ...add].map(c => /^dj-\d+$/.test(c.id) ? applyDarkFixes(c, prev) : c);
     out.darkSeriesSeededIds = [...new Set([...seeded, ...add.map(c => c.id)])];
     out.darkSeriesSeedVer = DARK_SERIES_SEED_VERSION;
+  }
+  // Statement-Bibliothek: einmalig, nur fehlende IDs (st-01…st-28). Bestehende oder von dir geänderte Pieces werden nie überschrieben,
+  // gelöschte kommen nicht wieder.
+  if (!out.statementLibV1) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...statementSeed().filter(c => !have.has(c.id))];
+    out.statementLibV1 = true;
   }
   return out;
 }
