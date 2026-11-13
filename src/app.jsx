@@ -5273,7 +5273,59 @@ function PieceRow({ p, onOpen, today, actions }) {
 }
 
 /* ---- HEUTE: Was muss ich jetzt tun? (berechnet, kein eigener Datentopf) ---- */
+
+// Wochenvorschlag: regelbasiert aus den Datenbefunden (Facebook/Instagram, Aug–Nov 2026). Kleine Stichprobe, daher Vorschlag und kein Gesetz.
+const WEEK_MIX = { REACH: 3, DO: 2, ME: 1, US: 1 };
+const HIT_RULES = [
+  [/aufstehen|hochkomm|boden|bücken|treppe/i, 3, 'Alltags-Funktion (Aufstehen, Bücken, Boden) wie deine stärksten Treffer'],
+  [/wichtigste kraft/i, 3, 'ähnelt deinem Instagram-Treffer „Die wichtigste Kraft im Alter“ (7.000 Aufrufe)'],
+  [/geburtsdatum|ausweis/i, 2, 'Geburtsdatum-Hook lief auf Facebook (bis 139.000 Aufrufe)'],
+  [/sixpack|waschbrett/i, 2, 'ähnelt „Kein Waschbrettbauch…“ (Instagram, 2.800 Aufrufe)'],
+  [/mit 70/i, 2, '„Was du mit 70 noch können möchtest“ lief auf Facebook (60.000 Aufrufe)'],
+  [/(eine|1) minute(?!n)/i, 2, '„Eine Minute“ lief bei dir bis 91.000 Aufrufe'],
+  [/\?/, 1, 'Frage'],
+];
+const ALTER_RE = /(^|[^a-zäöüß])(alt|alter|jung|jünger|56|70|geburtsdatum)([^a-zäöüß]|$)/i;
+const PLAT_GUIDE = [
+  ['Instagram', 'Reel. Hook als Text im ersten Bild und am Anfang der Caption.'],
+  ['Facebook', 'Gleiches Video. Caption immer mit Hook-Text, nie leer oder „Dein Reel“. Höchstens 3–4 Beiträge pro Tag.'],
+  ['TikTok', 'Gleiches Video ohne Instagram-Logo.'],
+  ['YouTube', 'Als Short, gleicher Master, kein Extra-Aufwand (niedrigste Priorität).'],
+];
+const GAP_IDEAS = {
+  REACH: { format: 'Statement', title: 'REACH: Alltagsfähigkeit (Aufstehen, Bücken, Boden), 10–30 Sek.', hook: '' },
+  DO: { format: '1 Minute JOGA', title: '1 Minute JOGA: Aufstehen vom Boden', hook: 'Eine Minute. Mehr will ich gar nicht von dir.' },
+  ME: { format: 'Statement', title: 'ME: Haltung in einem Satz, mit 56', hook: '' },
+  US: { format: 'US-Frage', title: 'Was willst du mit 70 noch können?', hook: 'Was willst du mit 70 noch können?' },
+};
+const scoreForWeek = (p) => {
+  let s = 0; const why = [];
+  const t = [p.title, p.hook].join(' ');
+  HIT_RULES.forEach(([re, w, m]) => { if (re.test(t)) { s += w; why.push(m); } });
+  if ((p.speech || '').split(/\s+/).filter(Boolean).length > 55) { s -= 1; why.push('Text eher lang (über ca. 30 Sek.)'); }
+  return { s, why, alter: ALTER_RE.test([p.title, p.hook].join(' ')) };
+};
+function suggestWeek(content, today, skip) {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+  const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && !p.publishDate && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || ''))
+    .map(p => ({ p, ...scoreForWeek(p) })).sort((a, b) => b.s - a.s);
+  const rem = { ...WEEK_MIX }; let alterLeft = 2, prev = null, reachPicked = 0;
+  return days.map(day => {
+    const fixed = content.find(c => c.publishDate === day);
+    if (fixed) { if (rem[fixed.fn] > 0) rem[fixed.fn]--; prev = fixed.fn; return { day, fixed }; }
+    const fns = Object.keys(rem).filter(f => rem[f] > 0).sort((a, b) => rem[b] - rem[a]);
+    const order = [...fns.filter(f => f !== prev), ...fns.filter(f => f === prev)];
+    for (const fn of order) {
+      const wantAlter = fn === 'REACH' && reachPicked === 1 && alterLeft === 2; // pro Woche mindestens ein Alters-Test gegen die Funktions-Hooks
+      const hit = (wantAlter && pool.find(x => x.p.fn === fn && x.alter)) || pool.find(x => x.p.fn === fn && (!x.alter || alterLeft > 0));
+      if (hit) { pool.splice(pool.indexOf(hit), 1); rem[fn]--; if (fn === 'REACH') reachPicked++; if (hit.alter) alterLeft--; prev = fn; return { day, piece: hit.p, why: hit.why, alter: hit.alter, fn }; }
+    }
+    const fn = order[0] || 'DO'; prev = fn; return { day, gap: fn };
+  });
+}
+
 function HeuteView({ state, update, gotoContent, gotoBriefing }) {
+  const [skip, setSkip] = useState([]);
   const today = todayISO(), horizon = addDays(today, 7);
   const markPosted = (p) => {
     if (stIdx(p) < 4 && !confirm('„' + (p.title || 'Piece') + '“ ist noch nicht geschnitten. Trotzdem als gepostet markieren?')) return;
@@ -5297,9 +5349,29 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
           <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.prodType} · {p.status}</span>{p.series && <span className="meta" data-series-badge>· Serie {p.series}</span>}</div>
           <div className="hook" style={{ marginTop: 4 }}>{p.title}</div>
           <div className="meta">{p.platforms.join(' · ') || 'keine Plattform gewählt'}</div>
+          <div className="meta" style={{ textTransform: 'none', letterSpacing: 0, marginTop: 6 }}>{PLAT_GUIDE.filter(([pl]) => p.platforms.includes(pl)).map(([pl, txt]) => <div key={pl}><b>{pl}:</b> {txt}</div>)}<div><b>Caption:</b> {p.caption || p.hook || p.title}</div></div>
           <div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(p.id)}>Öffnen</Btn>{p.status !== 'Gepostet' ? <Btn small kind="primary" onClick={() => markPosted(p)}>Als gepostet markieren</Btn> : <span className="meta">✓ gepostet</span>}</div>
         </div>
       )))}
+      {(() => {
+        const plan = suggestWeek(state.content, today, skip);
+        const assigns = plan.filter(r => r.piece);
+        const accept = () => update(s => ({ ...s, content: s.content.map(c => { const r = assigns.find(a => a.piece.id === c.id); return r ? { ...c, publishDate: r.day, platforms: PLATFORMS.slice(), updated: todayISO() } : c; }) }));
+        const addIdea = (fn, day) => { const g = GAP_IDEAS[fn]; update(s => ({ ...s, content: [...s.content, newPiece({ fn, format: g.format, title: g.title, hook: g.hook, status: 'Idee', platforms: PLATFORMS.slice(), publishDate: day })] })); };
+        const hasIdea = (fn, day) => state.content.some(c => c.title === GAP_IDEAS[fn].title && c.status === 'Idee' && c.publishDate === day);
+        return sec('V', 'Wochenvorschlag aus den Daten', 'Regelbasiert aus deinen Facebook-/Instagram-Treffern (Aug–Nov 2026): Mix 3 REACH, 2 DO, 1 ME, 1 US pro Woche, Alltags-Hooks zuerst, höchstens 2 Alters-Tests. Kleine Stichprobe, also ein Vorschlag. Nur JOGA-Pieces mit fertigem Skript.', <>
+          {plan.map(r => (
+            <div key={r.day} data-plan-row className="card slim" style={{ marginTop: 8 }}>
+              <div className="row wrap" style={{ margin: 0 }}><b>{wdName(r.day)} {fmtD(r.day)}</b>{r.fixed && <><span className={`type type-${r.fixed.fn}`}>{r.fixed.fn}</span><span className="meta">✓ geplant</span></>}{r.piece && <><span className={`type type-${r.fn}`}>{r.fn}</span>{r.alter && <span className="meta">· Test: Alters-Hook</span>}</>}{r.gap && <span className={`type type-${r.gap}`}>{r.gap}</span>}</div>
+              {r.fixed && <div className="hook" style={{ marginTop: 4 }}>{r.fixed.title}</div>}
+              {r.piece && <><div className="hook" style={{ marginTop: 4 }}>{r.piece.title}</div><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>{r.why.length ? r.why.join(' · ') : 'ohne bekannten Treffer-Bezug, füllt den Mix'}</div><div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(r.piece.id)}>Öffnen</Btn><Btn small onClick={() => setSkip([...skip, r.piece.id])}>Anderes</Btn></div></>}
+              {r.gap && <><div className="meta" style={{ textTransform: 'none', letterSpacing: 0 }}>Kein fertiges {r.gap}-Piece im Vorrat. Idee: {GAP_IDEAS[r.gap].title}</div><div className="row" style={{ marginTop: 8 }}>{hasIdea(r.gap, r.day) ? <span className="meta">✓ als Idee angelegt</span> : <Btn small onClick={() => addIdea(r.gap, r.day)}>Als Idee anlegen</Btn>}</div></>}
+            </div>
+          ))}
+          <div className="row" style={{ marginTop: 10 }}>{assigns.length ? <Btn kind="primary" onClick={accept}>Plan übernehmen ({assigns.length})</Btn> : <span className="meta">Nichts zu übernehmen.</span>}{skip.length > 0 && <Btn small onClick={() => setSkip([])}>Zurücksetzen</Btn>}</div>
+          {assigns.length > 0 && <div className="hint">Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite).</div>}
+        </>);
+      })()}
       {sec('B', 'Heute produzieren', B.length ? 'Fällig in den nächsten 7 Tagen und noch nicht geschnitten. Drehbereite Neudrehs zuerst.' : null, B.length === 0 ? <div className="meta" data-empty>Nichts zu produzieren.</div> : B.map(p => (
         <div key={p.id} data-card data-id={p.id} className="card slim" style={{ marginTop: 8 }}>
           <div className="card-top"><div className="hook">{p.title}</div></div>
