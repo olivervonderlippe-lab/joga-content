@@ -2132,6 +2132,11 @@ const FORMAT_ALIAS = {
   'Typisch Mann': 'humor',
   '1 Minute JOGA': 'routine'
 };
+const FORMAT_GROUPS = [['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor']], ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']], ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']], ['Varianten', ['REACH-Version', 'Recut']], ['Auswertung', ['IG-Treffer']]];
+const formatGroupOf = f => {
+  const g = FORMAT_GROUPS.find(([, l]) => l.includes(f));
+  return g ? g[0] : /-Treffer$/.test(f) ? 'Auswertung' : 'Weitere';
+};
 const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
 const ruleFor = format => {
   if (!format) return null;
@@ -8828,7 +8833,25 @@ function ProduktionView({
     }, "Pool ", pool.length, " von 28 (ohne Pilot) · terminiert ", pool.filter(c => c.publishDate).length, " · Serien-Slots Di/Do/Sa belegt ", slot, " von ", SERIES_SLOTS.length);
   })(), /*#__PURE__*/React.createElement("div", {
     className: "grid2"
-  }, sel('Produktionsart', pf.prodType, 'prodType', PROD_TYPES), sel('Plattform', pf.platform, 'platform', PLATFORMS), sel('Format', pf.format, 'format', formats), sec === 'uebersicht' && sel('Status', pf.status, 'status', C_STATUS)), sec === 'uebersicht' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  }, sel('Produktionsart', pf.prodType, 'prodType', PROD_TYPES), sel('Plattform', pf.platform, 'platform', PLATFORMS), /*#__PURE__*/React.createElement(Field, {
+    label: "Format"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: pf.format,
+    onChange: e => setPf({
+      format: e.target.value
+    })
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "Alle"
+  }, "Alle (", state.content.length, ")"), [...FORMAT_GROUPS.map(([g]) => g), 'Weitere'].map(g => {
+    const items = formats.filter(f => formatGroupOf(f) === g).map(f => [f, state.content.filter(c => c.format === f).length]).sort((x, y) => y[1] - x[1]);
+    return items.length ? /*#__PURE__*/React.createElement("optgroup", {
+      key: g,
+      label: g
+    }, items.map(([f, n]) => /*#__PURE__*/React.createElement("option", {
+      key: f,
+      value: f
+    }, f, " (", n, ")"))) : null;
+  }))), sec === 'uebersicht' && sel('Status', pf.status, 'status', C_STATUS)), sec === 'uebersicht' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
     className: "row wrap"
   }, /*#__PURE__*/React.createElement(Tag, {
     on: ui.prodView === 'liste',
