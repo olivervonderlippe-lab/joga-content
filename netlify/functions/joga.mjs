@@ -10,7 +10,7 @@ Die Sprache klingt wie ein intelligenter Freund mit Lebenserfahrung, der Bewegun
 JOGA spricht an: Menschen mit steifen Körpern, Büroalltag, über 45, ohne Yoga-Identität. Sie sind auf Facebook.
 JOGA verkauft keine Perfektion. JOGA verkauft Zustandsveränderung. Körperpflege statt Sport.
 Der Gegner ist der Stillstand, nie der faule Mensch.
-Oliver (56) ist der Beweis, nicht das Vorbild. Alter ist Kontext, kein Hook-Material – wenn Alter, dann IMMER 56.
+Oliver (56) ist der Beweis, nicht das Vorbild. Alter ist meist Kontext. Die Daten (Facebook/Instagram, Nov 2026) zeigen aber: Hooks über Funktion im Alltag (Aufstehen, Bücken, Boden) mit Alters-Bezug holen die meisten Aufrufe. Als Impuls erlaubt, wenn er eine konkrete Fähigkeit nennt. Wenn Alter, dann IMMER 56 und nur über Oliver selbst, nie jemand anderen "alt" nennen.
 Hoffnung/Freiheit sind Ergebnisse beim Zuschauer, nie Olivers Vokabular. JOGA spielt NIE mit Verlustangst.
 NIEMALS: Kalendersprüche, Achtsamkeitsphrasen, Sanskrit, Fitnessstudio-Sprache, "weiser 56-Jähriger"-Ton, Anti-Aging-Optik-Versprechen.
 Texte sollen sein: kurz, merkbar, sprechbar, menschlich, pointiert, alltagsnah. Kein Erklären. Direkt liefern.
@@ -26,10 +26,10 @@ Stilproben von Oliver (Machart, nicht kopieren): "Joga ist auch: Namasteh dumm r
 SO NICHT: "Nicht X, sondern Y" als Standardgerüst, Dreierlisten aus gleich langen Teilen als Reflex, Schlusssätze, die wie Kalendersprüche klingen, "Und genau das ist der Punkt", Wörter wie Reise, Freiheit, Hoffnung, Gedankenstriche als Stilmittel.`;
 
 const MUSTER = {
-  REACH: `Muster REACH (holt neue Leute): konkretes Versprechen + Zahl (Moves, Minuten). Belegte Gewinner: "2 Moves, die dich 20 Jahre jünger wirken lassen", "Die geilste Bewegungsroutine der Welt". Ziel: Follower.`,
-  DO: `Muster DO (Mitmachen): Nutzen + Dauer, Format "1 Minute JOGA" mit Untertitel (für deine Hüfte / nach 8 Stunden Sitzen / wenn du morgens eingerostet bist). Abschluss immer "Morgen wieder." Ziel: Saves.`,
+  REACH: `Muster REACH (holt neue Leute): eine alltägliche Fähigkeit (Aufstehen, Bücken, Boden, Treppen) oder eine ehrliche Behauptung mit Zahl, 10–30 Sekunden. Treffer aus deinen Daten (Aug–Nov 2026, Facebook/Instagram): "Ich will nicht möglichst lange jung aussehen. Ich will möglichst lange alles selbst können." (542.000 Aufrufe), "Die geilste Bewegungsroutine der Welt?" (271.000), "Zwei Minuten. Zwei Moves." (205.000), "Bücken ist keine Altersfrage. Es ist eine Benutzungsfrage." (142.000), "Dein Alter steht im Ausweis. Wie alt sich dein Körper verhält, ist eine andere Geschichte." (139.000), "Aufstehen können wir alle. Bis wir es irgendwann nicht mehr können." (116.000), Instagram: "Wann bist du das letzte Mal vom Boden aufgestanden, ohne dich abzustützen?". Schwach: Begrüßungen ("Moin"), Platzhalter, reine Montagen. Ziel: Follower.`,
+  DO: `Muster DO (Mitmachen): Nutzen + Dauer, Format "1 Minute JOGA" mit Untertitel (für deine Hüfte / nach 8 Stunden Sitzen / wenn du morgens eingerostet bist). Treffer: "Eine Minute. Mehr will ich gar nicht von dir." (91.000), "Eine Minute für später." (84.000). Abschluss immer "Morgen wieder." Ziel: Saves.`,
   US: `Muster US (Gespräch/Bedürfnisse): eine echte Frage an die Leute, Bewegung im Hintergrund. Belegte Muster: "Was willst du mit 70 noch können?", "Was fällt dir heute schwerer als vor zehn Jahren?", "Ihr habt gesagt: [Problem]. Also machen wir heute genau das." Kein Engagement-Bait. Ziel: echte Antworten in Kommentaren.`,
-  ME: `Muster ME (Oliver kennenlernen): eine Haltung, ein Satz, Alter als Kontext. Belegter Gewinner: "Mit 56 trainiere ich nicht mehr für Optik. Sondern dafür, mit 70 noch beweglich zu sein." Ziel: Kommentare.`,
+  ME: `Muster ME (Oliver kennenlernen): eine Haltung, ein Satz, Alter als Kontext. Treffer: "Mit 56 trainiere ich Kraft nicht nur mit Gewichten, sondern gern mit dem Körpergewicht." (104.000), "Mit 56 beweglicher sein als mit 36?" (Instagram), "Mit 56 trainiere ich nicht mehr für Optik. Sondern dafür, mit 70 noch beweglich zu sein." Ziel: Kommentare.`,
 };
 
 function buildPrompt(type, p) {
