@@ -7830,6 +7830,49 @@ const TILE_DATA = {
     "caption": "Drei Dinge, die du dir sparen kannst. 10.000 Schritte: 7.000 bringen laut Meta-Analyse schon viel. 2 Liter Wasser: Die DGE nennt 1,5 Liter für Gesunde. Bettruhe bei Rückenschmerzen: Die Leitlinie rät ab, Bewegung ist besser. Das ist eine Einordnung, kein Verbot. Wenn dir die alte Regel hilft, bleib dabei. Welchen Mythos glaubst du noch?"
   }
 };
+// Alte Caption-Entwürfe (vor dem 14.11.2026). Der Sammel-Button ersetzt nur Captions, die noch genau so lauten oder leer sind.
+const OLD_TILE_CAPTIONS = {
+  "aufstehen vom boden ist ein test.": "Aufstehen können wir alle. Die Frage ist wie. Probier es heute, zähl deine Punkte.",
+  "10 sekunden. ein bein. schaffst du das?": "Zehn Sekunden kosten dich nichts. Teste dich und schreib in die Kommentare, wie es lief.",
+  "dein händedruck verrät mehr, als du denkst.": "Kraft ist ein Gesundheitswert. Misst dein Arzt ihn? Eher nicht. Du kannst ihn trotzdem trainieren.",
+  "3 tests. 3 minuten. kein equipment.": "Speichern, testen, in vier Wochen wiederholen. Ich bin gespannt auf eure Ergebnisse.",
+  "muskeln verschwinden leise. ab 30.": "Mit 56 trainiere ich Kraft nicht für den Spiegel. Sondern, damit ich morgen noch alles kann.",
+  "knochen wollen druck.": "Dein Skelett merkt sich, was du ihm zumutest. Gib ihm etwas zu tun.",
+  "jeder vierte über 65 stürzt mindestens einmal im jahr.": "Sturzprophylaxe beginnt nicht mit 80. Sie beginnt, wenn du heute auf einem Bein stehst.",
+  "zahnputzzeit ist balance-zeit.": "Zwei Minuten am Tag, keine Ausrede. Wer macht mit?",
+  "mit 90 noch 174 % mehr kraft.": "Wenn das mit 90 geht, was ist dann deine Ausrede?",
+  "7 bis 9 stunden. oder 7 bis 8.": "Training ohne Schlaf ist wie Gießen ohne Erde. Wie viele Stunden schläfst du im Schnitt?",
+  "wie viel eiweiß brauchst du wirklich?": "Nicht jeder braucht Shakes. Aber viele essen weniger Eiweiß, als sie denken. Rechne nach.",
+  "von oktober bis märz reicht die sonne nicht.": "Erst messen, dann supplementieren. Nicht andersrum.",
+  "b12: wer ein risiko hat.": "Nicht jede Pille ist nötig. Aber manchmal fehlt wirklich was. Der Bluttest klärt es.",
+  "du brauchst keine 10.000 schritte.": "Hast du heute schon 4.000? Dann sind 3.000 mehr ein Spaziergang.",
+  "drei minuten, die zählen.": "Eine Minute. Mehr will ich gar nicht von dir. Heute dreimal.",
+  "das empfiehlt die who. und das ist machbar.": "150 Minuten sind etwa 20 Minuten am Tag. Speicher dir das.",
+  "5 minuten gehen, alle halbe stunde.": "Timer auf 30 Minuten. Aufstehen. Zwei Minuten reichen zum Anfangen.",
+  "nach dem essen: erst mal raus.": "Zehn Minuten nach dem Essen. Mehr nicht. Probier es eine Woche.",
+  "zweimal pro woche reicht zum start.": "Zweimal pro Woche. 20 Minuten. Nimm dir heute den Kalender.",
+  "5 zahlen für deinen körper.": "Speichern und in der Küche aufhängen. Welche Zahl fällt dir am schwersten?",
+  "rückenschmerzen? bleib in bewegung.": "Schonen fühlt sich richtig an. Meistens ist es das nicht. Kleine Wege, Gehen, locker bleiben.",
+  "rücken: was die leitlinie nicht empfiehlt.": "Gut gemeint ist nicht gut gemacht. Frag nach, bevor du zur Tablette greifst.",
+  "1,5 liter. nicht 2, nicht 3.": "Der Becher ist nicht der Gradmesser. Trink über den Tag verteilt, nicht in einem Zug.",
+  "mit dem alter wird durst leiser.": "Stell dir ein Glas auf den Tisch. Das ist das ganze Programm.",
+  "für alkohol gibt es keinen sicheren wert.": "Kein Zeigefinger. Nur eine Zahl, die man kennen sollte.",
+  "alkohol und krebs.": "Weniger ist besser. Das reicht als Botschaft.",
+  "dein gehtempo ist ein gesundheitswert.": "Wie schnell gehst du? Miss es. Es kostet eine Minute.",
+  "treppe statt aufzug.": "Heute die Treppe. Einmal. Mehr will ich nicht.",
+  "60 stufen in einer minute.": "Mach den Test nicht allein im 6. Stock, wenn du lange nichts getan hast. Starte in kleinen Schritten.",
+  "fisch: ein- bis zweimal pro woche.": "Zweimal pro Woche Fisch. Das ist die ganze Regel.",
+  "30 gramm ballaststoffe.": "Dein Frühstück entscheidet viel. Was isst du morgens?",
+  "hülsenfrüchte und weniger fleisch.": "Linsen sind nicht langweilig. Du hast nur die falschen Rezepte.",
+  "kaffee: wann ist schluss?": "Der letzte Kaffee ist früher, als du denkst. Rechne mal zurück.",
+  "abends trainieren? muss kein problem sein.": "Du schläfst nach dem Training schlecht? Dann früher trainieren. Sonst nicht.",
+  "die gleiche aufstehzeit.": "Aufstehzeit festlegen. Auch am Wochenende. Eine Woche testen.",
+  "sonne: wie viel braucht die haut?": "Raus an die Luft. Das ist gesund. Mit Sonnenschutz, wenn es lang wird.",
+  "augen prüfen, stürze vermeiden.": "Der Weg zum Augenarzt ist kürzer als der Weg zur Reha.",
+  "knochendichtemessung: wann?": "Du musst nicht warten, bis es knackt. Frag nach.",
+  "protein und hüftbruch.": "Erst das Frühstück prüfen. Meist fehlt dort das Eiweiß.",
+  "3 dinge, die du dir sparen kannst.": "Welchen Mythos glaubst du noch? Schreib es in die Kommentare."
+};
 const STILLS = [{
   label: 'Stand auf einem Bein',
   off: 0.18
@@ -10371,7 +10414,36 @@ function ProduktionView({
   }, /*#__PURE__*/React.createElement("h1", null, "Produktion"), /*#__PURE__*/React.createElement(Btn, {
     kind: "primary",
     onClick: create
-  }, "+ Piece")), /*#__PURE__*/React.createElement("div", {
+  }, "+ Piece")), (() => {
+    const key = c => (c.title || '').trim().toLowerCase();
+    const todo = state.content.filter(c => c.format === 'Kachel' && TILE_DATA[key(c)] && TILE_DATA[key(c)].caption && TILE_DATA[key(c)].caption !== c.caption && (!c.caption || c.caption === OLD_TILE_CAPTIONS[key(c)]));
+    if (!todo.length) return null;
+    const apply = () => {
+      if (!confirm(todo.length + ' Kachel-Captions durch die neuen Vorlagen ersetzen? Selbst geänderte Captions bleiben unangetastet.')) return;
+      const ids = new Set(todo.map(c => c.id));
+      update(s => ({
+        ...s,
+        content: s.content.map(c => ids.has(c.id) ? {
+          ...c,
+          caption: TILE_DATA[key(c)].caption,
+          updated: todayISO()
+        } : c)
+      }));
+    };
+    return /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      "data-tile-bulk": true,
+      style: {
+        alignItems: 'center',
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: apply
+    }, "Alle ", todo.length, " neuen Kachel-Captions einsetzen"), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Nur Kacheln mit altem Entwurf oder leerer Caption."));
+  })(), /*#__PURE__*/React.createElement("div", {
     className: "row wrap",
     "data-prod-nav": true
   }, /*#__PURE__*/React.createElement(Tag, {
