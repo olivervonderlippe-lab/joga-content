@@ -30,3 +30,10 @@ Ohne Netlify (nur Datei öffnen) läuft die App offline und speichert lokal im B
 - Teststart 15.09.2026, Review-Fragen auf den Community-Test angepasst (6 Fragen).
 - Moves haben ein Feld „Fähigkeit/Alltagsziel“; Drehplan und Hooks starten bei der Fähigkeit, nicht beim Körperbereich.
 - Drehplan schlägt Schnitte vor, du wählst aus (vorausgewählt: Routine, REACH-Version, eine JOGA-Minute).
+
+## Kachel-Generator
+
+Pieces mit Format „Kachel“ zeigen im Abschnitt Post den Kachel-Generator. Er zeichnet zwei Folien (1080 × 1350) im Canvas:
+Folie 1 mit Foto aus `stills/`, Hook (Anton, Versalien) und Kernsatz, Folie 2 mit Fakten oder Balken, Einordnung und Quelle (Oswald).
+Schriften sind als Latin-Subset in `src/tile_fonts.css` eingebettet, der Renderer liegt in `src/tile_render.js`, die Vorbelegung der Kacheln 01 bis 40 in `TILE_DATA` in `src/app.jsx` (Schlüssel: Titel). Eigene Änderungen stehen im Piece unter `tile`.
+Fotos: `stills/still-NN.jpg` (1080 × 1920) und `stills/thumb-NN.jpg`.

@@ -5,6 +5,8 @@ execSync('npx babel src/app.jsx -o build/app.js', { stdio: 'inherit' });
 const tpl = fs.readFileSync('src/template.html', 'utf8');
 const out = tpl
   .replace('__FONT__', fs.readFileSync('src/font.txt', 'utf8').trim())
+  .replace('__TILEFONTS__', () => fs.readFileSync('src/tile_fonts.css', 'utf8').trim())
+  .replace('__TILERENDER__', () => fs.readFileSync('src/tile_render.js', 'utf8'))
   .replace('__CSS__', fs.readFileSync('build/app.css', 'utf8'))
   .replace('__SEED__', fs.readFileSync('src/seed_moves.json', 'utf8').trim())
   .replace('__REACT__', () => fs.readFileSync('node_modules/react/umd/react.production.min.js', 'utf8'))
