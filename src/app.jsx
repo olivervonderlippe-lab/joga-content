@@ -405,11 +405,12 @@ const FORMAT_GROUPS = [
   ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']],
   ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']],
   ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']],
+  ['Info-Kacheln', ['Kachel']],
   ['Varianten', ['REACH-Version', 'Recut']],
   ['Auswertung', ['IG-Treffer']],
 ];
 const formatGroupOf = (f) => { const g = FORMAT_GROUPS.find(([, l]) => l.includes(f)); return g ? g[0] : (/-Treffer$/.test(f) ? 'Auswertung' : 'Weitere'); };
-const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot'];
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel'];
 const ruleFor = (format) => { if (!format) return null; return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null; };
 
 const SERIES_DARK = 'Dunkle Jahreszeit';
