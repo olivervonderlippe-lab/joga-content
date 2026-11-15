@@ -6671,6 +6671,162 @@ const STILLS = [{
 }, {
   label: 'Schwebe Schwarz-Weiß',
   off: 0.2
+}, {
+  label: 'Terrasse Düne (Oberkörper frei)',
+  off: 0.1,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Düne',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Düne Spagat',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Seitwinkel Düne',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Brücke s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Unterarmstand s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Pflug Hocke s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Pflug Seite s/w (unscharf)',
+  off: 0.2,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Seitstütz s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Bogen s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Drehung Bein hoch s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Teppich',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Teppich 2',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Liegestütz',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Hocke Gebet',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Pflug Sonnenlicht',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Schmetterling Sonnenlicht',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Bein hoch',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Bein hoch Variation',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Krähe',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Heuschrecke',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Knien Rückbeuge',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Rücken Beine verschränkt',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Frosch-Hocke',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Lotus',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Spagat Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Rücken Hände Gesicht',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Bein schief',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Drehung Bein',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Seitstütz Bein weg',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Baum Hände Herz',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Lampe',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Variation',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Knien Drehung s/w (Oberkörper frei)',
+  off: 0.25,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Ausfallschritt s/w (Oberkörper frei)',
+  off: 0.25,
+  warn: true,
+  pos: 'oben'
 }];
 const stillNo = n => String(n).padStart(2, '0');
 const stillCache = {};
@@ -7024,7 +7180,7 @@ function SpruchCard({
   const t = p.tile || {};
   const still = spruchStill(p),
     off = t.off != null ? t.off : (STILLS[still - 1] || {}).off,
-    pos = t.pos || 'unten';
+    pos = t.pos || (STILLS[still - 1] || {}).pos || 'unten';
   const text = p.title || p.hook || '';
   const [fmt, setFmt] = useState('feed');
   const cv = useRef(null);
