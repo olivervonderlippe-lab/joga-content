@@ -53,8 +53,9 @@
     } catch (e) { return 0.8; }
   }
 
-  function footer(ctx, ink, withNext) {
-    ctx.font = AN(36); ctx.fillStyle = OR; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('JOGA', PAD, 1296);
+  function footer(ctx, ink, withNext, fy) {
+    fy = fy || 1296;
+    ctx.font = AN(36); ctx.fillStyle = OR; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('JOGA', PAD, fy);
     if (withNext) {
       ctx.font = OS(34, 600); ctx.fillStyle = ink; ctx.textAlign = 'right'; ctx.fillText('WEITER', W - PAD - 70, 1294);
       ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(W - PAD - 55, 1283); ctx.lineTo(W - PAD, 1283); ctx.moveTo(W - PAD - 18, 1268); ctx.lineTo(W - PAD, 1283); ctx.lineTo(W - PAD - 18, 1298); ctx.stroke();
@@ -205,6 +206,49 @@
     return res;
   }
 
+
+  /* ---------- Spruch-Bild (Feed 1080 x 1350 oder Story 1080 x 1920) ---------- */
+  function spruch(ctx, t, img, off, fmt) {
+    var story = fmt === 'story', HH = story ? 1920 : 1350, res = { overflow: false, dark: false };
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, HH);
+    if (img && img.naturalWidth) {
+      var sc = Math.max(W / img.naturalWidth, HH / img.naturalHeight), iw = img.naturalWidth * sc, ih = img.naturalHeight * sc;
+      var x = -(iw - W) / 2, y = -(ih - HH) * Math.max(0, Math.min(1, off == null ? 0.2 : off));
+      ctx.drawImage(img, x, y, iw, ih);
+    }
+    var maxW = W - 2 * PAD, pos = t.pos === 'oben' ? 'oben' : 'unten';
+    var safeTop = story ? 260 : 60, safeBot = story ? 360 : 130;
+    var text = up(t.text || t.hook || '');
+    var sent = text.split(/(?<=[.!?])\s+/).filter(Boolean), ink = sent.length > 1 ? sent.slice(0, -1).join(' ') : text, acc = sent.length > 1 ? sent[sent.length - 1] : '';
+    var maxH = story ? 760 : 640, chosen = null, sizes = range(128, 54, 4);
+    for (var i = 0; i < sizes.length; i++) {
+      var s = sizes[i]; ctx.font = AN(s);
+      var a = balWrap(ctx, ink, maxW), c = acc ? balWrap(ctx, acc, maxW) : [];
+      var n = a.length + c.length, h = n * s * 1.04;
+      chosen = { s: s, a: a, c: c, h: h, over: !(n <= 7 && h <= maxH && maxLineW(ctx, a.concat(c)) <= maxW + .5) };
+      if (!chosen.over) break;
+    }
+    if (chosen.over) res.overflow = true;
+    var top, inkCol = '#fff';
+    if (pos === 'oben') {
+      var lum = lumOf(ctx, 0, safeTop, W, Math.min(500, HH / 3)); res.dark = lum < 0.42; inkCol = res.dark ? '#fff' : '#000';
+      top = safeTop;
+      var gh = top + chosen.h + 160, g = ctx.createLinearGradient(0, 0, 0, gh), c0 = res.dark ? '0,0,0' : '255,255,255';
+      g.addColorStop(0, 'rgba(' + c0 + ',.9)'); g.addColorStop(Math.min(0.92, (top + chosen.h) / gh), 'rgba(' + c0 + ',.8)'); g.addColorStop(1, 'rgba(' + c0 + ',0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, gh);
+    } else {
+      top = HH - safeBot - chosen.h - 60;
+      var g0 = Math.max(0, top - 260), g2 = ctx.createLinearGradient(0, g0, 0, HH);
+      g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(0.5, 'rgba(0,0,0,.72)'); g2.addColorStop(1, 'rgba(0,0,0,.94)');
+      ctx.fillStyle = g2; ctx.fillRect(0, g0, W, HH - g0);
+    }
+    ctx.font = AN(chosen.s);
+    drawLines(ctx, chosen.a, PAD, top, chosen.s, 1.04, inkCol);
+    drawLines(ctx, chosen.c, PAD, top + chosen.a.length * chosen.s * 1.04, chosen.s, 1.04, OR);
+    footer(ctx, '#fff', false, story ? HH - 300 : 1296);
+    return res;
+  }
+
   function parseEvidence(s) {
     var o = { einordnung: '', quelle: '' };
     String(s || '').split(/\n+/).forEach(function (l) {
@@ -225,8 +269,10 @@
 
   window.JogaTile = {
     W: W, H: H, up: up, parseEvidence: parseEvidence, ready: ready,
-    render: function (canvas, slide, tile, img, off, ev) {
-      canvas.width = W; canvas.height = H; var ctx = canvas.getContext('2d');
+    render: function (canvas, slide, tile, img, off, ev, fmt) {
+      var ch = slide === 'spruch' && fmt === 'story' ? 1920 : H;
+      canvas.width = W; canvas.height = ch; var ctx = canvas.getContext('2d');
+      if (slide === 'spruch') return spruch(ctx, tile, img, off, fmt);
       return slide === 1 ? cover(ctx, tile, img, off) : facts(ctx, tile, ev);
     },
     toBlob: function (canvas) { return new Promise(function (res) { canvas.toBlob(res, 'image/png'); }); }

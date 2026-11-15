@@ -37,3 +37,11 @@ Pieces mit Format „Kachel“ zeigen im Abschnitt Post den Kachel-Generator. Er
 Folie 1 mit Foto aus `stills/`, Hook (Anton, Versalien) und Kernsatz, Folie 2 mit Fakten oder Balken, Einordnung und Quelle (Oswald).
 Schriften sind als Latin-Subset in `src/tile_fonts.css` eingebettet, der Renderer liegt in `src/tile_render.js`, die Vorbelegung der Kacheln 01 bis 40 in `TILE_DATA` in `src/app.jsx` (Schlüssel: Titel). Eigene Änderungen stehen im Piece unter `tile`.
 Fotos: `stills/still-NN.jpg` (1080 × 1920) und `stills/thumb-NN.jpg`.
+
+## Sprüche / „Spruch des Tages“
+
+- Format `Spruch` (Gruppe „Stimme und Sprüche“): ein Satz auf einem Foto, Feed 1080×1350 und Story 1080×1920.
+- HEUTE → „Spruch des Tages“: zufälliger, noch nicht geposteter Spruch (wechselt den Topf), Foto wechseln, Text oben/unten, Ausschnitt, Teilen/Speichern, „Als gepostet markieren“ (Spruch fällt aus dem Pool).
+- Ich-Sprüche (`tile.ich`) kommen erst nach Freigabe (`tile.freigabe`, Häkchen im Spruch-Editor) in die Verlosung.
+- Sprüche erscheinen in Produktion nur, wenn der Format-Filter auf „Spruch“ steht; der Zufallsgenerator ignoriert sie.
+- Import: `sprueche-001-100.json` über Produktion → ÜBERSICHT → Import. Neue Fotos: `stills/still-NN.jpg` + `thumb-NN.jpg` ablegen und `STILLS` in `src/app.jsx` ergänzen.

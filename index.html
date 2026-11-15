@@ -1052,8 +1052,9 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     } catch (e) { return 0.8; }
   }
 
-  function footer(ctx, ink, withNext) {
-    ctx.font = AN(36); ctx.fillStyle = OR; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('JOGA', PAD, 1296);
+  function footer(ctx, ink, withNext, fy) {
+    fy = fy || 1296;
+    ctx.font = AN(36); ctx.fillStyle = OR; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText('JOGA', PAD, fy);
     if (withNext) {
       ctx.font = OS(34, 600); ctx.fillStyle = ink; ctx.textAlign = 'right'; ctx.fillText('WEITER', W - PAD - 70, 1294);
       ctx.strokeStyle = ink; ctx.lineWidth = 5; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(W - PAD - 55, 1283); ctx.lineTo(W - PAD, 1283); ctx.moveTo(W - PAD - 18, 1268); ctx.lineTo(W - PAD, 1283); ctx.lineTo(W - PAD - 18, 1298); ctx.stroke();
@@ -1204,6 +1205,49 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     return res;
   }
 
+
+  /* ---------- Spruch-Bild (Feed 1080 x 1350 oder Story 1080 x 1920) ---------- */
+  function spruch(ctx, t, img, off, fmt) {
+    var story = fmt === 'story', HH = story ? 1920 : 1350, res = { overflow: false, dark: false };
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, HH);
+    if (img && img.naturalWidth) {
+      var sc = Math.max(W / img.naturalWidth, HH / img.naturalHeight), iw = img.naturalWidth * sc, ih = img.naturalHeight * sc;
+      var x = -(iw - W) / 2, y = -(ih - HH) * Math.max(0, Math.min(1, off == null ? 0.2 : off));
+      ctx.drawImage(img, x, y, iw, ih);
+    }
+    var maxW = W - 2 * PAD, pos = t.pos === 'oben' ? 'oben' : 'unten';
+    var safeTop = story ? 260 : 60, safeBot = story ? 360 : 130;
+    var text = up(t.text || t.hook || '');
+    var sent = text.split(/(?<=[.!?])\s+/).filter(Boolean), ink = sent.length > 1 ? sent.slice(0, -1).join(' ') : text, acc = sent.length > 1 ? sent[sent.length - 1] : '';
+    var maxH = story ? 760 : 640, chosen = null, sizes = range(128, 54, 4);
+    for (var i = 0; i < sizes.length; i++) {
+      var s = sizes[i]; ctx.font = AN(s);
+      var a = balWrap(ctx, ink, maxW), c = acc ? balWrap(ctx, acc, maxW) : [];
+      var n = a.length + c.length, h = n * s * 1.04;
+      chosen = { s: s, a: a, c: c, h: h, over: !(n <= 7 && h <= maxH && maxLineW(ctx, a.concat(c)) <= maxW + .5) };
+      if (!chosen.over) break;
+    }
+    if (chosen.over) res.overflow = true;
+    var top, inkCol = '#fff';
+    if (pos === 'oben') {
+      var lum = lumOf(ctx, 0, safeTop, W, Math.min(500, HH / 3)); res.dark = lum < 0.42; inkCol = res.dark ? '#fff' : '#000';
+      top = safeTop;
+      var gh = top + chosen.h + 160, g = ctx.createLinearGradient(0, 0, 0, gh), c0 = res.dark ? '0,0,0' : '255,255,255';
+      g.addColorStop(0, 'rgba(' + c0 + ',.9)'); g.addColorStop(Math.min(0.92, (top + chosen.h) / gh), 'rgba(' + c0 + ',.8)'); g.addColorStop(1, 'rgba(' + c0 + ',0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, gh);
+    } else {
+      top = HH - safeBot - chosen.h - 60;
+      var g0 = Math.max(0, top - 260), g2 = ctx.createLinearGradient(0, g0, 0, HH);
+      g2.addColorStop(0, 'rgba(0,0,0,0)'); g2.addColorStop(0.5, 'rgba(0,0,0,.72)'); g2.addColorStop(1, 'rgba(0,0,0,.94)');
+      ctx.fillStyle = g2; ctx.fillRect(0, g0, W, HH - g0);
+    }
+    ctx.font = AN(chosen.s);
+    drawLines(ctx, chosen.a, PAD, top, chosen.s, 1.04, inkCol);
+    drawLines(ctx, chosen.c, PAD, top + chosen.a.length * chosen.s * 1.04, chosen.s, 1.04, OR);
+    footer(ctx, '#fff', false, story ? HH - 300 : 1296);
+    return res;
+  }
+
   function parseEvidence(s) {
     var o = { einordnung: '', quelle: '' };
     String(s || '').split(/\n+/).forEach(function (l) {
@@ -1224,8 +1268,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 
   window.JogaTile = {
     W: W, H: H, up: up, parseEvidence: parseEvidence, ready: ready,
-    render: function (canvas, slide, tile, img, off, ev) {
-      canvas.width = W; canvas.height = H; var ctx = canvas.getContext('2d');
+    render: function (canvas, slide, tile, img, off, ev, fmt) {
+      var ch = slide === 'spruch' && fmt === 'story' ? 1920 : H;
+      canvas.width = W; canvas.height = ch; var ctx = canvas.getContext('2d');
+      if (slide === 'spruch') return spruch(ctx, tile, img, off, fmt);
       return slide === 1 ? cover(ctx, tile, img, off) : facts(ctx, tile, ev);
     },
     toBlob: function (canvas) { return new Promise(function (res) { canvas.toBlob(res, 'image/png'); }); }
@@ -2370,12 +2416,12 @@ const FORMAT_ALIAS = {
   'Typisch Mann': 'humor',
   '1 Minute JOGA': 'routine'
 };
-const FORMAT_GROUPS = [['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor']], ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']], ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']], ['Info-Kacheln', ['Kachel']], ['Varianten', ['REACH-Version', 'Recut']], ['Auswertung', ['IG-Treffer']]];
+const FORMAT_GROUPS = [['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor', 'Spruch']], ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']], ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']], ['Info-Kacheln', ['Kachel']], ['Varianten', ['REACH-Version', 'Recut']], ['Auswertung', ['IG-Treffer']]];
 const formatGroupOf = f => {
   const g = FORMAT_GROUPS.find(([, l]) => l.includes(f));
   return g ? g[0] : /-Treffer$/.test(f) ? 'Auswertung' : 'Weitere';
 };
-const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel'];
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel', 'Spruch'];
 const ruleFor = format => {
   if (!format) return null;
   return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null;
@@ -8227,6 +8273,242 @@ function TileStudio({
     onClick: () => saveOne(1)
   }, "Folie 2 (PNG)")));
 }
+
+/* ---------- Spruch-Bilder: Karte (Studio + Spruch des Tages) ---------- */
+const hashStr = str => {
+  let h = 0;
+  for (const ch of String(str)) h = h * 31 + ch.charCodeAt(0) >>> 0;
+  return h;
+};
+const spruchStill = p => {
+  const t = p.tile || {};
+  if (t.still) return t.still;
+  const ok = STILLS.map((x, i) => x.warn ? 0 : i + 1).filter(Boolean);
+  return ok[hashStr(p.id) % ok.length];
+};
+const dlBlob = (blob, name) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+const TOEPFE = ['Bewegung', 'Alltag', 'Humor', 'Ich', 'Aufgabe'];
+function SpruchCard({
+  p,
+  set,
+  edit
+}) {
+  const t = p.tile || {};
+  const still = spruchStill(p),
+    off = t.off != null ? t.off : (STILLS[still - 1] || {}).off,
+    pos = t.pos || 'unten';
+  const text = p.title || p.hook || '';
+  const [fmt, setFmt] = useState('feed');
+  const cv = useRef(null);
+  const [err, setErr] = useState(''),
+    [over, setOver] = useState(false);
+  const upd = patch => set({
+    tile: {
+      ...(p.tile || {}),
+      ...patch
+    }
+  });
+  const sig = JSON.stringify([text, still, off, pos, fmt]);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      try {
+        await JogaTile.ready();
+        const img = await loadStill(still);
+        if (dead) return;
+        const r = JogaTile.render(cv.current, 'spruch', {
+          text,
+          pos
+        }, img, off, null, fmt);
+        setOver(r.overflow);
+        setErr('');
+      } catch (e) {
+        if (!dead) setErr(e.message || 'Fehler beim Zeichnen');
+      }
+    })();
+    return () => {
+      dead = true;
+    };
+  }, [sig]);
+  const blobOf = async f => {
+    const c = document.createElement('canvas');
+    await JogaTile.ready();
+    const img = await loadStill(still);
+    JogaTile.render(c, 'spruch', {
+      text,
+      pos
+    }, img, off, null, f);
+    return JogaTile.toBlob(c);
+  };
+  const name = f => 'joga-spruch-' + (p.id || 'x') + '-' + f + '.png';
+  const share = async formats => {
+    const files = [];
+    for (const f of formats) files.push(new File([await blobOf(f)], name(f), {
+      type: 'image/png'
+    }));
+    if (navigator.canShare && navigator.canShare({
+      files
+    })) {
+      try {
+        await navigator.share({
+          files
+        });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    files.forEach((f, i) => setTimeout(() => dlBlob(f, f.name), i * 400));
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "data-spruch-card": true,
+    style: {
+      margin: '8px 0'
+    }
+  }, edit && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: "Spruch"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: text,
+    onChange: e => set({
+      title: e.target.value,
+      hook: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, TOEPFE.map(x => /*#__PURE__*/React.createElement(Tag, {
+    key: x,
+    on: t.topf === x,
+    onClick: () => upd({
+      topf: x
+    })
+  }, x))), t.ich && /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      margin: '8px 0',
+      fontSize: 13,
+      color: 'var(--muted)'
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!t.freigabe,
+    onChange: e => upd({
+      freigabe: e.target.checked
+    }),
+    style: {
+      width: 20,
+      height: 20,
+      flex: 'none'
+    }
+  }), "Ich-Spruch: stimmt für mich, darf gepostet werden")), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Foto"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      gap: 6
+    }
+  }, STILLS.map((s, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    onClick: () => upd({
+      still: i + 1,
+      off: undefined
+    }),
+    title: s.label,
+    style: {
+      padding: 0,
+      border: still === i + 1 ? '2px solid var(--accent)' : '2px solid transparent',
+      borderRadius: 6,
+      background: 'none',
+      position: 'relative',
+      lineHeight: 0
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: 'stills/thumb-' + stillNo(i + 1) + '.jpg',
+    alt: s.label,
+    style: {
+      width: 44,
+      height: 78,
+      objectFit: 'cover',
+      borderRadius: 4
+    }
+  }), s.warn && /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      right: 2,
+      top: 2,
+      fontSize: 11,
+      fontWeight: 800,
+      background: 'var(--accent)',
+      color: '#1a1408',
+      borderRadius: 4,
+      padding: '0 4px',
+      lineHeight: '16px'
+    }
+  }, "!")))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      marginTop: 8
+    }
+  }, [['feed', 'Feed 4:5'], ['story', 'Story 9:16']].map(([v, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: v,
+    on: fmt === v,
+    onClick: () => setFmt(v)
+  }, l)), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Text"), [['unten', 'unten'], ['oben', 'oben']].map(([v, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: v,
+    on: pos === v,
+    onClick: () => upd({
+      pos: v
+    })
+  }, l))), /*#__PURE__*/React.createElement(Field, {
+    label: "Bildausschnitt (hoch / runter)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: "0",
+    max: "1",
+    step: "0.01",
+    value: off == null ? 0.2 : off,
+    onChange: e => upd({
+      off: parseFloat(e.target.value)
+    })
+  })), err && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-spruch-err": true
+  }, err), over && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-spruch-over": true
+  }, "Der Spruch ist für dieses Bild zu lang. Kürzen."), /*#__PURE__*/React.createElement("canvas", {
+    ref: cv,
+    style: {
+      width: '100%',
+      maxWidth: fmt === 'story' ? 260 : 340,
+      display: 'block',
+      margin: '8px auto',
+      borderRadius: 8,
+      border: '1px solid var(--line)',
+      background: '#222'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => share([fmt])
+  }, fmt === 'story' ? 'Story teilen / speichern' : 'Feed teilen / speichern'), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => share(['feed', 'story'])
+  }, "Beide Größen")));
+}
 function ContentDetail({
   id,
   state,
@@ -8689,7 +8971,21 @@ function ContentDetail({
   }, "Verknüpfe in Schritt 3 einen Master-Dreh, um mehrere Pieces aus demselben Rohmaterial zu bündeln."))), sec(4, 'Post', /*#__PURE__*/React.createElement(React.Fragment, null, p.format === 'Kachel' && /*#__PURE__*/React.createElement(TileStudio, {
     p: p,
     set: set
-  }), /*#__PURE__*/React.createElement("div", {
+  }), p.format === 'Spruch' && /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    style: {
+      background: 'var(--panel2)',
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 4
+    }
+  }, "Spruch-Bild"), /*#__PURE__*/React.createElement(SpruchCard, {
+    p: p,
+    set: set,
+    edit: true
+  })), /*#__PURE__*/React.createElement("div", {
     style: lblStyle
   }, "Plattformen"), /*#__PURE__*/React.createElement("div", {
     className: "row wrap"
@@ -9280,7 +9576,7 @@ function rollOne(content, today, {
   const slots = slot ? [slot] : SLOT_ORDER;
   const cands = [];
   content.forEach(p => {
-    if (p.world !== 'JOGA' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
+    if (p.world !== 'JOGA' || p.format === 'Spruch' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
     const ready = ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today);
     const kind = ready ? 'v' : p.status === 'Gepostet' ? 'n' : null;
     if (!kind || !kinds.includes(kind)) return;
@@ -9425,6 +9721,88 @@ function suggestWeek(content, today, skip, seed = 0, dayRolls = {}) {
   });
   return rows;
 }
+function SpruchDesTages({
+  state,
+  update
+}) {
+  const [pickId, setPickId] = useState(null);
+  const all = state.content.filter(p => p.format === 'Spruch');
+  const open = all.filter(p => p.status !== 'Gepostet');
+  const ready = open.filter(p => !(p.tile && p.tile.ich && !p.tile.freigabe));
+  const wait = open.length - ready.length;
+  const posted = all.filter(p => p.status === 'Gepostet').sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  const lastTopf = posted[0] && posted[0].tile ? posted[0].tile.topf : null;
+  const roll = skipId => {
+    let pool = ready.filter(p => p.id !== skipId);
+    const alt = pool.filter(p => (p.tile || {}).topf !== lastTopf);
+    if (alt.length) pool = alt;
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)].id : null;
+  };
+  useEffect(() => {
+    if (ready.length && (!pickId || !ready.some(p => p.id === pickId))) setPickId(roll(null));
+  }, [all.length, ready.length, pickId]);
+  const piece = ready.find(p => p.id === pickId);
+  const patch = pt => update(s => ({
+    ...s,
+    content: s.content.map(c => c.id === piece.id ? {
+      ...c,
+      ...pt,
+      updated: todayISO()
+    } : c)
+  }));
+  const done = () => {
+    patch({
+      status: 'Gepostet',
+      publishDate: todayISO(),
+      platforms: ['Instagram', 'Facebook']
+    });
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "data-heute": "S",
+    className: "sheet",
+    style: WRAP
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 2
+    }
+  }, "Spruch des Tages"), !all.length && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-spruch-empty": true
+  }, "Noch keine Sprüche in der App. Importiere sprueche-001-100.json (Produktion, ÜBERSICHT, Import)."), all.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    style: {
+      marginTop: 0
+    }
+  }, ready.length, " von ", all.length, " Sprüchen noch offen", wait ? ', ' + wait + ' warten auf deine Freigabe (Ich-Sprüche)' : '', ". Der Zufall meidet den Topf des zuletzt geposteten Spruchs."), all.length > 0 && !piece && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-spruch-none": true
+  }, "Keine freigegebenen Sprüche mehr offen."), piece && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      margin: '4px 0'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Topf ", (piece.tile || {}).topf || '–')), /*#__PURE__*/React.createElement("div", {
+    className: "hook",
+    style: {
+      marginTop: 4
+    }
+  }, piece.title), /*#__PURE__*/React.createElement(SpruchCard, {
+    key: piece.id,
+    p: piece,
+    set: patch
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => setPickId(roll(piece.id))
+  }, "Anderen Spruch würfeln"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: "primary",
+    onClick: done
+  }, "Als gepostet markieren"))));
+}
 function HeuteView({
   state,
   update,
@@ -9536,7 +9914,10 @@ function HeuteView({
     onClick: () => markPosted(p)
   }, "Als gepostet markieren") : /*#__PURE__*/React.createElement("span", {
     className: "meta"
-  }, "✓ gepostet"))))), (() => {
+  }, "✓ gepostet"))))), /*#__PURE__*/React.createElement(SpruchDesTages, {
+    state: state,
+    update: update
+  }), (() => {
     const KIND = {
       v: 'Vorhanden',
       n: 'Neuauflage',
@@ -10323,7 +10704,7 @@ function PlanView({
 
 /* ---- PRODUKTION: Übersicht (Liste | Board) · Ideen · Skripte · Drehen · Schneiden · Bereit ---- */
 function applyPf(list, pf) {
-  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' || p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
+  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' ? p.format !== 'Spruch' : p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
 }
 function ProduktionView({
   state,
