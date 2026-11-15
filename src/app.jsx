@@ -401,7 +401,7 @@ const FORMAT_RULES = [
 ];
 const FORMAT_ALIAS = { 'Oli Klärt': 'erklaerung', 'Oli Geht': 'persoenlich', 'Typisch Mann': 'humor', '1 Minute JOGA': 'routine' };
 const FORMAT_GROUPS = [
-  ['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor']],
+  ['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor', 'Spruch']],
   ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']],
   ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']],
   ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']],
@@ -410,7 +410,7 @@ const FORMAT_GROUPS = [
   ['Auswertung', ['IG-Treffer']],
 ];
 const formatGroupOf = (f) => { const g = FORMAT_GROUPS.find(([, l]) => l.includes(f)); return g ? g[0] : (/-Treffer$/.test(f) ? 'Auswertung' : 'Weitere'); };
-const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel'];
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel', 'Spruch'];
 const ruleFor = (format) => { if (!format) return null; return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null; };
 
 const SERIES_DARK = 'Dunkle Jahreszeit';
@@ -5053,6 +5053,16 @@ const STILLS = [
   { label: 'Stand auf einem Bein', off: 0.18 }, { label: 'Rocker-Hocke', off: 0.25 }, { label: 'Knien, Hände', off: 0.25 },
   { label: 'Unterarmstand Wohnzimmer', off: 0.15 }, { label: 'Seitwinkel', off: 0.1 }, { label: 'Unterarmstand Mandala', off: 0.3, warn: true },
   { label: 'Drehung', off: 0.15 }, { label: 'Arme hoch Studio', off: 0.2, warn: true }, { label: 'Unterarmstand Kamin', off: 0.3 }, { label: 'Schwebe Schwarz-Weiß', off: 0.2 },
+  { label: 'Terrasse Düne (Oberkörper frei)', off: 0.1, warn: true, pos: 'oben' }, { label: 'Kopfstand Düne', off: 0.25, pos: 'oben' }, { label: 'Kopfstand Düne Spagat', off: 0.25, pos: 'oben' }, { label: 'Seitwinkel Düne', off: 0.25, pos: 'oben' },
+  { label: 'Brücke s/w', off: 0.2, pos: 'oben' }, { label: 'Unterarmstand s/w', off: 0.2, pos: 'oben' }, { label: 'Pflug Hocke s/w', off: 0.2, pos: 'oben' }, { label: 'Pflug Seite s/w (unscharf)', off: 0.2, warn: true, pos: 'oben' },
+  { label: 'Seitstütz s/w', off: 0.15, pos: 'oben' }, { label: 'Kopfstand s/w', off: 0.15, pos: 'oben' }, { label: 'Bogen s/w', off: 0.2, pos: 'oben' }, { label: 'Drehung Bein hoch s/w', off: 0.15, pos: 'oben' },
+  { label: 'Kopfstand Teppich', off: 0.2, pos: 'oben' }, { label: 'Kopfstand Teppich 2', off: 0.2, pos: 'oben' }, { label: 'Liegestütz', off: 0.25, pos: 'oben' }, { label: 'Hocke Gebet', off: 0.25, pos: 'oben' },
+  { label: 'Pflug Sonnenlicht', off: 0.25, pos: 'oben' }, { label: 'Schmetterling Sonnenlicht', off: 0.25, pos: 'oben' }, { label: 'Bein hoch', off: 0.15, pos: 'oben' }, { label: 'Bein hoch Variation', off: 0.15, pos: 'oben' },
+  { label: 'Krähe', off: 0.3, pos: 'oben' }, { label: 'Heuschrecke', off: 0.3, pos: 'oben' }, { label: 'Knien Rückbeuge', off: 0.25, pos: 'oben' }, { label: 'Rücken Beine verschränkt', off: 0.3, pos: 'oben' },
+  { label: 'Frosch-Hocke', off: 0.3, pos: 'oben' }, { label: 'Kopfstand Sonne', off: 0.3, pos: 'oben' }, { label: 'Kopfstand Lotus', off: 0.3, pos: 'oben' }, { label: 'Kopfstand Spagat Sonne', off: 0.3, pos: 'oben' },
+  { label: 'Dreieck Sonne', off: 0.3, pos: 'oben' }, { label: 'Rücken Hände Gesicht', off: 0.3, pos: 'oben' }, { label: 'Kopfstand Bein schief', off: 0.3, pos: 'oben' }, { label: 'Drehung Bein', off: 0.3, pos: 'oben' },
+  { label: 'Seitstütz Bein weg', off: 0.3, pos: 'oben' }, { label: 'Baum Hände Herz', off: 0.3, pos: 'oben' }, { label: 'Dreieck Lampe', off: 0.2, pos: 'oben' }, { label: 'Dreieck Variation', off: 0.2, pos: 'oben' },
+  { label: 'Knien Drehung s/w (Oberkörper frei)', off: 0.25, warn: true, pos: 'oben' }, { label: 'Ausfallschritt s/w (Oberkörper frei)', off: 0.25, warn: true, pos: 'oben' },
 ];
 const stillNo = (n) => String(n).padStart(2, '0');
 const stillCache = {};
@@ -5144,6 +5154,71 @@ function TileStudio({ p, set }) {
         <Btn kind="primary" onClick={shareBoth}>Beide Folien teilen / speichern</Btn>
         <Btn small onClick={() => saveOne(0)}>Folie 1 (PNG)</Btn>
         <Btn small onClick={() => saveOne(1)}>Folie 2 (PNG)</Btn>
+      </div>
+    </div>
+  );
+}
+
+
+/* ---------- Spruch-Bilder: Karte (Studio + Spruch des Tages) ---------- */
+const hashStr = (str) => { let h = 0; for (const ch of String(str)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+const spruchStill = (p) => { const t = p.tile || {}; if (t.still) return t.still; const ok = STILLS.map((x, i) => x.warn ? 0 : i + 1).filter(Boolean); return ok[hashStr(p.id) % ok.length]; };
+const dlBlob = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+const TOEPFE = ['Bewegung', 'Alltag', 'Humor', 'Ich', 'Aufgabe'];
+function SpruchCard({ p, set, edit }) {
+  const t = p.tile || {};
+  const still = spruchStill(p), off = t.off != null ? t.off : (STILLS[still - 1] || {}).off, pos = t.pos || (STILLS[still - 1] || {}).pos || 'unten';
+  const text = p.title || p.hook || '';
+  const [fmt, setFmt] = useState('feed');
+  const cv = useRef(null);
+  const [err, setErr] = useState(''), [over, setOver] = useState(false);
+  const upd = (patch) => set({ tile: { ...(p.tile || {}), ...patch } });
+  const sig = JSON.stringify([text, still, off, pos, fmt]);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      try {
+        await JogaTile.ready(); const img = await loadStill(still); if (dead) return;
+        const r = JogaTile.render(cv.current, 'spruch', { text, pos }, img, off, null, fmt); setOver(r.overflow); setErr('');
+      } catch (e) { if (!dead) setErr(e.message || 'Fehler beim Zeichnen'); }
+    })();
+    return () => { dead = true; };
+  }, [sig]);
+  const blobOf = async (f) => { const c = document.createElement('canvas'); await JogaTile.ready(); const img = await loadStill(still); JogaTile.render(c, 'spruch', { text, pos }, img, off, null, f); return JogaTile.toBlob(c); };
+  const name = (f) => 'joga-spruch-' + (p.id || 'x') + '-' + f + '.png';
+  const share = async (formats) => {
+    const files = []; for (const f of formats) files.push(new File([await blobOf(f)], name(f), { type: 'image/png' }));
+    if (navigator.canShare && navigator.canShare({ files })) { try { await navigator.share({ files }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    files.forEach((f, i) => setTimeout(() => dlBlob(f, f.name), i * 400));
+  };
+  return (
+    <div data-spruch-card style={{ margin: '8px 0' }}>
+      {edit && <>
+        <Field label="Spruch"><textarea rows={3} value={text} onChange={e => set({ title: e.target.value, hook: e.target.value })} /></Field>
+        <div className="row wrap">{TOEPFE.map(x => <Tag key={x} on={t.topf === x} onClick={() => upd({ topf: x })}>{x}</Tag>)}</div>
+        {t.ich && <label style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0', fontSize: 13, color: 'var(--muted)' }}><input type="checkbox" checked={!!t.freigabe} onChange={e => upd({ freigabe: e.target.checked })} style={{ width: 20, height: 20, flex: 'none' }} />Ich-Spruch: stimmt für mich, darf gepostet werden</label>}
+      </>}
+      <div style={lblStyle}>Foto</div>
+      <div className="row wrap" style={{ gap: 6 }}>
+        {STILLS.map((s, i) => (
+          <button key={i} onClick={() => upd({ still: i + 1, off: undefined })} title={s.label} style={{ padding: 0, border: still === i + 1 ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 6, background: 'none', position: 'relative', lineHeight: 0 }}>
+            <img src={'stills/thumb-' + stillNo(i + 1) + '.jpg'} alt={s.label} style={{ width: 44, height: 78, objectFit: 'cover', borderRadius: 4 }} />
+            {s.warn && <span style={{ position: 'absolute', right: 2, top: 2, fontSize: 11, fontWeight: 800, background: 'var(--accent)', color: '#1a1408', borderRadius: 4, padding: '0 4px', lineHeight: '16px' }}>!</span>}
+          </button>
+        ))}
+      </div>
+      <div className="row wrap" style={{ marginTop: 8 }}>
+        {[['feed', 'Feed 4:5'], ['story', 'Story 9:16']].map(([v, l]) => <Tag key={v} on={fmt === v} onClick={() => setFmt(v)}>{l}</Tag>)}
+        <span className="meta">Text</span>
+        {[['unten', 'unten'], ['oben', 'oben']].map(([v, l]) => <Tag key={v} on={pos === v} onClick={() => upd({ pos: v })}>{l}</Tag>)}
+      </div>
+      <Field label="Bildausschnitt (hoch / runter)"><input type="range" min="0" max="1" step="0.01" value={off == null ? 0.2 : off} onChange={e => upd({ off: parseFloat(e.target.value) })} /></Field>
+      {err && <div className="warn" data-spruch-err>{err}</div>}
+      {over && <div className="warn" data-spruch-over>Der Spruch ist für dieses Bild zu lang. Kürzen.</div>}
+      <canvas ref={cv} style={{ width: '100%', maxWidth: fmt === 'story' ? 260 : 340, display: 'block', margin: '8px auto', borderRadius: 8, border: '1px solid var(--line)', background: '#222' }} />
+      <div className="row wrap">
+        <Btn kind="primary" onClick={() => share([fmt])}>{fmt === 'story' ? 'Story teilen / speichern' : 'Feed teilen / speichern'}</Btn>
+        <Btn small onClick={() => share(['feed', 'story'])}>Beide Größen</Btn>
       </div>
     </div>
   );
@@ -5253,6 +5328,7 @@ function ContentDetail({ id, state, update, onClose, gotoContent }) {
 
       {sec(4, 'Post', <>
         {p.format === 'Kachel' && <TileStudio p={p} set={set} />}
+        {p.format === 'Spruch' && <div className="sheet" style={{ background: 'var(--panel2)', marginBottom: 12 }}><h2 style={{ marginBottom: 4 }}>Spruch-Bild</h2><SpruchCard p={p} set={set} edit /></div>}
         <div style={lblStyle}>Plattformen</div>
         <div className="row wrap">{PLATFORMS.map(pl => <Tag key={pl} on={p.platforms.includes(pl)} onClick={() => set({ platforms: p.platforms.includes(pl) ? p.platforms.filter(x => x !== pl) : [...p.platforms, pl] })}>{pl}</Tag>)}</div>
         <Field label="Veröffentlichungsdatum"><input type="date" value={p.publishDate} onChange={e => set({ publishDate: e.target.value })} /></Field>
@@ -5450,7 +5526,7 @@ function rollOne(content, today, { slot = null, source = 'mix', exclude = [] }, 
   const slots = slot ? [slot] : SLOT_ORDER;
   const cands = [];
   content.forEach(p => {
-    if (p.world !== 'JOGA' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
+    if (p.world !== 'JOGA' || p.format === 'Spruch' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
     const ready = ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today);
     const kind = ready ? 'v' : p.status === 'Gepostet' ? 'n' : null;
     if (!kind || !kinds.includes(kind)) return;
@@ -5510,6 +5586,40 @@ function suggestWeek(content, today, skip, seed = 0, dayRolls = {}) {
   return rows;
 }
 
+
+function SpruchDesTages({ state, update }) {
+  const [pickId, setPickId] = useState(null);
+  const all = state.content.filter(p => p.format === 'Spruch');
+  const open = all.filter(p => p.status !== 'Gepostet');
+  const ready = open.filter(p => !(p.tile && p.tile.ich && !p.tile.freigabe));
+  const wait = open.length - ready.length;
+  const posted = all.filter(p => p.status === 'Gepostet').sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  const lastTopf = posted[0] && posted[0].tile ? posted[0].tile.topf : null;
+  const roll = (skipId) => {
+    let pool = ready.filter(p => p.id !== skipId);
+    const alt = pool.filter(p => (p.tile || {}).topf !== lastTopf); if (alt.length) pool = alt;
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)].id : null;
+  };
+  useEffect(() => { if (ready.length && (!pickId || !ready.some(p => p.id === pickId))) setPickId(roll(null)); }, [all.length, ready.length, pickId]);
+  const piece = ready.find(p => p.id === pickId);
+  const patch = (pt) => update(s => ({ ...s, content: s.content.map(c => c.id === piece.id ? { ...c, ...pt, updated: todayISO() } : c) }));
+  const done = () => { patch({ status: 'Gepostet', publishDate: todayISO(), platforms: ['Instagram', 'Facebook'] }); };
+  return (
+    <div data-heute="S" className="sheet" style={WRAP}>
+      <h2 style={{ marginBottom: 2 }}>Spruch des Tages</h2>
+      {!all.length && <div className="meta" data-spruch-empty>Noch keine Sprüche in der App. Importiere sprueche-001-100.json (Produktion, ÜBERSICHT, Import).</div>}
+      {all.length > 0 && <div className="hint" style={{ marginTop: 0 }}>{ready.length} von {all.length} Sprüchen noch offen{wait ? ', ' + wait + ' warten auf deine Freigabe (Ich-Sprüche)' : ''}. Der Zufall meidet den Topf des zuletzt geposteten Spruchs.</div>}
+      {all.length > 0 && !piece && <div className="meta" data-spruch-none>Keine freigegebenen Sprüche mehr offen.</div>}
+      {piece && <>
+        <div className="row wrap" style={{ margin: '4px 0' }}><span className="meta">Topf {(piece.tile || {}).topf || '–'}</span></div>
+        <div className="hook" style={{ marginTop: 4 }}>{piece.title}</div>
+        <SpruchCard key={piece.id} p={piece} set={patch} />
+        <div className="row wrap"><Btn small onClick={() => setPickId(roll(piece.id))}>Anderen Spruch würfeln</Btn><Btn small kind="primary" onClick={done}>Als gepostet markieren</Btn></div>
+      </>}
+    </div>
+  );
+}
+
 function HeuteView({ state, update, gotoContent, gotoBriefing }) {
   const [skip, setSkip] = useState([]);
   const [seed, setSeed] = useState(0);
@@ -5543,6 +5653,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
           <div className="row" style={{ marginTop: 8 }}><Btn small onClick={() => gotoContent(p.id)}>Öffnen</Btn>{p.status !== 'Gepostet' ? <Btn small kind="primary" onClick={() => markPosted(p)}>Als gepostet markieren</Btn> : <span className="meta">✓ gepostet</span>}</div>
         </div>
       )))}
+      <SpruchDesTages state={state} update={update} />
       {(() => {
         const KIND = { v: 'Vorhanden', n: 'Neuauflage', i: 'Neu produzieren' };
         const roll = () => { const c = rollOne(state.content, today, { slot: gen.slot || null, source: gen.source }, null); setGen({ ...gen, res: c, none: !c }); };
@@ -5714,7 +5825,7 @@ function PlanView({ state, gotoContent, ui, setUi }) {
 
 /* ---- PRODUKTION: Übersicht (Liste | Board) · Ideen · Skripte · Drehen · Schneiden · Bereit ---- */
 function applyPf(list, pf) {
-  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' || p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
+  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' ? p.format !== 'Spruch' : p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
 }
 function ProduktionView({ state, update, ui, setUi, gotoContent, gotoHooks }) {
   const fileRef = useRef();

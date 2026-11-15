@@ -1,0 +1,11121 @@
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+
+/* ---------- Basis ---------- */
+const TYPES = ['REACH', 'DO', 'ME', 'US'];
+const TYPE_INFO = {
+  REACH: 'neue Menschen holen',
+  DO: 'Mitmachen / Nutzwert',
+  ME: 'Oliver / Haltung',
+  US: 'Gespräch / Bedürfnisse'
+};
+// Primäre Kennzahl je Typ: daran wird grün/rot gemessen
+const TYPE_METRIC = {
+  REACH: 'followers',
+  DO: 'saves',
+  ME: 'comments',
+  US: 'comments'
+};
+const US_QUESTIONS = ['Was willst du mit 70 noch können?', 'Was fällt dir heute schwerer als vor zehn Jahren?', 'Welche Bewegung fehlt dir im Alltag?', 'Was hast du als Kind gekonnt und heute verlernt?', 'Wann hast du zuletzt auf dem Boden gesessen – freiwillig?', 'Welche Treppe nervt dich am meisten?', 'Was würdest du gern wieder ohne Nachdenken tun?', 'Für wen willst du mit 70 noch beweglich sein?', 'Was machst du morgens als Erstes gegen die Steifheit?', 'Ihr habt gesagt: … Also machen wir heute genau das.'];
+const SKILLS = ['vom Boden aufstehen', 'Treppen steigen', 'Schuhe binden', 'über Kopf greifen', 'Balance halten', 'auf einem Bein stehen', 'mit Enkeln auf dem Boden spielen', 'wandern', 'lange sitzen ohne Schmerz', 'ruhig schlafen'];
+const AREAS = ['Hüfte', 'Rücken', 'Nacken/Schulter', 'Beine', 'Hände', 'Augen', 'Balance', 'Kraft', 'Boden', 'Atem', 'Ganzkörper'];
+const SITUATIONS = ['morgens eingerostet', 'nach 8 Stunden Sitzen', 'bevor du aufs Sofa gehst', 'vom Boden aufstehen', 'Treppe ohne Schnaufen', 'Schuhe binden', 'nach dem Autofahren', 'vor dem Einschlafen'];
+const PATTERNS = {
+  REACH: [{
+    name: 'Versprechen + Zahl',
+    form: '[N] Moves, die [Wirkung]',
+    ex: '2 Moves, die dich 20 Jahre jünger wirken lassen.'
+  }, {
+    name: 'Superlativ-Behauptung',
+    form: 'Die [Adjektiv] [Sache] der Welt',
+    ex: 'Die geilste Bewegungsroutine der Welt.'
+  }, {
+    name: 'Fähigkeit mit 70',
+    form: 'Mach das, damit du mit 70 noch [Fähigkeit]',
+    ex: 'Mach das, damit du mit 70 noch ohne Hände vom Boden hochkommst.'
+  }, {
+    name: 'Diagnose-Umkehr',
+    form: 'Du bist nicht [X]. Du bist [Y].',
+    ex: 'Du bist morgens nicht alt. Du bist eingerostet.'
+  }],
+  DO: [{
+    name: 'Nutzen + Dauer',
+    form: '1 MINUTE JOGA – [NUTZEN]',
+    ex: '1 MINUTE JOGA – FÜR DEINE HÜFTE'
+  }, {
+    name: 'Situation + Dauer',
+    form: '1 MINUTE JOGA – [SITUATION]',
+    ex: '1 MINUTE JOGA – NACH 8 STUNDEN SITZEN'
+  }, {
+    name: 'Körperteil spricht',
+    form: 'Dein [Körperteil] [Zustand] gerade.',
+    ex: 'Dein Nacken hasst dich gerade.'
+  }, {
+    name: 'Ersatz',
+    form: '[Bewegung] statt [Gewohnheit]',
+    ex: 'Mach das statt Kaffee.'
+  }],
+  US: [{
+    name: 'Große Frage',
+    form: 'Was willst du mit 70 noch können?',
+    ex: 'Meine Antwort kennst du. Jetzt interessiert mich deine.'
+  }, {
+    name: 'Vergleich zu früher',
+    form: 'Was fällt dir heute schwerer als vor zehn Jahren?',
+    ex: 'Bei mir: Schuhe binden im Stehen.'
+  }, {
+    name: 'Lücke im Alltag',
+    form: 'Welche Bewegung fehlt dir im Alltag?',
+    ex: 'Nicht Sport. Bewegung.'
+  }, {
+    name: 'Ihr habt gesagt',
+    form: 'Ihr habt gesagt: [Problem]. Also machen wir heute genau das.',
+    ex: 'Petra will mit 70 noch mit den Enkeln auf dem Boden spielen. Petra: Diese 3 sind für dich.'
+  }],
+  ME: [{
+    name: 'Nicht für X, sondern Y',
+    form: 'Mit 56 [tue ich] nicht mehr für [X]. Sondern für [Y].',
+    ex: 'Mit 56 trainiere ich nicht mehr für Optik. Sondern dafür, mit 70 noch beweglich zu sein.'
+  }, {
+    name: 'Damals / heute',
+    form: 'Was ich mit 56 anders mache als mit 36.',
+    ex: 'Mit 56 zählt Pause mehr als Puls.'
+  }, {
+    name: 'Heute ehrlich',
+    form: 'Heute [Zustand]. Also [Handlung].',
+    ex: 'Heute hatte ich keinen Bock. Also zehn Minuten.'
+  }, {
+    name: 'Objekt-Metapher',
+    form: 'Dein Körper ist kein [Objekt].',
+    ex: 'Dein Körper ist kein Campingstuhl.'
+  }]
+};
+const GOALS_DEFAULT = {
+  saves: 0.019,
+  followers: 0.008,
+  comments: 0.00035,
+  commentsUS: 0.001,
+  start: '2026-09-15',
+  weeks: 4
+};
+const BASELINE = [{
+  id: 'b1',
+  date: '2026-08-27',
+  type: 'DO',
+  hook: 'Die geilste Bewegungsroutine der Welt',
+  len: 48,
+  recutOf: '',
+  views: 159536,
+  v3: 78180,
+  saves: 3171,
+  reacts: 1918,
+  shares: 132,
+  comments: 36,
+  followers: 846,
+  notes: 'Baseline'
+}, {
+  id: 'b2',
+  date: '2026-08-31',
+  type: 'REACH',
+  hook: '2 Moves, die dich 20 Jahre jünger wirken lassen',
+  len: 16,
+  recutOf: '',
+  views: 189986,
+  v3: 88975,
+  saves: 2864,
+  reacts: 2919,
+  shares: 182,
+  comments: 38,
+  followers: 1656,
+  notes: 'Baseline'
+}, {
+  id: 'b3',
+  date: '2026-09-02',
+  type: 'ME',
+  hook: 'Mit 56 trainiere ich nicht mehr für Optik',
+  len: 28,
+  recutOf: '',
+  views: 205624,
+  v3: 128831,
+  saves: 2146,
+  reacts: 2347,
+  shares: 114,
+  comments: 80,
+  followers: 1313,
+  notes: 'Baseline'
+}];
+const REVIEW_Q = ['Kommentieren dieselben Namen wiederholt?', 'Funktioniert „1 Minute JOGA“ wiederholt?', 'Reagieren Menschen auf Oliver – nicht nur auf die Übung?', 'ME-Videos: weniger Views, mehr Gespräch?', 'Taucht „meine JOGA-Minute“ von selbst auf?', 'Welche Bedürfnisse/Themen tauchen wiederholt in Kommentaren auf?'];
+// Bewertung eines Reels nach der Kennzahl seines Typs: 'ok' | 'bad' | null
+function verdict(r, g) {
+  if (r.views === '' || r.views == null) return null;
+  const m = TYPE_METRIC[r.type] || 'saves';
+  const v = pct(r[m], r.views);
+  if (v == null) return null;
+  const goal = m === 'saves' ? g.saves : m === 'followers' ? g.followers : r.type === 'US' ? g.commentsUS : g.comments;
+  return v >= goal ? 'ok' : 'bad';
+}
+const fmtP3 = x => x == null ? '–' : (x * 100).toFixed(x < 0.001 ? 3 : 2).replace('.', ',') + ' %';
+const uid = () => Math.random().toString(36).slice(2, 9);
+const todayISO = () => {
+  const d = new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+};
+// Zeitzonensicher: reines UTC-Kalenderrechnen. (Die frühere Version rechnete lokal und gab UTC aus – in Hamburg verschob das jedes Datum um einen Tag zurück.)
+const addDays = (iso, n) => {
+  const d = new Date(iso + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+const dayDiff = (a, b) => Math.round((new Date(a + 'T00:00:00Z') - new Date(b + 'T00:00:00Z')) / 864e5); // a − b in Tagen
+const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const wdName = iso => WD[new Date(iso + 'T00:00:00Z').getUTCDay()];
+const fmtD = iso => iso ? iso.slice(8, 10) + '.' + iso.slice(5, 7) + '.' : '';
+const pct = (a, b) => b > 0 && a !== '' && a != null ? a / b : null;
+const fmtP = x => x == null ? '–' : (x * 100).toFixed(2).replace('.', ',') + ' %';
+const fmtN = x => x == null || x === '' ? '–' : Number(x).toLocaleString('de-DE');
+const weekOf = (iso, goals) => {
+  if (!iso) return null;
+  const s = new Date(goals.start),
+    d = new Date(iso);
+  const diff = Math.floor((d - s) / 864e5);
+  if (diff < 0) return 0;
+  return Math.floor(diff / 7) + 1;
+};
+const weekLabel = w => w === 0 ? 'Base' : 'W' + w;
+
+/* ---------- Speicher ---------- */
+const PIN_KEY = 'joga_pin';
+const api = {
+  headers() {
+    return {
+      'content-type': 'application/json',
+      'x-joga-pin': localStorage.getItem(PIN_KEY) || ''
+    };
+  },
+  async load() {
+    const r = await fetch('/api/data', {
+      headers: this.headers()
+    });
+    if (r.status === 401) throw new Error('PIN');
+    if (!r.ok) throw new Error('Laden fehlgeschlagen');
+    return r.json();
+  },
+  async save(state) {
+    const r = await fetch('/api/data', {
+      method: 'PUT',
+      headers: this.headers(),
+      body: JSON.stringify(state)
+    });
+    if (r.status === 401) throw new Error('PIN');
+    if (!r.ok) throw new Error('Speichern fehlgeschlagen');
+    return r.json();
+  },
+  async ki(type, params) {
+    const r = await fetch('/api/joga', {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({
+        type,
+        params
+      })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'KI-Fehler');
+    return d.lines;
+  }
+};
+const emptyState = () => ({
+  v: 1,
+  goals: GOALS_DEFAULT,
+  reels: BASELINE,
+  reviews: {},
+  moves: SEED_MOVES,
+  shoots: [],
+  hookNotes: [],
+  oliContent: OLI_SEED,
+  content: [],
+  tests: [],
+  contentMigrated: false
+});
+
+/* ---------- Oli-Content-Bibliothek ---------- */
+const OLI_FORMATS = ['Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg'];
+const OLI_STATUS = ['Idee', 'Skript fertig', 'gedreht', 'gepostet'];
+// Seed aus JOGA_Oli_Drehscripte_V1_2_Audit.docx (Stand 23.09.2026) — die vier
+// priorisierten Oli-Klärt-Folgen und die vier "Kopf sagt 26"-Piloten stehen
+// bereits mit fertigem Skript, der Rest als Idee/Reserve.
+const OLI_SEED = [{
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'UNTER 10.000 SCHRITTEN ZÄHLT\'S NICHT?',
+  status: 'Skript fertig',
+  script: 'Oli: "Zum Glück kann dein Körper nicht zählen."\n\nEinordnung: Große Dosis-Wirkungs-Metaanalyse 2025 (Ding et al., Lancet Public Health, 57 Studien/35 Kohorten): Knickpunkt bei ca. 5.000–7.000 Schritten, 7.000 vs. 2.000 = 47% niedrigeres Sterberisiko. 10.000 bleiben sinnvoll, sind aber keine magische Grenze.\n\nSchluss: "7.842? Dein Körper sagt nicht: schade."\n\nQuelle: Ding D et al., Lancet Public Health 2025;10(8):e668–e681. PMID 40713949.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'STEIF? DANN MUSST DU MEHR DEHNEN.',
+  status: 'Skript fertig',
+  script: 'Oli: "Oder stärker werden."\n\nEinordnung: Dehnen verbessert ROM. Aber Krafttraining über volle Bewegungsamplitude kann ROM ähnlich gut verbessern (Alizadeh et al. 2023: ES=0,73 Krafttraining, kein signifikanter Unterschied zu Stretching ES=0,08 p=0,79).\n\nDemo: passive Dehnung → gleiche Richtung aktiv unter Kraft.\n\nSchluss: "Beweglichkeit kann man dehnen. Und belasten."\n\nQuelle: Alizadeh S et al., Sports Med 2023;53(3):707–722. PMID 36622555.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'BALANCE HAT MAN. ODER EBEN NICHT.',
+  status: 'Skript fertig',
+  script: 'Oli steht auf einem Bein, wackelt kurz: "Praktisch. Dann könnte ich jetzt aufhören."\n\nEinordnung: Balance ist trainierbar, gut belegt in der Sturzpräventions-Forschung; WHO empfiehlt älteren Erwachsenen multikomponentes Training mit Balance und Kraft.\n\nDemo: Progression Boden → ein Bein → Kopfbewegung/Reach.\n\nSchluss: "Wackeln ist nicht das Gegenargument. Wackeln ist das Training."',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'KNIE NIE ÜBER DIE ZEHEN?',
+  status: 'Skript fertig',
+  script: 'Oli: "Dann wird eine Kniebeuge ziemlich kompliziert."\n\nDemo: einmal künstlich mit fast senkrechtem Schienbein squatten, dann natürlich.\n\nEinordnung: Fry et al. 2003 (7 krafttrainierte Männer) – künstliche Begrenzung der Knievorverlagerung senkt Kniedrehmoment, erhöht aber Hüftdrehmoment stark. Nicht die 1070%-Zahl verwenden, nur die Richtung.\n\nSchluss: "Nicht die Zehen sind die rote Linie."\n\nQuelle: Fry AC et al., J Strength Cond Res 2003;17(4):629–633. PMID 14636100.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'ZU ALT FÜR MUSKELAUFBAU?',
+  status: 'Idee',
+  script: 'Reserve für Staffel 2. Oli: "Deine Muskeln haben keinen Rentenbescheid bekommen." Quelle: de Santana DA et al., Experimental Gerontology 2024. PMID 39579806.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'VOR SPORT: ERST MAL LANGE DEHNEN?',
+  status: 'Idee',
+  script: 'Reserve für Staffel 2. Statisches Dehnen explizit, nicht pauschal "Dehnen". Quelle: Herbert & Gabriel, BMJ 2002;325:468. PMID 12202327.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Klärt',
+  title: 'IST PILATES KRAFTTRAINING?',
+  status: 'Idee',
+  script: 'Später/differenziert drehen, nicht als Pilotfolge – Studienlage uneinheitlich. "Die nervige Antwort: kommt drauf an."',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF SAGT: SOCKE. 3 SEKUNDEN.',
+  status: 'Skript fertig',
+  script: 'Oli versucht Socke im Stehen anzuziehen. Wackler. Fuß runter. Neuer Versuch. Wand.\nBottom erst am Ende: "KÖRPER HAT RÜCKFRAGEN."\nOli trocken: "Geht doch."\n\nKontrollierbar: kein Tier/Kind/Passant nötig.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF SAGT: ICH STEH EINFACH AUF.',
+  status: 'Skript fertig',
+  script: 'Oli sitzt auf dem Boden. Beginnt aufzustehen, stoppt, sortiert Beine neu, Hand dazu, kurzer Blick aufs Sofa – entscheidet sich bewusst für saubere Variante, steht auf.\nEnde: "KÖRPER: WIR BESPRECHEN DAS KURZ."\nWichtig: nicht künstlich 90-jährig spielen, Humor aus dem Mikro-Moment des Planens.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'KOPF: KANN ICH.',
+  status: 'Skript fertig',
+  script: 'Oli sieht eleganten Mobility-Move auf dem eigenen Handy.\nCut: Startposition. Cut: kurzer Versuch. Cut: Oli sitzt/liegt da, schaut in Kamera.\nBottom: "KÖRPER: INTERESSANTE THEORIE."\nKein Sturz nötig, kein Slapstick.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'ICH DEHNE MICH NUR KURZ.',
+  status: 'Skript fertig',
+  script: 'Oli beginnt simplen Stretch. Sieht, dass noch mehr geht. Nächste Position. Noch eine. Noch eine.\nCut auf Uhr. Bottom: "37 MINUTEN SPÄTER." Oli: "Jetzt kann ich anfangen."',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'Ich brauche keine Anleitung.',
+  status: 'Idee',
+  script: 'Reserve (verständlich/billig, aber noch zu generisch – nicht Oli-eigen genug für Pilot). Falsch zusammenbauen, Schraube übrig, heimlich Anleitung lesen.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Typisch Mann',
+  title: 'Ich mach nur schnell ein Video.',
+  status: 'Idee',
+  script: 'Reserve. Kamera/Licht aufbauen, Versprecher, Akku leer, falscher Winkel – alles selbst herstellbar, kein Tier/Kind. Bottom: "2 STUNDEN SPÄTER."',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen. Jetzt entscheidet ein Algorithmus, ob ich welche bekomme.',
+  status: 'Skript fertig',
+  script: 'Richtung: Werbung vs. Creator-Leben. Selbstironie statt Algorithmus-Jammern. Konkreter Auslöser + eigene Beobachtung + Satz zum Landen nicht vergessen.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Warum ich Bewegung Körperpflege nenne.',
+  status: 'Skript fertig',
+  script: 'Bleibt – echte Markenhaltung, gehört zu Oli. Vergleich: niemand fragt, wie viele Reps du beim Zähneputzen schaffst.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden.',
+  status: 'Skript fertig',
+  script: 'Produktionsabsurditäts-Beobachtung, kann als Oli Geht oder Comedy funktionieren.',
+  src: 'V1.2-Audit'
+}, {
+  id: uid(),
+  format: 'Oli Geht',
+  title: 'Freier Wochen-Slot',
+  status: 'Idee',
+  script: 'Kein vorbereitetes Thema. Nur drehen, wenn in der Woche tatsächlich etwas passiert/auffällt. Regel: erst drehen, wenn konkreter Auslöser + eigene Beobachtung + Satz zum Landen existieren.',
+  src: 'V1.2-Audit'
+},
+// Route 1 — komplett fertig ausgearbeitet (Shotlists stehen), aber laut
+// Strategie V1/V1.2-Audit bewusst geparkt bis nach Auswertung des
+// 4-Wochen-FB-Tests (12.10.2026). Status "Idee" mit explizitem Parkhinweis,
+// damit hier niemand aus Versehen einen Drehtag ansetzt.
+{
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '1. Elbphilharmonie / Marco-Polo-Terrassen',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: großer Sidebend → Rotation → Reach. Charakter: groß, elegant, grafisch — genug Abstand für Hochformat mit Elphi im Bild, nicht der Touristen-Standardshot. Shotlist: Establisher weit → Oli geht Richtung Terrasse ins Bild → Move ×2 Takes → Abgang: Gehen Richtung Kamera, Schuhe/Treppe, Blick zurück zur Elphi.',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '2. Landungsbrücken',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Lunge → Rotation → Reach, dynamisch, passt zu Wasser/Schiffen im Hintergrund. Kamera mit Tiefe. + Oli Geht hier: "Warum ich mit 56 manche Dinge komplett anders sehe als mit 36."',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '3. Alter Elbtunnel',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Wide Squat → Side Shift/Reach, oder eine Balance. Kamera tief und exakt mittig — Symmetrie/Fluchtpunkt ist das Bild. Kein Oli Geht hier (Akustik im Tunnel schwierig).',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '4. Millerntor / St. Pauli',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Deep Squat → Rotation, oder kraftvoller Bodenmove. Charakter: rau, frontal. + Oli Geht hier: "Warum Männer so unglaublich schlecht darin sind zuzugeben, dass sie etwas nicht können." + Comedy-B-Roll (passt zum rauen Look von Typisch Mann).',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '5. Jungfernstieg / Binnenalster',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: Standing Figure Four → Rotation/Balance. Charakter: bewusst urban, Passanten dürfen durchs Bild — Kontrast hektischer Ort vs. kontrollierter Oli ist das Bild.',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '6. Außenalster / Alsterpark',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: ein Balance-Move — nicht Tree Pose, zu klischeehaft. + Oli Geht hier (beste Location dafür): "Warum ich Bewegung inzwischen nicht mehr als Sport betrachte."',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '7. Stadtpark / Planetarium',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: etwas Großes, athletischer. Charakter: Planetarium als klarer Hamburg-Identifier, ohne wieder Hafen zu zeigen.',
+  src: 'Oli-Content-Konzept'
+}, {
+  id: uid(),
+  format: 'Oli Bewegt Hamburg',
+  title: '8. Bonus: Winterhude / Uhlenhorst',
+  status: 'Idee',
+  script: 'GEPARKT bis nach dem FB-Test (12.10.). Move: bewusst unspektakulär — "Hamburg ist nicht nur Elphi." Ort: Straßenecke, Kanal, Hofweg o. Ä. + Oli Geht hier (bewusst NICHT übers Bewegen): Vorschlag "Ich hab mein halbes Leben Werbung gemacht. Deshalb glaub ich fast nichts mehr, was auf einer Verpackung steht." (austauschbar).',
+  src: 'Oli-Content-Konzept'
+}];
+
+/* ---------- UI-Bausteine ---------- */
+const Btn = ({
+  children,
+  onClick,
+  kind = 'ghost',
+  small,
+  disabled,
+  className = ''
+}) => /*#__PURE__*/React.createElement("button", {
+  onClick: onClick,
+  disabled: disabled,
+  className: `btn btn-${kind} ${small ? 'btn-sm' : ''} ${className}`
+}, children);
+const Field = ({
+  label,
+  children,
+  className = ''
+}) => /*#__PURE__*/React.createElement("label", {
+  className: `field ${className}`
+}, /*#__PURE__*/React.createElement("span", null, label), children);
+const Num = ({
+  value,
+  onChange,
+  placeholder
+}) => /*#__PURE__*/React.createElement("input", {
+  type: "number",
+  inputMode: "numeric",
+  value: value ?? '',
+  placeholder: placeholder,
+  onChange: e => onChange(e.target.value === '' ? '' : Number(e.target.value))
+});
+const Tag = ({
+  children,
+  on,
+  onClick
+}) => /*#__PURE__*/React.createElement("button", {
+  className: `tag ${on ? 'on' : ''}`,
+  onClick: onClick
+}, children);
+
+/* ---------- Board ---------- */
+function ReelForm({
+  initial,
+  onSave,
+  onCancel,
+  reels
+}) {
+  const [r, setR] = useState(initial);
+  const set = (k, v) => setR(x => ({
+    ...x,
+    [k]: v
+  }));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Datum"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: r.date,
+    onChange: e => set('date', e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Typ"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: r.type,
+    onChange: e => set('type', e.target.value)
+  }, TYPES.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t,
+    value: t
+  }, t, " – ", TYPE_INFO[t]))))), /*#__PURE__*/React.createElement(Field, {
+    label: "Hook / Titel"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: r.hook,
+    onChange: e => set('hook', e.target.value),
+    placeholder: "So wie es im Video steht"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Länge (Sek.)"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.len,
+    onChange: v => set('len', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Recut von"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: r.recutOf,
+    onChange: e => set('recutOf', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "– keins –"), reels.filter(x => x.id !== r.id && !x.recutOf).map(x => /*#__PURE__*/React.createElement("option", {
+    key: x.id,
+    value: x.id
+  }, fmtD(x.date), " ", x.hook.slice(0, 28)))))), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Zahlen frühestens 48 Stunden nach Veröffentlichung eintragen. Quelle: FB-Beitragsdetails."), /*#__PURE__*/React.createElement("div", {
+    className: "grid3"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Views"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.views,
+    onChange: v => set('views', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "3-Sek-Views"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.v3,
+    onChange: v => set('v3', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Saves"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.saves,
+    onChange: v => set('saves', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Reaktionen"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.reacts,
+    onChange: v => set('reacts', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Shares"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.shares,
+    onChange: v => set('shares', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Kommentare"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.comments,
+    onChange: v => set('comments', v)
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Netto-Follower"
+  }, /*#__PURE__*/React.createElement(Num, {
+    value: r.followers,
+    onChange: v => set('followers', v)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Was sagen die Leute?"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    value: r.notes,
+    onChange: e => set('notes', e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    onClick: onCancel
+  }, "Abbrechen"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => onSave(r),
+    disabled: !r.date || !r.hook
+  }, "Speichern")));
+}
+function Board({
+  state,
+  update
+}) {
+  const [edit, setEdit] = useState(null);
+  const [filter, setFilter] = useState('ALLE');
+  const g = state.goals;
+  const reels = useMemo(() => [...state.reels].sort((a, b) => b.date.localeCompare(a.date)), [state.reels]);
+  const shown = reels.filter(r => filter === 'ALLE' || r.type === filter);
+  const save = r => {
+    update(s => ({
+      ...s,
+      reels: s.reels.some(x => x.id === r.id) ? s.reels.map(x => x.id === r.id ? r : x) : [...s.reels, r]
+    }));
+    setEdit(null);
+  };
+  const del = id => {
+    if (confirm('Reel löschen?')) update(s => ({
+      ...s,
+      reels: s.reels.filter(x => x.id !== id)
+    }));
+    setEdit(null);
+  };
+  const blank = () => ({
+    id: uid(),
+    date: todayISO(),
+    type: 'DO',
+    hook: '',
+    len: '',
+    recutOf: '',
+    views: '',
+    v3: '',
+    saves: '',
+    reacts: '',
+    shares: '',
+    comments: '',
+    followers: '',
+    notes: ''
+  });
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Board"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => setEdit(blank())
+  }, "+ Reel")), edit && /*#__PURE__*/React.createElement(ReelForm, {
+    initial: edit,
+    reels: state.reels,
+    onSave: save,
+    onCancel: () => setEdit(null)
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, ['ALLE', ...TYPES].map(t => /*#__PURE__*/React.createElement(Tag, {
+    key: t,
+    on: filter === t,
+    onClick: () => setFilter(t)
+  }, t))), shown.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "empty"
+  }, "Noch kein Reel. Trag das erste Haupt-Reel ein, sobald die 48-Stunden-Zahlen da sind."), /*#__PURE__*/React.createElement("ul", {
+    className: "list"
+  }, shown.map(r => {
+    const sp = pct(r.saves, r.views),
+      fp = pct(r.followers, r.views),
+      q3 = pct(r.v3, r.views),
+      cp = pct(r.comments, r.views);
+    const m = TYPE_METRIC[r.type],
+      vd = verdict(r, g);
+    const cls = k => m === k && vd ? vd : '';
+    const orig = r.recutOf ? state.reels.find(x => x.id === r.recutOf) : null;
+    const recutWarn = orig && orig.views && r.views !== '' && r.views < orig.views / 3;
+    return /*#__PURE__*/React.createElement("li", {
+      key: r.id,
+      className: "card",
+      onClick: () => setEdit(r)
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "card-top"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: `type type-${r.type}`,
+      title: TYPE_INFO[r.type]
+    }, r.type), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, fmtD(r.date), " · ", weekLabel(weekOf(r.date, g)), r.len ? ` · ${r.len} s` : '', orig ? ' · Recut' : '')), /*#__PURE__*/React.createElement("div", {
+      className: "hook"
+    }, r.hook), r.views !== '' && r.views != null ? /*#__PURE__*/React.createElement("div", {
+      className: "stats"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtN(r.views)), /*#__PURE__*/React.createElement("small", null, "Views")), /*#__PURE__*/React.createElement("div", {
+      className: cls('saves')
+    }, /*#__PURE__*/React.createElement("b", null, fmtP(sp)), /*#__PURE__*/React.createElement("small", null, "Saves")), /*#__PURE__*/React.createElement("div", {
+      className: cls('followers')
+    }, /*#__PURE__*/React.createElement("b", null, fmtP(fp)), /*#__PURE__*/React.createElement("small", null, "Follower")), /*#__PURE__*/React.createElement("div", {
+      className: cls('comments')
+    }, /*#__PURE__*/React.createElement("b", null, fmtN(r.comments)), /*#__PURE__*/React.createElement("small", null, "Komm. ", cp != null && /*#__PURE__*/React.createElement("span", null, fmtP3(cp)))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, q3 == null ? '–' : Math.round(q3 * 100) + ' %'), /*#__PURE__*/React.createElement("small", null, "3 Sek."))) : /*#__PURE__*/React.createElement("div", {
+      className: "pending"
+    }, "Zahlen fehlen"), recutWarn && /*#__PURE__*/React.createElement("div", {
+      className: "warn"
+    }, "Recut unter einem Drittel des Originals – FB erkennt es vermutlich als Duplikat."), r.notes && r.notes !== 'Baseline' && /*#__PURE__*/React.createElement("div", {
+      className: "notes"
+    }, r.notes));
+  })), edit && state.reels.some(x => x.id === edit.id) && /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => del(edit.id)
+  }, "Dieses Reel löschen")));
+}
+
+/* ---------- Review ---------- */
+function Review({
+  state,
+  update
+}) {
+  const g = state.goals;
+  const weeks = [0, ...Array.from({
+    length: g.weeks
+  }, (_, i) => i + 1)];
+  const agg = w => {
+    const rs = state.reels.filter(r => weekOf(r.date, g) === w && !r.recutOf && r.views !== '' && r.views != null);
+    const avg = f => {
+      const v = rs.map(f).filter(x => x != null);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
+    const sum = k => rs.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const by = (t, f) => {
+      const v = rs.filter(r => r.type === t).map(f).filter(x => x != null);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+    };
+    const best = rs.slice().sort((a, b) => (pct(b.followers, b.views) || 0) - (pct(a.followers, a.views) || 0))[0];
+    const ok = rs.filter(r => verdict(r, g) === 'ok').length;
+    return {
+      n: rs.length,
+      ok,
+      saves: avg(r => pct(r.saves, r.views)),
+      fol: avg(r => pct(r.followers, r.views)),
+      sumFol: sum('followers'),
+      sumCom: sum('comments'),
+      sumViews: sum('views'),
+      doSaves: by('DO', r => pct(r.saves, r.views)),
+      reachFol: by('REACH', r => pct(r.followers, r.views)),
+      meCom: by('ME', r => pct(r.comments, r.views)),
+      usCom: by('US', r => pct(r.comments, r.views)),
+      best
+    };
+  };
+  const [open, setOpen] = useState(() => {
+    const w = weekOf(todayISO(), g);
+    return Math.min(Math.max(w, 1), g.weeks);
+  });
+  const rev0 = state.reviews[open] || {
+    q: [],
+    decision: ''
+  };
+  const rev = {
+    ...rev0,
+    q: REVIEW_Q.map((_, i) => rev0.q[i] || '')
+  };
+  const setRev = patch => update(s => ({
+    ...s,
+    reviews: {
+      ...s.reviews,
+      [open]: {
+        ...rev,
+        ...patch
+      }
+    }
+  }));
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Wochenreview"), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Test ", fmtD(g.start), "–", fmtD(addDays(g.start, g.weeks * 7 - 1)))), /*#__PURE__*/React.createElement("table", {
+    className: "tbl"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Woche"), /*#__PURE__*/React.createElement("th", null, "Reels"), /*#__PURE__*/React.createElement("th", null, "Ziel erreicht"), /*#__PURE__*/React.createElement("th", null, "Ø Saves"), /*#__PURE__*/React.createElement("th", null, "Ø Follower"), /*#__PURE__*/React.createElement("th", null, "Σ Follower"), /*#__PURE__*/React.createElement("th", null, "Σ Komm."))), /*#__PURE__*/React.createElement("tbody", null, weeks.map(w => {
+    const a = agg(w);
+    return /*#__PURE__*/React.createElement("tr", {
+      key: w,
+      className: w === open ? 'sel' : '',
+      onClick: () => w > 0 && setOpen(w)
+    }, /*#__PURE__*/React.createElement("td", null, weekLabel(w), w > 0 && /*#__PURE__*/React.createElement("small", null, " ", fmtD(addDays(g.start, (w - 1) * 7)))), /*#__PURE__*/React.createElement("td", null, a.n), /*#__PURE__*/React.createElement("td", {
+      className: a.n ? a.ok / a.n >= 0.5 ? 'ok' : 'bad' : ''
+    }, a.n ? `${a.ok}/${a.n}` : '–'), /*#__PURE__*/React.createElement("td", null, fmtP(a.saves)), /*#__PURE__*/React.createElement("td", null, fmtP(a.fol)), /*#__PURE__*/React.createElement("td", null, fmtN(a.sumFol)), /*#__PURE__*/React.createElement("td", null, fmtN(a.sumCom)));
+  }))), (() => {
+    const a = agg(open);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "sheet"
+    }, /*#__PURE__*/React.createElement("h2", null, "Woche ", open), /*#__PURE__*/React.createElement("div", {
+      className: "stats"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: a.doSaves == null ? '' : a.doSaves >= g.saves ? 'ok' : 'bad'
+    }, /*#__PURE__*/React.createElement("b", null, fmtP(a.doSaves)), /*#__PURE__*/React.createElement("small", null, "DO Saves")), /*#__PURE__*/React.createElement("div", {
+      className: a.reachFol == null ? '' : a.reachFol >= g.followers ? 'ok' : 'bad'
+    }, /*#__PURE__*/React.createElement("b", null, fmtP(a.reachFol)), /*#__PURE__*/React.createElement("small", null, "REACH Follower")), /*#__PURE__*/React.createElement("div", {
+      className: a.meCom == null ? '' : a.meCom >= g.comments ? 'ok' : 'bad'
+    }, /*#__PURE__*/React.createElement("b", null, fmtP3(a.meCom)), /*#__PURE__*/React.createElement("small", null, "ME Komm.")), /*#__PURE__*/React.createElement("div", {
+      className: a.usCom == null ? '' : a.usCom >= g.commentsUS ? 'ok' : 'bad'
+    }, /*#__PURE__*/React.createElement("b", null, fmtP3(a.usCom)), /*#__PURE__*/React.createElement("small", null, "US Komm.")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtN(a.sumViews)), /*#__PURE__*/React.createElement("small", null, "Σ Views"))), a.best && /*#__PURE__*/React.createElement("p", {
+      className: "hint"
+    }, "Bestes Reel nach Follower-Rate: „", a.best.hook, "“ (", fmtP(pct(a.best.followers, a.best.views)), ")"), REVIEW_Q.map((q, i) => /*#__PURE__*/React.createElement(Field, {
+      key: i,
+      label: `${i + 1}. ${q}`
+    }, /*#__PURE__*/React.createElement("input", {
+      value: rev.q[i] || '',
+      onChange: e => {
+        const qq = [...rev.q];
+        qq[i] = e.target.value;
+        setRev({
+          q: qq
+        });
+      },
+      placeholder: "Ein Satz"
+    }))), /*#__PURE__*/React.createElement(Field, {
+      label: "Entscheidung für nächste Woche"
+    }, /*#__PURE__*/React.createElement("textarea", {
+      rows: 3,
+      value: rev.decision,
+      onChange: e => setRev({
+        decision: e.target.value
+      }),
+      placeholder: "Was wird wiederholt, was fliegt raus?"
+    })));
+  })(), /*#__PURE__*/React.createElement("details", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement("summary", null, "Ziele und Testzeitraum"), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Jeder Typ wird an seiner eigenen Kennzahl gemessen (in % der Views). Ziele = Baseline halten: DO Saves 1,9 · REACH Follower 0,8 · ME Kommentare 0,035 · US 0,10 (kein Beleg, erster Versuch)."), /*#__PURE__*/React.createElement("div", {
+    className: "grid3"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "DO: Saves %"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.1",
+    value: (g.saves * 100).toFixed(1),
+    onChange: e => update(s => ({
+      ...s,
+      goals: {
+        ...s.goals,
+        saves: Number(e.target.value) / 100
+      }
+    }))
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "REACH: Follower %"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.1",
+    value: (g.followers * 100).toFixed(1),
+    onChange: e => update(s => ({
+      ...s,
+      goals: {
+        ...s.goals,
+        followers: Number(e.target.value) / 100
+      }
+    }))
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "ME: Kommentare %"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: (g.comments * 100).toFixed(2),
+    onChange: e => update(s => ({
+      ...s,
+      goals: {
+        ...s.goals,
+        comments: Number(e.target.value) / 100
+      }
+    }))
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "US: Kommentare %"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: (g.commentsUS * 100).toFixed(2),
+    onChange: e => update(s => ({
+      ...s,
+      goals: {
+        ...s.goals,
+        commentsUS: Number(e.target.value) / 100
+      }
+    }))
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Start"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: g.start,
+    onChange: e => update(s => ({
+      ...s,
+      goals: {
+        ...s.goals,
+        start: e.target.value
+      }
+    }))
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Kill-Regel Hooks: Insta + TikTok unter 5 % der FB-Views nach 4 Wochen → Varianten stoppen. Kill-Regel Frequenz: Follower-Rate fällt unter Baseline (0,53 %) → zurück auf 4/Tag prüfen.")));
+}
+
+/* ---------- Bibliothek ---------- */
+function MoveEditor({
+  initial,
+  onSave,
+  onCancel,
+  onDelete
+}) {
+  const [m, setM] = useState({
+    ...initial,
+    stepsText: (initial.steps || []).join('\n')
+  });
+  const set = (k, v) => setM(x => ({
+    ...x,
+    [k]: v
+  }));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Name"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.title,
+    onChange: e => set('title', e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Körperbereich"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: m.area,
+    onChange: e => set('area', e.target.value)
+  }, AREAS.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Dauer"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.len,
+    onChange: e => set('len', e.target.value),
+    placeholder: "z. B. 15–20 Sek."
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Nutzen / Situation"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.benefit,
+    onChange: e => set('benefit', e.target.value),
+    placeholder: "morgens, Schreibtisch, Boden …"
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Fähigkeit / Alltagsziel"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: m.skill || '',
+    onChange: e => set('skill', e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "– keine –"), SKILLS.map(k => /*#__PURE__*/React.createElement("option", {
+    key: k
+  }, k)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Hook-Idee"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: m.hookIdea,
+    onChange: e => set('hookIdea', e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Ablauf (eine Zeile pro Schritt)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: m.stepsText,
+    onChange: e => set('stepsText', e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, onDelete && /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: onDelete
+  }, "Löschen"), /*#__PURE__*/React.createElement(Btn, {
+    onClick: onCancel
+  }, "Abbrechen"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    disabled: !m.title,
+    onClick: () => {
+      const {
+        stepsText,
+        ...rest
+      } = m;
+      onSave({
+        ...rest,
+        steps: stepsText.split('\n').map(s => s.trim()).filter(Boolean)
+      });
+    }
+  }, "Speichern")));
+}
+function Library({
+  state,
+  update
+}) {
+  const [area, setArea] = useState('Alle');
+  const [skill, setSkill] = useState('Alle');
+  const [q, setQ] = useState('');
+  const [edit, setEdit] = useState(null);
+  const fileRef = useRef();
+  const moves = state.moves.filter(m => (area === 'Alle' || m.area === area) && (skill === 'Alle' || m.skill === skill) && (!q || (m.title + m.benefit + m.hookIdea + (m.skill || '')).toLowerCase().includes(q.toLowerCase())));
+  const save = m => {
+    update(s => ({
+      ...s,
+      moves: s.moves.some(x => x.id === m.id) ? s.moves.map(x => x.id === m.id ? m : x) : [...s.moves, m]
+    }));
+    setEdit(null);
+  };
+  const del = id => {
+    if (confirm('Move löschen?')) update(s => ({
+      ...s,
+      moves: s.moves.filter(x => x.id !== id)
+    }));
+    setEdit(null);
+  };
+  const exportJSON = () => {
+    const a = document.createElement('a');
+    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.moves, null, 1));
+    a.download = 'joga-moves.json';
+    a.click();
+  };
+  const importJSON = f => {
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const arr = JSON.parse(rd.result);
+        if (!Array.isArray(arr)) throw 0;
+        update(s => {
+          const ids = new Set(s.moves.map(m => m.id));
+          const add = arr.filter(m => m && m.title).map(m => ({
+            id: m.id && !ids.has(m.id) ? m.id : uid(),
+            title: m.title,
+            area: AREAS.includes(m.area) ? m.area : 'Ganzkörper',
+            skill: SKILLS.includes(m.skill) ? m.skill : '',
+            benefit: m.benefit || '',
+            len: m.len || '',
+            hookIdea: m.hookIdea || '',
+            steps: m.steps || [],
+            src: m.src || 'Import'
+          }));
+          return {
+            ...s,
+            moves: [...s.moves, ...add]
+          };
+        });
+      } catch {
+        alert('Datei ist kein JSON-Array mit Moves.');
+      }
+    };
+    rd.readAsText(f);
+  };
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Bibliothek"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => setEdit({
+      id: uid(),
+      title: '',
+      area: 'Ganzkörper',
+      benefit: '',
+      len: '',
+      hookIdea: '',
+      steps: [],
+      src: 'eigen'
+    })
+  }, "+ Move")), edit && /*#__PURE__*/React.createElement(MoveEditor, {
+    initial: edit,
+    onSave: save,
+    onCancel: () => setEdit(null),
+    onDelete: state.moves.some(x => x.id === edit.id) ? () => del(edit.id) : null
+  }), /*#__PURE__*/React.createElement("input", {
+    className: "search",
+    value: q,
+    onChange: e => setQ(e.target.value),
+    placeholder: "Suchen"
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, ['Alle', ...SKILLS].map(k => /*#__PURE__*/React.createElement(Tag, {
+    key: k,
+    on: skill === k,
+    onClick: () => setSkill(k)
+  }, k))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap dim"
+  }, ['Alle', ...AREAS].map(a => /*#__PURE__*/React.createElement(Tag, {
+    key: a,
+    on: area === a,
+    onClick: () => setArea(a)
+  }, a))), /*#__PURE__*/React.createElement("ul", {
+    className: "list"
+  }, moves.map(m => /*#__PURE__*/React.createElement("li", {
+    key: m.id,
+    className: "card slim",
+    onClick: () => setEdit(m)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hook"
+  }, m.title), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, m.skill ? m.skill + ' · ' : '', m.area, m.benefit ? ' · ' + m.benefit : '', m.len ? ' · ' + m.len : ''), m.hookIdea && /*#__PURE__*/React.createElement("div", {
+    className: "notes"
+  }, m.hookIdea)))), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => fileRef.current.click()
+  }, "JSON importieren"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: exportJSON
+  }, "JSON exportieren"), /*#__PURE__*/React.createElement("input", {
+    ref: fileRef,
+    type: "file",
+    accept: "application/json",
+    hidden: true,
+    onChange: e => e.target.files[0] && importJSON(e.target.files[0])
+  })), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, state.moves.length, " Moves. Import: JSON-Array mit title, area, skill, benefit, len, hookIdea, steps."));
+}
+
+/* ---------- Content-System: Datenmodell, Regeln, Migration ---------- */
+const WORLDS = ['JOGA', 'OLI'];
+const C_STATUS = ['Idee', 'Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten', 'Gepostet'];
+const PROD_TYPES = ['Neudreh', 'Bestand', 'Recut'];
+const ENTRIES = ['Move first', 'Face first', 'Situation first', 'Text first'];
+const AUDIOS = ['Silent/Musik', 'On-Cam', 'Voice-over', 'Hybrid'];
+const AUDIO_SHORT = {
+  'Silent/Musik': 'Musik',
+  'On-Cam': 'On-Cam',
+  'Voice-over': 'VO',
+  'Hybrid': 'Hybrid'
+};
+const PLATFORMS = ['Instagram', 'TikTok', 'Facebook', 'YouTube'];
+const PIPE = ['IDEE', 'SKRIPT', 'DREH', 'CUTS', 'POST', 'ERGEBNIS'];
+
+// Entscheidungslogik für Bewegungscontent: feste Defaults, jederzeit manuell überschreibbar.
+const FORMAT_RULES = [{
+  key: 'wow',
+  format: 'WOW / Challenge',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  note: 'Kein gesprochenes Intro.'
+}, {
+  key: 'routine',
+  format: 'Routine / 1 Minute JOGA',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  note: 'Hook als On-Screen-Text. Kein gesprochenes Intro.'
+}, {
+  key: 'erklaerung',
+  format: 'Erklärung / Mythos',
+  entry: 'Move first',
+  audio: 'Hybrid',
+  note: 'Move first oder unmittelbare Demonstration. Voice-over oder Hybrid. Kein allgemeines Intro.'
+}, {
+  key: 'persoenlich',
+  format: 'Persönlichkeit / Haltung',
+  entry: 'Face first',
+  audio: 'On-Cam',
+  note: 'Face first oder Situation first. On-Cam oder Hybrid.'
+}, {
+  key: 'humor',
+  format: 'Typisch Mann / Humor',
+  entry: 'Situation first',
+  audio: 'Silent/Musik',
+  note: 'Situation first. So wenig Sprache wie möglich, Pointe primär visuell.'
+}];
+const FORMAT_ALIAS = {
+  'Oli Klärt': 'erklaerung',
+  'Oli Geht': 'persoenlich',
+  'Typisch Mann': 'humor',
+  '1 Minute JOGA': 'routine'
+};
+const FORMAT_GROUPS = [['Stimme und Sprüche', ['Statement', 'Typisch Mann', 'Typisch Mann / Humor', 'Spruch']], ['Moves und Routinen', ['Routine / 1 Minute JOGA', '1 Minute JOGA', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Erklären und Haltung', ['Erklärung / Mythos', 'Persönlichkeit / Haltung', 'US-Frage']], ['Oli-Serien', ['Oli Geht', 'Oli Klärt', 'Oli Bewegt Hamburg']], ['Info-Kacheln', ['Kachel']], ['Varianten', ['REACH-Version', 'Recut']], ['Auswertung', ['IG-Treffer']]];
+const formatGroupOf = f => {
+  const g = FORMAT_GROUPS.find(([, l]) => l.includes(f));
+  return g ? g[0] : /-Treffer$/.test(f) ? 'Auswertung' : 'Weitere';
+};
+const FORMAT_PRESETS = [...FORMAT_RULES.map(r => r.format), 'Oli Geht', 'Oli Klärt', 'Typisch Mann', 'Oli Bewegt Hamburg', 'Statement', '1 Minute JOGA', 'REACH-Version', 'US-Frage', 'Recut', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Freeshot', 'Kachel', 'Spruch'];
+const ruleFor = format => {
+  if (!format) return null;
+  return FORMAT_RULES.find(r => r.format === format || r.key === FORMAT_ALIAS[format]) || null;
+};
+const SERIES_DARK = 'Dunkle Jahreszeit';
+const newPerf = (platform = 'Instagram') => ({
+  id: uid(),
+  platform,
+  date: '',
+  views: '',
+  reach: '',
+  nonFollower: '',
+  avgWatch: '',
+  completion: '',
+  likes: '',
+  comments: '',
+  shares: '',
+  saves: '',
+  newFollowers: ''
+});
+const newShot = () => ({
+  id: uid(),
+  camera: '',
+  action: '',
+  speech: '',
+  onscreen: '',
+  onscreenRequired: false,
+  audio: 'On-Cam',
+  dur: '',
+  note: ''
+});
+const newPiece = (over = {}) => ({
+  id: uid(),
+  world: 'JOGA',
+  fn: 'DO',
+  format: '',
+  title: '',
+  hook: '',
+  status: 'Idee',
+  prodType: 'Neudreh',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  entryManual: false,
+  audioManual: false,
+  goal: '',
+  speech: '',
+  scriptText: '',
+  shots: [],
+  moveIds: [],
+  material: '',
+  variants: '',
+  platforms: [],
+  publishDate: '',
+  perf: [],
+  shootId: '',
+  cutId: '',
+  src: '',
+  planPhase: '',
+  preproductionRequired: false,
+  productionDate: '',
+  caption: '',
+  tile: {},
+  // Kachel-Generator: Foto, Hook/Kernsatz/Fakten-Überschreibungen, Hell/Dunkel
+  series: '',
+  tip: '',
+  evidence: '',
+  // V2.3b: Serien-Kennzeichnung, Tipp/Kernaussage, interne redaktionelle Sicherheit/Quelle (alle optional)
+  created: todayISO(),
+  updated: todayISO(),
+  ...over
+});
+const normPiece = p => {
+  const b = newPiece();
+  const o = {
+    ...b,
+    ...p
+  };
+  ['shots', 'moveIds', 'platforms', 'perf'].forEach(k => {
+    if (!Array.isArray(o[k])) o[k] = [];
+  });
+  if (!WORLDS.includes(o.world)) o.world = 'JOGA';
+  if (!TYPES.includes(o.fn)) o.fn = 'DO';
+  if (!C_STATUS.includes(o.status)) o.status = 'Idee';
+  o.shots = o.shots.map(sh => ({
+    camera: '',
+    onscreenRequired: false,
+    ...sh
+  }));
+  // Frühere V2.2-Fassung: `preproduced` war nur eine Planungsabsicht, kein Erledigt-Status → umbenannt.
+  if ('preproduced' in o) {
+    o.preproductionRequired = o.preproductionRequired === true || o.preproduced === true;
+    delete o.preproduced;
+  }
+  return o;
+};
+// Master-Test ist der 7-Wochen-Zeitraum (PLAN_START–PLAN_END). Der frühere 14-Tage-Test existiert höchstens noch als Altbestand in state.tests; er wird nirgends mehr angezeigt oder ausgewertet.
+
+// Dauer eines Shots: Zahl (3), Text ("3 s") oder Zeitbereich ("0–2 s" = 2 Sek.). Fürs Summieren zählt die Differenz.
+const durSec = d => {
+  if (d === '' || d == null) return 0;
+  if (typeof d === 'number') return d;
+  const t = String(d).replace(',', '.');
+  const r = t.match(/(\d+(?:\.\d+)?)\s*[–-]\s*(\d+(?:\.\d+)?)/);
+  if (r) return Math.max(0, parseFloat(r[2]) - parseFloat(r[1]));
+  const n = t.match(/\d+(?:\.\d+)?/);
+  return n ? parseFloat(n[0]) : 0;
+};
+const fmtDur = d => d === '' || d == null ? '' : typeof d === 'number' || !/s\s*$/i.test(String(d)) ? d + ' Sek.' : String(d);
+
+// "Drehbereit" ist kein freier Status (V2.2): Nur ein vollständiges Piece darf ihn bekommen.
+// Piece-Ebene: Hook, Einstieg, Audio, ≥1 Shot, Piece-Sprechtext sobald Sprache vorkommt (bei On-Cam/Voice-over/Hybrid).
+// Shot-Ebene: Bildhandlung, Dauer > 0; On-Cam/Voice-over → Sprechtext; onscreenRequired → On-Screen-Text.
+// Silent/Musik braucht keine Sprache; Hybrid wird nicht pauschal je Shot geprüft (die Shots definieren ihre Audioart).
+function readinessMissing(p) {
+  const m = [];
+  const t = x => String(x || '').trim();
+  if (!t(p.hook)) m.push('Hook');
+  if (!p.entry) m.push('Einstieg');
+  if (!p.audio) m.push('Audio');
+  if (!p.shots.length) m.push('mindestens ein Shot');
+  const spoken = p.shots.some(sh => t(sh.speech));
+  // Piece-Audio On-Cam / Voice-over: Sprache MUSS vorkommen – als Piece-Sprechtext oder als passend gesprochener Shot.
+  // (Sonst könnte ein "On-Cam"-Piece ohne jede Sprache durchrutschen, wenn die Shots nicht ebenfalls als On-Cam markiert sind.)
+  const noSpeechAtAll = (p.audio === 'On-Cam' || p.audio === 'Voice-over') && !t(p.speech) && !p.shots.some(sh => sh.audio === p.audio && t(sh.speech));
+  // Sobald irgendein Shot spricht, braucht der Gesamt-Sprechtext des Pieces einen Wert (gilt auch für Hybrid; dort prüfen sonst nur die Shots).
+  if (noSpeechAtAll) m.push('Sprechtext (' + p.audio + ')');else if (['On-Cam', 'Voice-over', 'Hybrid'].includes(p.audio) && spoken && !t(p.speech)) m.push('Sprechtext (Piece)');
+  p.shots.forEach((sh, i) => {
+    const n = 'Shot ' + (i + 1) + ': ';
+    if (!t(sh.action)) m.push(n + 'Bildhandlung');
+    if (durSec(sh.dur) <= 0) m.push(n + 'Dauer');
+    if ((sh.audio === 'On-Cam' || sh.audio === 'Voice-over') && !t(sh.speech)) m.push(n + 'Sprechtext (' + sh.audio + ')');
+    if (sh.onscreenRequired === true && !t(sh.onscreen)) m.push(n + 'On-Screen-Text (Pflicht)');
+  });
+  return m;
+}
+
+/* ---------- V2.1 Produktions-Seeds: 14 Pieces 12.–25.10.2026 (W3/W4, aus dem Referenzbuild) ---------- */
+const PRODUCTION_SEED_V21 = [{
+  id: 'prod-oli-anfaenger',
+  world: 'OLI',
+  fn: 'ME',
+  format: 'Persönlichkeit / Haltung',
+  title: 'MIT 56 BIN ICH WIEDER ANFÄNGER. ABSICHTLICH.',
+  hook: 'Mit 56 bin ich wieder Anfänger. Absichtlich.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Situation first',
+  audio: 'Hybrid',
+  goal: 'Test Haltung/Person: Trägt Oli als Person ohne klassischen Mobility-Tipp? Signal: Follows, Kommentare, Profilinteresse.',
+  speech: 'Mit 56 bin ich wieder Anfänger. Absichtlich. Ich habe sehr lange Dinge gemacht, die ich ziemlich gut konnte. Und dann habe ich wieder angefangen, Dinge zu lernen, bei denen ich nicht gut bin. Yoga. Pilates. Unterrichten. Content. Das ist manchmal ziemlich unangenehm. Aber vielleicht ist genau das der Punkt. Fertig sein kann ich später.',
+  scriptText: 'Ort: zuhause/Trainingsraum. 9:16. Ruhig, nicht pathetisch. Kein Motivationscoach-Ton. Harte, saubere Cuts. Ziel 20–25 Sek.',
+  shots: [{
+    id: 'a1',
+    action: 'Halbtotale. Matte ausrollen oder Reformer vorbereiten. Blick erst zur Handlung, dann kurz in die Kamera.',
+    speech: 'Mit 56 bin ich wieder Anfänger. Absichtlich.',
+    onscreen: 'MIT 56 BIN ICH WIEDER ANFÄNGER.',
+    audio: 'On-Cam',
+    dur: '0–3 s',
+    note: 'Kein Begrüßungsintro.'
+  }, {
+    id: 'a2',
+    action: 'Detail Hände/Equipment oder Schuhe. Handlung weiterlaufen lassen.',
+    speech: 'Ich habe sehr lange Dinge gemacht, die ich ziemlich gut konnte.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '3–6 s',
+    note: 'B-Roll.'
+  }, {
+    id: 'a3',
+    action: 'Ganzkörper: eine Übung/Bewegung, bei der sichtbar Konzentration nötig ist; kein Show-off.',
+    speech: 'Und dann habe ich wieder angefangen, Dinge zu lernen, bei denen ich nicht gut bin.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '6–10 s',
+    note: ''
+  }, {
+    id: 'a4',
+    action: '3 sehr kurze Cuts: Yoga/Pilates/Unterrichtsvorbereitung/Content-Setup – nur Material, das real verfügbar ist.',
+    speech: 'Yoga. Pilates. Unterrichten. Content.',
+    onscreen: 'YOGA. PILATES. UNTERRICHTEN. CONTENT.',
+    audio: 'Voice-over',
+    dur: '10–14 s',
+    note: 'Je 0,7–1 s.'
+  }, {
+    id: 'a5',
+    action: 'Halbnah. Kurzer Fehlversuch oder konzentriertes Neuansetzen, ohne künstliches Scheitern.',
+    speech: 'Das ist manchmal ziemlich unangenehm. Aber vielleicht ist genau das der Punkt.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '14–20 s',
+    note: ''
+  }, {
+    id: 'a6',
+    action: 'Direkter Blick in die Kamera. Still stehen/sitzen. Keine Bewegung mehr.',
+    speech: 'Fertig sein kann ich später.',
+    onscreen: 'FERTIG SEIN KANN ICH SPÄTER.',
+    audio: 'On-Cam',
+    dur: '20–23 s',
+    note: 'Danach sofort Cut.'
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-12',
+  variants: 'IG: 20–25 s. TikTok: Einstieg identisch, ggf. auf 18–20 s straffen.',
+  material: 'Neudreh. Matte/Reformer + Stativ.'
+}, {
+  id: 'prod-joga-tornado',
+  world: 'JOGA',
+  fn: 'REACH',
+  format: 'WOW / Challenge',
+  title: 'TORNADO-OPENER – MORGENS EINGEROSTET',
+  hook: 'Du bist morgens nicht alt. Du bist eingerostet.',
+  status: 'Drehbereit',
+  prodType: 'Bestand',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  goal: 'Kontrollpost Bewegungscontent: Prüfen, ob ein sofort verständlicher visueller Move ohne Sprache weiterhin Reichweite erzeugt.',
+  speech: '',
+  scriptText: 'BESTAND/RECUT. Kein neues Intro drehen. 9:16. 10–12 Sek. Bewegung ab Frame 1. Hook ab Frame 1. Musik. Kein VO.',
+  shots: [{
+    id: 't1',
+    action: 'Aus vorhandenem Material: tiefer weiter Stand, Knie gebeugt. Erste Schulterbewegung muss bereits im ersten Frame laufen.',
+    speech: '',
+    onscreen: 'DU BIST MORGENS NICHT ALT.',
+    audio: 'Silent/Musik',
+    dur: '0–2 s',
+    note: 'Kein Setup zeigen.'
+  }, {
+    id: 't2',
+    action: 'Rechte Schulter explosiv hoch, Arme auseinander, Brustkorb komplett öffnen.',
+    speech: '',
+    onscreen: 'DU BIST EINGEROSTET.',
+    audio: 'Silent/Musik',
+    dur: '2–6 s',
+    note: 'Stärksten Take wählen.'
+  }, {
+    id: 't3',
+    action: 'Seitenwechsel im Rhythmus. 2–3 Wiederholungen.',
+    speech: '',
+    onscreen: '30 SEKUNDEN. EINFACH MACHEN.',
+    audio: 'Silent/Musik',
+    dur: '6–11 s',
+    note: 'Loop-fähig enden.'
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '2026-10-13',
+  variants: 'IG/TikTok: 10–12 s. FB/YT: gleicher Master möglich.',
+  material: 'Bestandsmaterial Tornado-Opener / vorhandenen passenden Clip verwenden.'
+}, {
+  id: 'prod-oli-kreativteam',
+  world: 'OLI',
+  fn: 'REACH',
+  format: 'Typisch Mann / Humor',
+  title: 'FRÜHER KREATIVTEAM. HEUTE STATIV.',
+  hook: 'FRÜHER HATTE ICH EIN KREATIVTEAM.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Situation first',
+  audio: 'Hybrid',
+  goal: 'Test Humor + berufliche Identität: Funktioniert Oli außerhalb von Bewegung und ohne Erklärvideo?',
+  speech: 'Teamwork.',
+  scriptText: 'Ort: normaler Content-Drehort. 9:16. 9–12 Sek. Komplett kontrollierbar. Trocken spielen, keine künstliche Genervtheit.',
+  shots: [{
+    id: 'k1',
+    action: 'Halbtotale. Du stehst neben dem aufgebauten Stativ, prüfst die Kamera.',
+    speech: '',
+    onscreen: 'FRÜHER HATTE ICH EIN KREATIVTEAM.',
+    audio: 'Silent/Musik',
+    dur: '0–2 s',
+    note: ''
+  }, {
+    id: 'k2',
+    action: 'Detail: Hand verstellt Kamera/Stativ.',
+    speech: '',
+    onscreen: 'HEUTE HABE ICH EIN STATIV.',
+    audio: 'Silent/Musik',
+    dur: '2–3 s',
+    note: ''
+  }, {
+    id: 'k3',
+    action: 'Totale: vom Stativ schnell auf die Markierung laufen.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '3–4.5 s',
+    note: 'Harter Cut.'
+  }, {
+    id: 'k4',
+    action: 'Du merkst, dass der Bildausschnitt nicht stimmt. Zurück zur Kamera.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '4.5–6 s',
+    note: ''
+  }, {
+    id: 'k5',
+    action: 'Kamera minimal neu ausrichten; wieder auf Position; direkt wieder zurück zur Kamera zur Kontrolle.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '6–9 s',
+    note: '2–3 schnelle Cuts.'
+  }, {
+    id: 'k6',
+    action: 'Neben dem Stativ stehen bleiben. Trockener Blick direkt in die Linse.',
+    speech: 'Teamwork.',
+    onscreen: '',
+    audio: 'On-Cam',
+    dur: '9–11 s',
+    note: 'Sofort danach Ende.'
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-14',
+  variants: 'TikTok darf 1–2 Setup-Cuts schneller sein. Kein zusätzlicher Erklärtext.',
+  material: 'Neudreh. Kamera + Stativ.'
+}, {
+  id: 'prod-joga-1min-richtungen',
+  world: 'JOGA',
+  fn: 'DO',
+  format: 'Routine / 1 Minute JOGA',
+  title: '1 MINUTE IN ALLE RICHTUNGEN – RECUT',
+  hook: 'Eine Minute in alle Richtungen.',
+  status: 'Drehbereit',
+  prodType: 'Recut',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  goal: 'Kontrollpost Nutzwert: Test Saves/Completion mit bekanntem Bewegungsmaterial ohne Sprache.',
+  speech: '',
+  scriptText: 'RECUT aus vorhandenem Material „Eine Minute in alle Richtungen“. Kein Talking Head. Die stärksten 3 Richtungswechsel zuerst. 15–25 Sek statt zwingend 60 Sek.',
+  shots: [{
+    id: 'r1',
+    action: 'Stärkster visuell klarer Richtungswechsel aus dem bestehenden Reel – Bewegung läuft ab Frame 1.',
+    speech: '',
+    onscreen: 'EINE MINUTE IN ALLE RICHTUNGEN.',
+    audio: 'Silent/Musik',
+    dur: '0–4 s',
+    note: ''
+  }, {
+    id: 'r2',
+    action: 'Zweiter Move in deutlich anderer Bewegungsebene.',
+    speech: '',
+    onscreen: 'NICHT NUR VOR UND ZURÜCK.',
+    audio: 'Silent/Musik',
+    dur: '4–10 s',
+    note: ''
+  }, {
+    id: 'r3',
+    action: 'Dritter Move/Flow, möglichst Rotation oder lateral.',
+    speech: '',
+    onscreen: 'EINFACH MITMACHEN.',
+    audio: 'Silent/Musik',
+    dur: '10–18 s',
+    note: ''
+  }, {
+    id: 'r4',
+    action: 'Kurzer sauberer Loop zurück in Startbewegung.',
+    speech: '',
+    onscreen: 'SPEICHERN. SPÄTER MACHEN.',
+    audio: 'Silent/Musik',
+    dur: '18–22 s',
+    note: 'Nur wenn CTA nicht den Flow stört.'
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '2026-10-15',
+  variants: 'IG: Save-orientiert. TikTok: CTA ggf. weglassen und auf 15–18 s kürzen.',
+  material: 'Bestandsreel „Eine Minute in alle Richtungen“.'
+}, {
+  id: 'prod-oli-marken',
+  world: 'OLI',
+  fn: 'ME',
+  format: 'Oli Klärt',
+  title: 'WARUM KLINGT JEDE MARKE GLEICH?',
+  hook: 'Warum klingt eigentlich inzwischen jede Marke gleich?',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Face first',
+  audio: 'On-Cam',
+  goal: 'Test Kompetenz außerhalb Fitness: Wird Olis Creative-/Marketing-Hintergrund als eigenständiger Follow-Grund interessant?',
+  speech: 'Warum klingt eigentlich inzwischen jede Marke gleich? Innovativ. Authentisch. Nachhaltig. Nahbar. Wenn das vier Unternehmen über sich sagen, habe ich viermal nichts gelernt. Eine Marke braucht nicht möglichst viele richtige Wörter. Sie braucht etwas, das nur zu ihr passt. Sonst ist es keine Positionierung. Sondern Tapete.',
+  scriptText: '9:16, neutraler Hintergrund. 18–22 Sek. Keine B-Roll nötig. Jumpcuts auf die vier Buzzwords. Trocken, nicht dozierend.',
+  shots: [{
+    id: 'm1',
+    action: 'Halbnah, direkter Blick in die Kamera.',
+    speech: 'Warum klingt eigentlich inzwischen jede Marke gleich?',
+    onscreen: 'WARUM KLINGT JEDE MARKE GLEICH?',
+    audio: 'On-Cam',
+    dur: '0–3 s',
+    note: ''
+  }, {
+    id: 'm2',
+    action: 'Vier harte Jumpcuts, gleiche Position minimal verändert.',
+    speech: 'Innovativ. Authentisch. Nachhaltig. Nahbar.',
+    onscreen: 'INNOVATIV / AUTHENTISCH / NACHHALTIG / NAHBAR',
+    audio: 'On-Cam',
+    dur: '3–7 s',
+    note: 'Ein Wort pro Cut.'
+  }, {
+    id: 'm3',
+    action: 'Halbnah, ruhig.',
+    speech: 'Wenn das vier Unternehmen über sich sagen, habe ich viermal nichts gelernt.',
+    onscreen: '',
+    audio: 'On-Cam',
+    dur: '7–12 s',
+    note: ''
+  }, {
+    id: 'm4',
+    action: 'Gleicher Frame, minimal näher oder digitaler Punch-in.',
+    speech: 'Eine Marke braucht nicht möglichst viele richtige Wörter. Sie braucht etwas, das nur zu ihr passt.',
+    onscreen: '',
+    audio: 'On-Cam',
+    dur: '12–19 s',
+    note: ''
+  }, {
+    id: 'm5',
+    action: 'Kurze Pause, Blick halten.',
+    speech: 'Sonst ist es keine Positionierung. Sondern Tapete.',
+    onscreen: 'SONDERN TAPETE.',
+    audio: 'On-Cam',
+    dur: '19–22 s',
+    note: 'Cut direkt nach Tapete.'
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-16',
+  variants: 'TikTok: ggf. Einstieg direkt „Innovativ. Authentisch…“ und Frage als Text testen; IG Master wie oben.',
+  material: 'Neudreh. Nur Kamera/Stativ.'
+}, {
+  id: 'prod-joga-anti-desk',
+  world: 'JOGA',
+  fn: 'DO',
+  format: 'Routine / 1 Minute JOGA',
+  title: 'ANTI-SCHREIBTISCH – RÜCKEN',
+  hook: 'Nach 8 Stunden Sitzen braucht dein Körper genau das hier.',
+  status: 'Drehbereit',
+  prodType: 'Bestand',
+  entry: 'Move first',
+  audio: 'Voice-over',
+  goal: 'Test Bewegung + VO gegen Silent-Kontrollposts: erhöht Erklärung Watchtime/Saves?',
+  speech: 'Wenn du viel sitzt, brauchst du nicht noch mehr Sitzen mit besserer Haltung. Beweg dich in die Richtungen, die am Schreibtisch fehlen: aufrichten, rotieren, Seite öffnen. Drei Bewegungen. Keine Wissenschaft daraus machen.',
+  scriptText: 'Bestand verwenden, falls passende Rücken-/Desk-Sequenz vorhanden. Bewegung Frame 1. VO startet sofort. 18–22 Sek.',
+  shots: [{
+    id: 'd1',
+    action: 'Stärkster Rücken-/Aufrichtungs-Move aus Bestand, bereits in Bewegung.',
+    speech: 'Wenn du viel sitzt, brauchst du nicht noch mehr Sitzen mit besserer Haltung.',
+    onscreen: '8 STUNDEN SITZEN?',
+    audio: 'Voice-over',
+    dur: '0–6 s',
+    note: ''
+  }, {
+    id: 'd2',
+    action: 'Rotationsmove, klarer Perspektivwechsel.',
+    speech: 'Beweg dich in die Richtungen, die am Schreibtisch fehlen:',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '6–10 s',
+    note: ''
+  }, {
+    id: 'd3',
+    action: 'Drei schnelle Ausschnitte: Aufrichtung, Rotation, Seitöffnung.',
+    speech: 'aufrichten, rotieren, Seite öffnen.',
+    onscreen: 'AUFRICHTEN · ROTIEREN · ÖFFNEN',
+    audio: 'Voice-over',
+    dur: '10–16 s',
+    note: ''
+  }, {
+    id: 'd4',
+    action: 'Flow sauber auslaufen lassen.',
+    speech: 'Drei Bewegungen. Keine Wissenschaft daraus machen.',
+    onscreen: 'EINFACH MACHEN.',
+    audio: 'Voice-over',
+    dur: '16–21 s',
+    note: ''
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook'],
+  publishDate: '2026-10-17',
+  variants: 'Silent-Version zusätzlich exportieren, aber im Test primär VO posten.',
+  material: 'Bestandsmaterial Rücken/Schreibtisch; falls kein passender Clip vorhanden: nur diesen Bewegungsblock nachdrehen.'
+}, {
+  id: 'prod-oli-kannich',
+  world: 'OLI',
+  fn: 'REACH',
+  format: 'Typisch Mann / Humor',
+  title: 'KOPF: KANN ICH.',
+  hook: 'KOPF: KANN ICH.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Situation first',
+  audio: 'Silent/Musik',
+  goal: 'Test visueller Humor ohne Erklärung: erreicht Oli auch Menschen, die keinen Fitness-Tipp suchen?',
+  speech: '',
+  scriptText: '7–10 Sek. Eigenes Handyvideo mit einem tatsächlich anspruchsvollen Move verwenden. Kein Fake-Sturz, kein Slapstick.',
+  shots: [{
+    id: 'c1',
+    action: 'Close-up Handy in der Hand: darauf läuft ein eigener eleganter, anspruchsvoller Mobility-Move.',
+    speech: '',
+    onscreen: 'KOPF: KANN ICH.',
+    audio: 'Silent/Musik',
+    dur: '0–2 s',
+    note: 'Display muss lesbar sein.'
+  }, {
+    id: 'c2',
+    action: 'Harter Cut zur Startposition des Moves. Du setzt konzentriert an.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '2–4 s',
+    note: ''
+  }, {
+    id: 'c3',
+    action: 'Kurzer echter Versuch; abbrechen/neu sortieren, sobald klar ist: schwieriger als gedacht.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '4–7 s',
+    note: 'Nicht künstlich scheitern.'
+  }, {
+    id: 'c4',
+    action: 'Du sitzt oder liegst danach ruhig da und schaust trocken in die Kamera.',
+    speech: '',
+    onscreen: 'KÖRPER: INTERESSANTE THEORIE.',
+    audio: 'Silent/Musik',
+    dur: '7–10 s',
+    note: 'Pointe stehen lassen.'
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-18',
+  variants: 'Gleicher Master. Kein CTA.',
+  material: 'Neudreh + eigenes vorhandenes Handyvideo eines schwierigen Moves.'
+}, {
+  id: 'prod-joga-3min',
+  world: 'JOGA',
+  fn: 'DO',
+  format: 'Routine / 1 Minute JOGA',
+  title: '3 MINUTEN AM TAG – RECUT',
+  hook: '3 Minuten am Tag.',
+  status: 'Drehbereit',
+  prodType: 'Recut',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  goal: 'Kontrollpost: vorhandenes Format mit klarem Zeitversprechen gegen neue OLI-Formate benchmarken.',
+  speech: '',
+  scriptText: 'RECUT des vorhandenen „3 Minuten am Tag“-Materials. 12–18 Sek. Keine neue Moderation. Drei stärkste Bewegungen, sofort beginnen.',
+  shots: [{
+    id: 'g1',
+    action: 'Visuell stärkster Move ab Frame 1.',
+    speech: '',
+    onscreen: '3 MINUTEN AM TAG.',
+    audio: 'Silent/Musik',
+    dur: '0–5 s',
+    note: ''
+  }, {
+    id: 'g2',
+    action: 'Zweiter Move, andere Ebene/Richtung.',
+    speech: '',
+    onscreen: 'NICHT PERFEKT. REGELMÄSSIG.',
+    audio: 'Silent/Musik',
+    dur: '5–10 s',
+    note: ''
+  }, {
+    id: 'g3',
+    action: 'Dritter Move mit sauberem Endpunkt/Loop.',
+    speech: '',
+    onscreen: 'KÖRPERPFLEGE STATT SPORT.',
+    audio: 'Silent/Musik',
+    dur: '10–16 s',
+    note: ''
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '2026-10-19',
+  variants: 'TikTok 12–15 s; IG bis 18 s.',
+  material: 'Bestandsmaterial „3 Minuten am Tag“.'
+}, {
+  id: 'prod-oli-steif',
+  world: 'OLI',
+  fn: 'DO',
+  format: 'Oli Klärt',
+  title: 'STEIF? MEHR DEHNEN.',
+  hook: 'STEIF? MEHR DEHNEN.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Move first',
+  audio: 'Hybrid',
+  goal: 'Test Kompetenz + Bewegung: funktioniert Erklärung besser, wenn der Move sofort sichtbar ist und Oli erst in Sekunde 1 widerspricht?',
+  speech: 'Oder stärker werden. Dehnen kann deine Beweglichkeit verbessern. Aber es ist nicht der einzige Weg. Auch Krafttraining über eine große Bewegungsamplitude kann deine Range of Motion verbessern. Beweglichkeit kann man dehnen. Und belasten.',
+  scriptText: '15–20 Sek. Gleiche Bewegungsrichtung einmal passiv, einmal aktiv/unter Last zeigen. Kein „Heute erkläre ich…“.',
+  shots: [{
+    id: 's1',
+    action: 'Frame 1: bereits in einer klaren passiven Dehnung. Kamera 45° so, dass Bewegungsamplitude sichtbar ist.',
+    speech: '',
+    onscreen: 'STEIF? MEHR DEHNEN.',
+    audio: 'Silent/Musik',
+    dur: '0–1.5 s',
+    note: ''
+  }, {
+    id: 's2',
+    action: 'Aus der Dehnung kurz in die Kamera schauen oder harter Cut halbnah.',
+    speech: 'Oder stärker werden.',
+    onscreen: 'ODER STÄRKER WERDEN.',
+    audio: 'On-Cam',
+    dur: '1.5–3 s',
+    note: 'Trocken.'
+  }, {
+    id: 's3',
+    action: 'Passive Variante weiter zeigen.',
+    speech: 'Dehnen kann deine Beweglichkeit verbessern. Aber es ist nicht der einzige Weg.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '3–8 s',
+    note: ''
+  }, {
+    id: 's4',
+    action: 'Gleiche Bewegungsrichtung aktiv/unter kontrollierter Last zeigen.',
+    speech: 'Auch Krafttraining über eine große Bewegungsamplitude kann deine Range of Motion verbessern.',
+    onscreen: 'AKTIV + KONTROLLIERT',
+    audio: 'Voice-over',
+    dur: '8–15 s',
+    note: ''
+  }, {
+    id: 's5',
+    action: 'Kurzer Split/Wechsel passiv → aktiv.',
+    speech: 'Beweglichkeit kann man dehnen. Und belasten.',
+    onscreen: 'DEHNEN. UND BELASTEN.',
+    audio: 'Voice-over',
+    dur: '15–19 s',
+    note: 'Quelle nicht ins Video quetschen; in Caption/Notiz.'
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook'],
+  publishDate: '2026-10-20',
+  variants: 'IG/TikTok identischer Master; Caption kann Quellenhinweis tragen.',
+  material: 'Neudreh. Matte + ggf. leichtes Gewicht/Equipment für dieselbe Bewegungsrichtung.'
+}, {
+  id: 'prod-joga-tryit',
+  world: 'JOGA',
+  fn: 'REACH',
+  format: 'WOW / Challenge',
+  title: 'TRY IT – CHALLENGE RECUT',
+  hook: 'TRY IT.',
+  status: 'Drehbereit',
+  prodType: 'Recut',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  goal: 'Benchmark gegen einen jüngst stärkeren IG-Mechanismus: extrem direkte Challenge, minimale Erklärung.',
+  speech: '',
+  scriptText: 'RECUT des vorhandenen „Try it“-Materials. Stärksten Versuch zuerst. 7–10 Sek. Keine Erklärung, kein VO.',
+  shots: [{
+    id: 'y1',
+    action: 'Schwierigster/visuell klarster Moment sofort in Frame 1.',
+    speech: '',
+    onscreen: 'TRY IT.',
+    audio: 'Silent/Musik',
+    dur: '0–4 s',
+    note: ''
+  }, {
+    id: 'y2',
+    action: 'Zweiter Winkel oder vollständiger Versuch.',
+    speech: '',
+    onscreen: '',
+    audio: 'Silent/Musik',
+    dur: '4–8 s',
+    note: ''
+  }, {
+    id: 'y3',
+    action: 'Kurzer Endhold/Blick.',
+    speech: '',
+    onscreen: 'UND?',
+    audio: 'Silent/Musik',
+    dur: '8–10 s',
+    note: 'Kein weiterer CTA.'
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '2026-10-21',
+  variants: 'Gleicher Master.',
+  material: 'Bestandsmaterial „Try it“.'
+}, {
+  id: 'prod-oli-koerperpflege',
+  world: 'OLI',
+  fn: 'ME',
+  format: 'Oli Geht',
+  title: 'WARUM ICH BEWEGUNG KÖRPERPFLEGE NENNE.',
+  hook: 'Ich nenne Bewegung inzwischen Körperpflege.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Face first',
+  audio: 'On-Cam',
+  goal: 'Test Markenhaltung: verbindet Oli-Person mit JOGA, ohne Tutorial zu werden?',
+  speech: 'Ich nenne Bewegung inzwischen Körperpflege. Beim Zähneputzen fragt ja auch keiner, ob du heute Bestleistung gebracht hast. Du machst es, weil dein Körper Pflege braucht. Genau so sehe ich Bewegung inzwischen auch. Nicht jedes Mal Training. Nicht jedes Mal Leistung. Aber regelmäßig bewegen. Einfach machen.',
+  scriptText: 'Oli Geht. 20–25 Sek. Im Gehen sprechen, nicht stehen und dozieren. Ein Take bevorzugt; nur 1–2 B-Roll-Cuts, wenn nötig.',
+  shots: [{
+    id: 'p1',
+    action: 'Selfie/mitlaufende Kamera, du gehst bereits. Gesicht sichtbar.',
+    speech: 'Ich nenne Bewegung inzwischen Körperpflege.',
+    onscreen: 'BEWEGUNG = KÖRPERPFLEGE',
+    audio: 'On-Cam',
+    dur: '0–3 s',
+    note: ''
+  }, {
+    id: 'p2',
+    action: 'Weitergehen, natürlicher Blickwechsel.',
+    speech: 'Beim Zähneputzen fragt ja auch keiner, ob du heute Bestleistung gebracht hast.',
+    onscreen: '',
+    audio: 'On-Cam',
+    dur: '3–8 s',
+    note: ''
+  }, {
+    id: 'p3',
+    action: 'Optional kurzer B-Roll-Cut auf Schritte/Hände, Ton läuft weiter.',
+    speech: 'Du machst es, weil dein Körper Pflege braucht.',
+    onscreen: '',
+    audio: 'On-Cam',
+    dur: '8–12 s',
+    note: ''
+  }, {
+    id: 'p4',
+    action: 'Gesicht wieder klar im Bild.',
+    speech: 'Genau so sehe ich Bewegung inzwischen auch. Nicht jedes Mal Training. Nicht jedes Mal Leistung.',
+    onscreen: 'NICHT IMMER TRAINING. NICHT IMMER LEISTUNG.',
+    audio: 'On-Cam',
+    dur: '12–20 s',
+    note: ''
+  }, {
+    id: 'p5',
+    action: 'Weitergehen, kleiner natürlicher Abschlussblick.',
+    speech: 'Aber regelmäßig bewegen. Einfach machen.',
+    onscreen: 'EINFACH MACHEN.',
+    audio: 'On-Cam',
+    dur: '20–24 s',
+    note: 'Kein künstlicher CTA.'
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-22',
+  variants: 'TikTok ggf. 18–20 s durch Kürzen von Shot 3/4.',
+  material: 'Neudreh beim Gehen. Kein spezieller Ort nötig.'
+}, {
+  id: 'prod-joga-mobility',
+  world: 'JOGA',
+  fn: 'DO',
+  format: 'Erklärung / Mythos',
+  title: 'MOBILITY IST NICHT NUR DEHNEN – RECUT',
+  hook: 'Mobility ist nicht nur Dehnen.',
+  status: 'Drehbereit',
+  prodType: 'Recut',
+  entry: 'Move first',
+  audio: 'Voice-over',
+  goal: 'Test, ob bestehender Mobility-Content durch knappen VO mehr Watchtime/Saves erhält als reine Textversion.',
+  speech: 'Mobility ist nicht nur: möglichst weit ziehen. Entscheidend ist auch, ob du Bewegung aktiv kontrollieren kannst. Deshalb kombiniere ich Range gern mit Kraft und Kontrolle.',
+  scriptText: 'RECUT vorhandenen Materials. 15–18 Sek. Visuell passive und aktive Bewegung kontrastieren. Kein medizinisches Versprechen.',
+  shots: [{
+    id: 'mo1',
+    action: 'Aktiver kontrollierter Move sofort sichtbar.',
+    speech: 'Mobility ist nicht nur: möglichst weit ziehen.',
+    onscreen: 'MOBILITY IST NICHT NUR DEHNEN.',
+    audio: 'Voice-over',
+    dur: '0–5 s',
+    note: ''
+  }, {
+    id: 'mo2',
+    action: 'Move mit sichtbarer aktiver Kontrolle/Endrange.',
+    speech: 'Entscheidend ist auch, ob du Bewegung aktiv kontrollieren kannst.',
+    onscreen: 'KONTROLLE',
+    audio: 'Voice-over',
+    dur: '5–11 s',
+    note: ''
+  }, {
+    id: 'mo3',
+    action: 'Kraft-/Range-Move oder kontrollierter Übergang.',
+    speech: 'Deshalb kombiniere ich Range gern mit Kraft und Kontrolle.',
+    onscreen: 'RANGE + KRAFT + KONTROLLE',
+    audio: 'Voice-over',
+    dur: '11–17 s',
+    note: ''
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook'],
+  publishDate: '2026-10-23',
+  variants: 'IG/TikTok gleicher Test-Master.',
+  material: 'Bestandsmaterial „Mobility ist nicht nur Dehnen“ bzw. passende aktive Range-Clips.'
+}, {
+  id: 'prod-oli-video15',
+  world: 'OLI',
+  fn: 'ME',
+  format: 'Oli Geht',
+  title: '15 SEKUNDEN VIDEO. ZWEI STUNDEN ARBEIT.',
+  hook: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden.',
+  status: 'Drehbereit',
+  prodType: 'Neudreh',
+  entry: 'Situation first',
+  audio: 'Voice-over',
+  goal: 'Test Creator-Alltag/Selbstironie ohne Bewegung: erzeugt die Person Oli Anschluss außerhalb JOGA?',
+  speech: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden. Kamera. Licht. Noch ein Take. Schnitt. Text. Musik. Cover. Und dann drückst du auf Posten und 47 Menschen sehen es. Kreativbranche. Nur jetzt mit Stativ.',
+  scriptText: '12–18 Sek. Nicht jammern, trocken. Alle Probleme selbst kontrollierbar filmen. Schnelle Montage, VO darüber.',
+  shots: [{
+    id: 'v1',
+    action: 'Stativ aufklappen/Kamera einsetzen.',
+    speech: 'Ein Video braucht 15 Sekunden. Bis es 15 Sekunden lang ist, brauchst du zwei Stunden.',
+    onscreen: '15 SEKUNDEN VIDEO.',
+    audio: 'Voice-over',
+    dur: '0–3 s',
+    note: ''
+  }, {
+    id: 'v2',
+    action: '4–5 Mikro-Cuts: Licht, Markierung, Take starten, zurück zur Kamera, Timeline am Rechner/Handy.',
+    speech: 'Kamera. Licht. Noch ein Take. Schnitt. Text. Musik. Cover.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '3–9 s',
+    note: 'Je 0,5–1 s.'
+  }, {
+    id: 'v3',
+    action: 'Finger tippt auf „Posten“/symbolisch auf Handy; keine privaten Daten zeigen.',
+    speech: 'Und dann drückst du auf Posten und 47 Menschen sehen es.',
+    onscreen: '47 VIEWS.',
+    audio: 'Voice-over',
+    dur: '9–13 s',
+    note: '47 ist Pointe, nicht als echte aktuelle Kennzahl behaupten.'
+  }, {
+    id: 'v4',
+    action: 'Du sitzt neben dem Stativ, trockener Blick.',
+    speech: 'Kreativbranche. Nur jetzt mit Stativ.',
+    onscreen: '',
+    audio: 'Voice-over',
+    dur: '13–17 s',
+    note: ''
+  }],
+  platforms: ['Instagram', 'TikTok'],
+  publishDate: '2026-10-24',
+  variants: 'Wenn „47“ zu konstruiert wirkt, im Dreh zwei Varianten aufnehmen: „47“ und „kaum jemand“; im Schnitt entscheiden.',
+  material: 'Neudreh. Stativ, Kamera/Handy, Schnittscreen.'
+}, {
+  id: 'prod-joga-balance',
+  world: 'JOGA',
+  fn: 'REACH',
+  format: 'WOW / Challenge',
+  title: 'BALANCE-CHECK – WACKELN ERLAUBT',
+  hook: 'Wie lange hältst du durch?',
+  status: 'Drehbereit',
+  prodType: 'Bestand',
+  entry: 'Move first',
+  audio: 'Silent/Musik',
+  goal: 'Abschluss-Kontrollpost: einfache Mitmach-Challenge. Vergleich mit OLI-Humor und OLI-Haltung.',
+  speech: '',
+  scriptText: 'Bestand bevorzugt. 10–15 Sek. Einbein-Balance/Reach, sofort starten. Keine Erklärung. Sichtbarer echter Wackler darf drinbleiben.',
+  shots: [{
+    id: 'b1',
+    action: 'Einbeinstand/Reach bereits aktiv in Frame 1. Ganzkörper, Fuß vollständig sichtbar.',
+    speech: '',
+    onscreen: 'WIE LANGE HÄLTST DU DURCH?',
+    audio: 'Silent/Musik',
+    dur: '0–5 s',
+    note: ''
+  }, {
+    id: 'b2',
+    action: 'Progression: Reach/Kopfbewegung oder schwierigerer Hebel.',
+    speech: '',
+    onscreen: 'OHNE ABZUSETZEN.',
+    audio: 'Silent/Musik',
+    dur: '5–10 s',
+    note: ''
+  }, {
+    id: 'b3',
+    action: 'Echter kleiner Wackler/Recovery oder sauberer Hold.',
+    speech: '',
+    onscreen: 'WACKELN ZÄHLT.',
+    audio: 'Silent/Musik',
+    dur: '10–14 s',
+    note: 'Nicht künstlich wackeln.'
+  }],
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '2026-10-25',
+  variants: 'Gleicher Master; FB kann etwas länger laufen.',
+  material: 'Bestandsmaterial Balance; nur nachdrehen, wenn kein sauberer Ganzkörperclip existiert.'
+}];
+const productionSeedV21 = () => PRODUCTION_SEED_V21.map(p => normPiece({
+  ...p,
+  created: '2026-10-05',
+  updated: '2026-10-05'
+}));
+
+/* ---------- V2.2 Produktions-Seeds: 28 neue Pieces (05.–11.10. und 26.10.–15.11.2026), geparst aus dem 7-Wochen-Contentplan ---------- */
+const PRODUCTION_SEED_V22 = [{
+  "id": "v22-joga-aufstehen",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "WOW / Challenge",
+  "title": "OHNE HÄNDE VOM BODEN AUFSTEHEN",
+  "hook": "Kommst du ohne Hände vom Boden hoch?",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Einfacher funktioneller Challenge-Post; Shares/Kommentare und Mitmachimpuls testen.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-aufstehen-1",
+    "action": "Du sitzt bereits am Boden und beginnst sofort aufzustehen. Keine Vorbereitung zeigen.",
+    "speech": "",
+    "onscreen": "KOMMST DU OHNE HÄNDE HOCH?",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "Hook in Frame 1.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-aufstehen-2",
+    "action": "Saubere Variante ohne Hände vollständig zeigen.",
+    "speech": "",
+    "onscreen": "1 VERSUCH.",
+    "audio": "Silent/Musik",
+    "dur": "2–7 s",
+    "note": "Nicht beschleunigen.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-aufstehen-3",
+    "action": "Noch einmal aus leicht anderem Winkel oder kontrolliert zurück zum Boden.",
+    "speech": "",
+    "onscreen": "NICHT SCHUMMELN.",
+    "audio": "Silent/Musik",
+    "dur": "7–11 s",
+    "note": "Loop-fähig enden.",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-10-05",
+  "variants": "IG/TT 9–11 s; FB/YT gleicher Master.",
+  "material": "Matte oder freier Boden, Stativ. 9:16. Ganzkörper inklusive Füße.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-socke",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "KOPF SAGT: SOCKE. 3 SEKUNDEN.",
+  "hook": "KOPF: SOCKE. 3 SEKUNDEN.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Kontrollierbaren Alltags-Humor testen, der unmittelbar mit Beweglichkeit/Balance verbunden ist, aber nicht wie Training wirkt.",
+  "speech": "Geht doch.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-socke-1",
+    "action": "Im Stehen Socke anziehen wollen. Fuß bereits oben.",
+    "speech": "",
+    "onscreen": "KOPF: SOCKE. 3 SEKUNDEN.",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "Kein Intro.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-socke-2",
+    "action": "Echter kleiner Wackler, Fuß kurz runter, neu sortieren.",
+    "speech": "",
+    "onscreen": "KÖRPER HAT RÜCKFRAGEN.",
+    "audio": "Silent/Musik",
+    "dur": "2–6 s",
+    "note": "Nicht künstlich übertreiben.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-socke-3",
+    "action": "Socke schließlich an. Trockener Blick in Kamera.",
+    "speech": "Geht doch.",
+    "onscreen": "",
+    "audio": "On-Cam",
+    "dur": "6–9 s",
+    "note": "Sofort Cut.",
+    "onscreenRequired": false
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-10-06",
+  "variants": "Kein CTA. TikTok ggf. 0,5 s schneller schneiden.",
+  "material": "Socke, freie Wand in Reichweite, Stativ.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-9090",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "90/90 FÜR DIE HÜFTE",
+  "hook": "Wenn deine Hüfte nach Sitzen so tut, als wäre sie aus Beton.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Save-orientierte Mini-Routine mit klarer Alltagssituation.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-9090-1",
+    "action": "90/90 Sitz, Oberkörper wechselt kontrolliert zur anderen Seite.",
+    "speech": "",
+    "onscreen": "HÜFTE NACH VIEL SITZEN?",
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": "Bewegung Frame 1.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-9090-2",
+    "action": "90/90 Switches 2–3 Wiederholungen.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN.",
+    "audio": "Silent/Musik",
+    "dur": "4–10 s",
+    "note": "Keine Erklärung.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-9090-3",
+    "action": "Aus 90/90 nach vorn neigen, dann wieder aufrichten.",
+    "speech": "",
+    "onscreen": "LANGSAM. OHNE ZERREN.",
+    "audio": "Silent/Musik",
+    "dur": "10–16 s",
+    "note": "Sauberer Endpunkt.",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-10-07",
+  "variants": "IG/FB 16 s; TT 12–14 s.",
+  "material": "Matte, Stativ. 9:16, Kamera leicht erhöht seitlich.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-aufstehen",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "KOPF SAGT: ICH STEH EINFACH AUF.",
+  "hook": "KOPF: ICH STEH EINFACH AUF.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Zweiter kontrollierbarer Humor-Test: Mikro-Moment statt Slapstick.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-aufstehen-1",
+    "action": "Du sitzt entspannt am Boden und willst spontan aufstehen.",
+    "speech": "",
+    "onscreen": "KOPF: ICH STEH EINFACH AUF.",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "Statischer Frame.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-aufstehen-2",
+    "action": "Du beginnst, stoppst kurz und sortierst die Beine neu.",
+    "speech": "",
+    "onscreen": "",
+    "audio": "Silent/Musik",
+    "dur": "2–6 s",
+    "note": "Humor aus echter Planung.",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-aufstehen-3",
+    "action": "Du entscheidest dich für eine saubere Variante und stehst auf.",
+    "speech": "",
+    "onscreen": "KÖRPER: WIR BESPRECHEN DAS KURZ.",
+    "audio": "Silent/Musik",
+    "dur": "6–10 s",
+    "note": "Nicht alt spielen.",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-10-08",
+  "variants": "Gleicher Master IG/TT. Kein CTA.",
+  "material": "Freier Boden, optional Sofa im Hintergrund, Stativ.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-eagle",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "SCHULTERN NACH SCHREIBTISCH",
+  "hook": "Mach das einmal, bevor du deine Schultern für alt erklärst.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Voice-over",
+  "goal": "Test kurzer VO über klarer Bewegung; Nutzwert ohne Talking-Head-Intro.",
+  "speech": "Viel Sitzen macht deine Schultern nicht kaputt. Aber oft ziemlich unbewegt. Einmal verschränken, Ellbogen heben, Rücken breit machen und wieder lösen. Kein Gewaltakt. Nur Bewegung.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-eagle-1",
+    "action": "Eagle Arms bereits verschränkt; Ellbogen langsam heben.",
+    "speech": "Viel Sitzen macht deine Schultern nicht kaputt. Aber oft ziemlich unbewegt.",
+    "onscreen": "SCHULTERN NACH SCHREIBTISCH?",
+    "audio": "Voice-over",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-eagle-2",
+    "action": "Rücken leicht runden, Hände vom Gesicht weg, dann aufrichten.",
+    "speech": "Einmal verschränken, Ellbogen heben, Rücken breit machen und wieder lösen.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "5–11 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-joga-eagle-3",
+    "action": "Arme lösen, große Öffnung nach hinten/oben.",
+    "speech": "Kein Gewaltakt. Nur Bewegung.",
+    "onscreen": "NUR BEWEGEN.",
+    "audio": "Voice-over",
+    "dur": "11–16 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-10-09",
+  "variants": "Silent-Version zusätzlich exportieren, primär VO posten.",
+  "material": "Stuhl oder Stand, Stativ. Eagle-Arms/Schultersequenz.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-knie",
+  "world": "OLI",
+  "fn": "DO",
+  "format": "Oli Klärt",
+  "title": "KNIE NIE ÜBER DIE ZEHEN?",
+  "hook": "KNIE NIE ÜBER DIE ZEHEN?",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "Fachkompetenz über sofort sichtbare Demonstration testen.",
+  "speech": "Dann wird eine Kniebeuge ziemlich kompliziert. Wenn du die Knie absichtlich hinten hältst, verschiebst du die Belastung einfach woanders hin. Knie über den Zehen sind deshalb nicht automatisch ein Fehler. Wie weit sie nach vorn kommen, hängt von Körperbau, Beweglichkeit, Squat-Variante und Last ab. Nicht die Zehen sind die rote Linie.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-knie-1",
+    "action": "Künstlicher Squat mit möglichst senkrechtem Schienbein; sichtbar unnatürlich.",
+    "speech": "Dann wird eine Kniebeuge ziemlich kompliziert.",
+    "onscreen": "KNIE NIE ÜBER DIE ZEHEN?",
+    "audio": "On-Cam",
+    "dur": "0–3 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-knie-2",
+    "action": "Natürlich squatten, Knie dürfen vor.",
+    "speech": "Wenn du die Knie absichtlich hinten hältst, verschiebst du die Belastung einfach woanders hin.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "3–9 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-knie-3",
+    "action": "Seitliche Ansicht natürlicher Squat, kontrolliert.",
+    "speech": "Knie über den Zehen sind deshalb nicht automatisch ein Fehler. Wie weit sie nach vorn kommen, hängt von Körperbau, Beweglichkeit, Squat-Variante und Last ab.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "9–17 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-knie-4",
+    "action": "Oben stehen, Blick in Kamera.",
+    "speech": "Nicht die Zehen sind die rote Linie.",
+    "onscreen": "NICHT DIE ZEHEN SIND DIE ROTE LINIE.",
+    "audio": "On-Cam",
+    "dur": "17–20 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-10-10",
+  "variants": "IG/FB Master 20 s; TT ggf. 17–18 s.",
+  "material": "Stativ, Ganzkörper, normale Squat-Position.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-koerperwecker",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "30 SEKUNDEN KÖRPERWECKER",
+  "hook": "30 Sekunden gegen das Gefühl, eingerostet zu sein.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Breiter, einfacher JOGA-Nutzwert als Kontrollpost vor Testphase.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-koerperwecker-1",
+    "action": "Weiter Stand, große Armkreise + Brustkorb öffnen.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN GEGEN EINGEROSTET.",
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-koerperwecker-2",
+    "action": "Squat-Seitentap rechts/links.",
+    "speech": "",
+    "onscreen": "1. SEITE",
+    "audio": "Silent/Musik",
+    "dur": "4–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-koerperwecker-3",
+    "action": "Lunge mit Rotation im Wechsel.",
+    "speech": "",
+    "onscreen": "2. DREHEN",
+    "audio": "Silent/Musik",
+    "dur": "9–14 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-koerperwecker-4",
+    "action": "Großer Reach nach oben/seitlich, sauberer Loop.",
+    "speech": "",
+    "onscreen": "3. LANG MACHEN",
+    "audio": "Silent/Musik",
+    "dur": "14–18 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-10-11",
+  "variants": "Master 18 s. Keine Moderation.",
+  "material": "Freier Stand, Stativ, Ganzkörper.",
+  "planPhase": "transition",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-stretch37",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "ICH DEHNE MICH NUR KURZ.",
+  "hook": "Ich dehne mich nur kurz.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Humorformat nach Testphase wiederholen: kontrollierbar, körpernah, ohne Erklärvideo.",
+  "speech": "Jetzt kann ich anfangen.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-stretch37-1",
+    "action": "Einfachen Stretch beginnen.",
+    "speech": "",
+    "onscreen": "ICH DEHNE MICH NUR KURZ.",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-stretch37-2",
+    "action": "Drei harte Cuts in immer weitere Stretch-/Mobility-Positionen.",
+    "speech": "",
+    "onscreen": "",
+    "audio": "Silent/Musik",
+    "dur": "2–7 s",
+    "note": "Keine akrobatische Eskalation.",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-stretch37-3",
+    "action": "Insert Uhr/Timer.",
+    "speech": "",
+    "onscreen": "37 MINUTEN SPÄTER.",
+    "audio": "Silent/Musik",
+    "dur": "7–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-stretch37-4",
+    "action": "Aufstehen, trockener Blick.",
+    "speech": "Jetzt kann ich anfangen.",
+    "onscreen": "",
+    "audio": "On-Cam",
+    "dur": "9–11 s",
+    "note": "",
+    "onscreenRequired": false
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-10-26",
+  "variants": "IG/TT 10–11 s.",
+  "material": "Matte, Uhr/Handy nur als Insert, Stativ.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-balance-wurf",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "WOW / Challenge",
+  "title": "BALANCE + WURF",
+  "hook": "Stehen ist leicht. Bis deine Hände etwas anderes machen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Visuell verständliche Dual-Task-Balance als Challenge.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-balance-wurf-1",
+    "action": "Einbeinstand, Ball von Hand zu Hand werfen.",
+    "speech": "",
+    "onscreen": "STEHEN IST LEICHT.",
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-balance-wurf-2",
+    "action": "Ball etwas höher/seitlich werfen, Blick folgt.",
+    "speech": "",
+    "onscreen": "BIS DIE HÄNDE MITMISCHEN.",
+    "audio": "Silent/Musik",
+    "dur": "4–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-balance-wurf-3",
+    "action": "Seitenwechsel, echter kleiner Wackler darf bleiben.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN. DANN WECHSELN.",
+    "audio": "Silent/Musik",
+    "dur": "9–14 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-10-27",
+  "variants": "Kein VO. Master 14 s.",
+  "material": "Kleiner weicher Ball, freie Wand oder Ball von Hand zu Hand; Stativ.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-algorithmus",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "WERBUNG VS. ALGORITHMUS",
+  "hook": "Ich habe jahrelang Aufmerksamkeit geplant. Jetzt entscheidet ein Algorithmus, ob ich welche bekomme.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "Berufliche Identität + Creator-Selbstironie als Follow-Grund testen.",
+  "speech": "Ich habe beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen. Mit Strategie, Idee, Text, Kampagne. Heute stelle ich ein Stativ hin, mache 17 Sekunden Video und ein Algorithmus entscheidet, ob es 200 oder 200.000 Menschen sehen. Das ist nicht tragisch. Nur eine ziemlich gute Pointe auf meine Karriere.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-algorithmus-1",
+    "action": "Halbnah, direkt in Kamera.",
+    "speech": "Ich habe beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen.",
+    "onscreen": "ICH HABE AUFMERKSAMKEIT GEPLANT.",
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-algorithmus-2",
+    "action": "Jumpcuts, gleiche Position.",
+    "speech": "Mit Strategie, Idee, Text, Kampagne. Heute stelle ich ein Stativ hin, mache 17 Sekunden Video und ein Algorithmus entscheidet, ob es 200 oder 200.000 Menschen sehen.",
+    "onscreen": "",
+    "audio": "On-Cam",
+    "dur": "4–11 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-algorithmus-3",
+    "action": "Kurze Pause, Blick halten.",
+    "speech": "Das ist nicht tragisch. Nur eine ziemlich gute Pointe auf meine Karriere.",
+    "onscreen": "POINTE AUF MEINE KARRIERE.",
+    "audio": "On-Cam",
+    "dur": "11–17 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-10-28",
+  "variants": "Keine Algorithmus-Jammer-Caption. 17–20 s.",
+  "material": "Neutraler Hintergrund oder Content-Setup, Stativ.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-lunge-rotation",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "LUNGE + ROTATION",
+  "hook": "Wenn du nur geradeaus trainierst, fehlt dir eine Richtung.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Rotation als einfache Bewegungsdimension; Save-orientiert.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-lunge-rotation-1",
+    "action": "Reverse Lunge rechts, Rotation über vorderes Bein.",
+    "speech": "",
+    "onscreen": "DIR FEHLT EINE RICHTUNG.",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-lunge-rotation-2",
+    "action": "Zurück, Seite wechseln.",
+    "speech": "",
+    "onscreen": "LUNGE + ROTATION",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-lunge-rotation-3",
+    "action": "2 flüssige Wechsel.",
+    "speech": "",
+    "onscreen": "6 PRO SEITE. LANGSAM.",
+    "audio": "Silent/Musik",
+    "dur": "10–16 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-10-29",
+  "variants": "Master 16 s.",
+  "material": "Matte, Stativ, Ganzkörper.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-balance-trainierbar",
+  "world": "OLI",
+  "fn": "DO",
+  "format": "Oli Klärt",
+  "title": "BALANCE HAT MAN. ODER EBEN NICHT.",
+  "hook": "Balance hat man. Oder eben nicht.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "Challenge vom 25.10. fachlich vertiefen; testet Follow-up-Serie Challenge → Erklärung.",
+  "speech": "Praktisch. Dann könnte ich jetzt aufhören. Balance ist trainierbar. Deshalb ist sie auch Bestandteil von Trainingsprogrammen für funktionelle Fitness und Sturzprävention. Boden. Ein Bein. Dann Reach oder Kopfbewegung. Wackeln ist nicht das Gegenargument. Wackeln ist das Training.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-balance-trainierbar-1",
+    "action": "Einbeinstand, echter kleiner Wackler.",
+    "speech": "Praktisch. Dann könnte ich jetzt aufhören.",
+    "onscreen": "BALANCE HAT MAN. ODER EBEN NICHT.",
+    "audio": "On-Cam",
+    "dur": "0–3 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-balance-trainierbar-2",
+    "action": "Einbeinstand stabil, dann Reach.",
+    "speech": "Balance ist trainierbar. Deshalb ist sie auch Bestandteil von Trainingsprogrammen für funktionelle Fitness und Sturzprävention.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "3–9 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-balance-trainierbar-3",
+    "action": "Progression mit Kopfbewegung/Reach.",
+    "speech": "Boden. Ein Bein. Dann Reach oder Kopfbewegung.",
+    "onscreen": "PROGRESSION STATT TALENT.",
+    "audio": "Voice-over",
+    "dur": "9–15 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-balance-trainierbar-4",
+    "action": "Wackler auffangen.",
+    "speech": "Wackeln ist nicht das Gegenargument. Wackeln ist das Training.",
+    "onscreen": "WACKELN IST DAS TRAINING.",
+    "audio": "On-Cam",
+    "dur": "15–18 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-10-30",
+  "variants": "18 s Master.",
+  "material": "Stativ, Ganzkörper.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-zombie",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "WOW / Challenge",
+  "title": "MORGENS ZOMBIE?",
+  "hook": "Wenn du morgens läufst wie ein Zombie: 20 Sekunden.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Saisonaler Halloween-Aufhänger ohne Kostümzwang; einfacher Mobility-Loop.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-joga-zombie-1",
+    "action": "Bewusst steifer erster Schritt, sofort Übergang in große Arm-/Brustöffnung.",
+    "speech": "",
+    "onscreen": "MORGENS ZOMBIE?",
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": "Nicht Schauspiel überziehen.",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-zombie-2",
+    "action": "Weiter Stand, Sidebend rechts/links.",
+    "speech": "",
+    "onscreen": "20 SEKUNDEN.",
+    "audio": "Silent/Musik",
+    "dur": "3–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-zombie-3",
+    "action": "Squat + Rotation im Wechsel.",
+    "speech": "",
+    "onscreen": "DANN WIEDER MENSCH.",
+    "audio": "Silent/Musik",
+    "dur": "9–15 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-10-31",
+  "variants": "Nur am 31.10. verwenden; kein Horrorlook nötig.",
+  "material": "Normale Kleidung. Kein Halloween-Set nötig.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-schnellvideo",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "ICH MACH NUR SCHNELL EIN VIDEO.",
+  "hook": "Ich mach nur schnell ein Video.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Creator-Alltag als kontrollierbarer Humor; anschlussfähig an 24.10., aber neue visuelle Pointe.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts.",
+  "shots": [{
+    "id": "v22-oli-schnellvideo-1",
+    "action": "Du stellst nur das Handy/Stativ hin.",
+    "speech": "",
+    "onscreen": "ICH MACH NUR SCHNELL EIN VIDEO.",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-schnellvideo-2",
+    "action": "Schnelle Cuts: Winkel korrigieren, Licht, Position markieren, erneut kontrollieren.",
+    "speech": "",
+    "onscreen": "",
+    "audio": "Silent/Musik",
+    "dur": "2–7 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-schnellvideo-3",
+    "action": "Blick auf Uhr/Handy.",
+    "speech": "",
+    "onscreen": "47 MINUTEN SPÄTER.",
+    "audio": "Silent/Musik",
+    "dur": "7–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-schnellvideo-4",
+    "action": "Du drückst endlich Aufnahme und gehst ins Bild.",
+    "speech": "",
+    "onscreen": "JETZT ABER.",
+    "audio": "Silent/Musik",
+    "dur": "10–12 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-01",
+  "variants": "Kein gesprochener CTA.",
+  "material": "Kamera, Stativ, Licht/kleines Setup, Akku/SD optional.",
+  "planPhase": "deepen",
+  "preproductionRequired": false,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-9090-reach",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "90/90 + REACH",
+  "hook": "Hüfte steif? Beweg sie. Nicht nur ziehen.",
+  "status": "Drehbereit",
+  "prodType": "Recut",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Urlaubsfähiger Recut aus 07.10.; gleiche Basis, anderer Nutzen/anderer Schnitt.",
+  "speech": "",
+  "scriptText": "RECUT – kein Neudreh. Nur aus vorhandenem Material schneiden (siehe Material). Reihenfolge, On-Screen-Text, Audio und Länge exakt wie in der Shotliste. VORPRODUZIEREN: fertig exportieren.",
+  "shots": [{
+    "id": "v22-joga-9090-reach-1",
+    "action": "90/90 Switch aus bestehendem Master.",
+    "speech": "",
+    "onscreen": "HÜFTE STEIF?",
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-9090-reach-2",
+    "action": "90/90 mit Reach diagonal nach vorn.",
+    "speech": "",
+    "onscreen": "BEWEGEN. NICHT NUR ZIEHEN.",
+    "audio": "Silent/Musik",
+    "dur": "4–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-9090-reach-3",
+    "action": "Seitenwechsel + Reach.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN.",
+    "audio": "Silent/Musik",
+    "dur": "9–14 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-02",
+  "variants": "Als eigener Cut vorproduzieren.",
+  "material": "Material vom 07.10.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-muskeln",
+  "world": "OLI",
+  "fn": "DO",
+  "format": "Oli Klärt",
+  "title": "ZU ALT FÜR MUSKELAUFBAU?",
+  "hook": "Deine Muskeln haben keinen Rentenbescheid bekommen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "Alterskompetenz mit trockenem Satz und sichtbarer Kraftübung.",
+  "speech": "Deine Muskeln haben keinen Rentenbescheid bekommen. Auch ältere Erwachsene können mit Krafttraining Muskelmasse und Kraft aufbauen. Die Reaktion wird nicht mit 50 abgeschaltet. Entscheidend sind Training, Belastung, Erholung und genug Zeit. Alt genug zum Trainieren bist du nicht. Höchstens alt genug, es vernünftig zu machen.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-muskeln-1",
+    "action": "Kraftübung bereits in Bewegung.",
+    "speech": "Deine Muskeln haben keinen Rentenbescheid bekommen.",
+    "onscreen": "ZU ALT FÜR MUSKELAUFBAU?",
+    "audio": "On-Cam",
+    "dur": "0–3 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-muskeln-2",
+    "action": "2 kontrollierte Wiederholungen, anderer Winkel.",
+    "speech": "Auch ältere Erwachsene können mit Krafttraining Muskelmasse und Kraft aufbauen. Die Reaktion wird nicht mit 50 abgeschaltet.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "3–10 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-muskeln-3",
+    "action": "Weitertrainieren, sauberer Range.",
+    "speech": "Entscheidend sind Training, Belastung, Erholung und genug Zeit.",
+    "onscreen": "TRAINING. BELASTUNG. ERHOLUNG.",
+    "audio": "Voice-over",
+    "dur": "10–17 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-muskeln-4",
+    "action": "Blick in Kamera.",
+    "speech": "Alt genug zum Trainieren bist du nicht. Höchstens alt genug, es vernünftig zu machen.",
+    "onscreen": "VERNÜNFTIG MACHEN.",
+    "audio": "On-Cam",
+    "dur": "17–21 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-03",
+  "variants": "Keine medizinischen Versprechen. 20–22 s.",
+  "material": "Eine kontrollierte Kraftübung, z. B. Goblet Squat/RDL/Row; Stativ.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-thread",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "THREAD THE NEEDLE",
+  "hook": "Dein Rücken kann mehr als vor und zurück.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Rotation visuell einfach und speicherbar.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-joga-thread-1",
+    "action": "Thread the Needle rechts, Arm weit durch.",
+    "speech": "",
+    "onscreen": "DEIN RÜCKEN KANN MEHR ALS VOR UND ZURÜCK.",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-thread-2",
+    "action": "Öffnung nach oben.",
+    "speech": "",
+    "onscreen": "ROTIEREN.",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-thread-3",
+    "action": "Seitenwechsel.",
+    "speech": "",
+    "onscreen": "3–5 PRO SEITE.",
+    "audio": "Silent/Musik",
+    "dur": "10–16 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-04",
+  "variants": "16 s Master.",
+  "material": "Matte, Vierfüßler, Kamera schräg vorn.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-nicht-optik",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Persönlichkeit / Haltung",
+  "title": "ICH TRAINIER NICHT MEHR NUR FÜR OPTIK.",
+  "hook": "Mit 56 ist mir wichtiger geworden, was mein Körper kann.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Bewährtes Alters-/Haltungsfeld vertiefen, ohne Motivationscoach-Ton.",
+  "speech": "Mit 56 ist mir wichtiger geworden, was mein Körper kann. Kraft. Beweglichkeit. Balance. Ausdauer. Natürlich darf ich gut aussehen wollen. Aber wenn das der einzige Maßstab ist, wird Training ziemlich klein. Ich will einen Körper, der mitmacht.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-nicht-optik-1",
+    "action": "Kraft- oder Mobility-Bewegung Frame 1.",
+    "speech": "Mit 56 ist mir wichtiger geworden, was mein Körper kann.",
+    "onscreen": "MIT 56: WAS KANN MEIN KÖRPER?",
+    "audio": "Voice-over",
+    "dur": "0–3 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-nicht-optik-2",
+    "action": "Vier kurze Cuts Kraft/Beweglichkeit/Balance/Ausdauer.",
+    "speech": "Kraft. Beweglichkeit. Balance. Ausdauer.",
+    "onscreen": "KRAFT · MOBILITY · BALANCE · AUSDAUER",
+    "audio": "Voice-over",
+    "dur": "3–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-nicht-optik-3",
+    "action": "Ruhiger Bewegungsclip.",
+    "speech": "Natürlich darf ich gut aussehen wollen. Aber wenn das der einzige Maßstab ist, wird Training ziemlich klein.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "10–16 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-nicht-optik-4",
+    "action": "Halbnah, Blick in Kamera.",
+    "speech": "Ich will einen Körper, der mitmacht.",
+    "onscreen": "EIN KÖRPER, DER MITMACHT.",
+    "audio": "On-Cam",
+    "dur": "16–19 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-05",
+  "variants": "19–21 s.",
+  "material": "Kurze B-Roll aus Kraft + Mobility; 1 On-Cam-Ende.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-squat-taps",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "SQUAT → SIDE TAP → ROTATION",
+  "hook": "Eine Bewegung. Drei Richtungen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Kompakter Full-Body-Flow mit klarer Struktur.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-joga-squat-taps-1",
+    "action": "Squat, beim Hochkommen Side Tap rechts.",
+    "speech": "",
+    "onscreen": "EINE BEWEGUNG. DREI RICHTUNGEN.",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-squat-taps-2",
+    "action": "Side Tap links, dann Reverse Lunge rechts.",
+    "speech": "",
+    "onscreen": "SEITE.",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-squat-taps-3",
+    "action": "Lunge + Rotation, dann Wechsel.",
+    "speech": "",
+    "onscreen": "ZURÜCK. DREHEN.",
+    "audio": "Silent/Musik",
+    "dur": "10–16 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-06",
+  "variants": "16 s, loopfähig.",
+  "material": "Freier Stand, Ganzkörper.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-anleitung",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "ICH BRAUCHE KEINE ANLEITUNG.",
+  "hook": "Ich brauche keine Anleitung.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Typisch-Mann-Format mit komplett kontrollierbarem Setup; bewusst kurz.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.",
+  "shots": [{
+    "id": "v22-oli-anleitung-1",
+    "action": "Du legst Anleitung demonstrativ zur Seite.",
+    "speech": "",
+    "onscreen": "ICH BRAUCHE KEINE ANLEITUNG.",
+    "audio": "Silent/Musik",
+    "dur": "0–2 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-anleitung-2",
+    "action": "Du versuchst etwas offensichtlich in falscher Reihenfolge zusammenzusetzen/einzustellen.",
+    "speech": "",
+    "onscreen": "",
+    "audio": "Silent/Musik",
+    "dur": "2–6 s",
+    "note": "Nur reales, ungefährliches Objekt.",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-anleitung-3",
+    "action": "Kurzer Blick, dann Anleitung heimlich wieder ins Bild ziehen.",
+    "speech": "",
+    "onscreen": "ICH SCHAU NUR, OB SIE STIMMT.",
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-07",
+  "variants": "",
+  "material": "Ein kleines vorhandenes Objekt/Equipment mit Anleitung; nichts kaufen.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-dolphin",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "DOLPHIN FÜR SCHULTERN + CORE",
+  "hook": "Wenn Plank langweilig wird: geh einen Schritt weiter.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Athletischer JOGA-Post ohne Zirkusmove; Saves und Watchtime.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-joga-dolphin-1",
+    "action": "Dolphin Hold, Schultern über/leicht vor Ellbogen.",
+    "speech": "",
+    "onscreen": "PLANK LANGWEILIG?",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-dolphin-2",
+    "action": "Dolphin Rocks vor/zurück kontrolliert.",
+    "speech": "",
+    "onscreen": "DOLPHIN ROCKS.",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-dolphin-3",
+    "action": "Hüfte etwas höher, sauber zurück.",
+    "speech": "",
+    "onscreen": "6–10 LANGSAME.",
+    "audio": "Silent/Musik",
+    "dur": "10–15 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-08",
+  "variants": "15 s.",
+  "material": "Matte, Stativ seitlich.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-stretch-vor-sport",
+  "world": "OLI",
+  "fn": "DO",
+  "format": "Oli Klärt",
+  "title": "VOR SPORT: ERST MAL LANGE DEHNEN?",
+  "hook": "Vor Sport erst mal lange statisch dehnen? Kommt drauf an, was du danach vorhast.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "Differenzierte Kompetenz; explizit statisches Dehnen, keine pauschale Dehnkritik.",
+  "speech": "Vor Sport erst mal lange statisch dehnen? Kommt drauf an, was du danach vorhast. Statisches Dehnen ist nicht grundsätzlich schlecht. Direkt vor explosiver Leistung ist langes statisches Halten aber nicht automatisch die beste Vorbereitung. Wenn du danach Leistung willst: warm werden, bewegen, spezifisch vorbereiten. Dehnen darf bleiben. Nur nicht als Religion.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-stretch-vor-sport-1",
+    "action": "Statischer Stretch bereits gehalten.",
+    "speech": "Vor Sport erst mal lange statisch dehnen? Kommt drauf an, was du danach vorhast.",
+    "onscreen": "VOR SPORT: LANGE DEHNEN?",
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-stretch-vor-sport-2",
+    "action": "Dynamische Bewegung/Leg swing oder kontrollierte Mobilisation.",
+    "speech": "Statisches Dehnen ist nicht grundsätzlich schlecht. Direkt vor explosiver Leistung ist langes statisches Halten aber nicht automatisch die beste Vorbereitung.",
+    "onscreen": "",
+    "audio": "Voice-over",
+    "dur": "4–10 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-stretch-vor-sport-3",
+    "action": "2 dynamische vorbereitende Moves.",
+    "speech": "Wenn du danach Leistung willst: warm werden, bewegen, spezifisch vorbereiten.",
+    "onscreen": "WARM · BEWEGEN · SPEZIFISCH",
+    "audio": "Voice-over",
+    "dur": "10–17 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-stretch-vor-sport-4",
+    "action": "Blick in Kamera.",
+    "speech": "Dehnen darf bleiben. Nur nicht als Religion.",
+    "onscreen": "NICHT ALS RELIGION.",
+    "audio": "On-Cam",
+    "dur": "17–20 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-09",
+  "variants": "20 s; Caption muss statisches Dehnen präzise benennen.",
+  "material": "Matte/Stand, kurzer statischer Stretch + dynamische Vorbereitung.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-balance-reach",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "WOW / Challenge",
+  "title": "EIN BEIN. DREI REACHES.",
+  "hook": "Ein Bein. Drei Richtungen. Wie ruhig bleibst du?",
+  "status": "Drehbereit",
+  "prodType": "Recut",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Vorproduzierbarer Balance-Recut aus Material 27./30.10.",
+  "speech": "",
+  "scriptText": "RECUT – kein Neudreh. Nur aus vorhandenem Material schneiden (siehe Material). Reihenfolge, On-Screen-Text, Audio und Länge exakt wie in der Shotliste. VORPRODUZIEREN: fertig exportieren.",
+  "shots": [{
+    "id": "v22-joga-balance-reach-1",
+    "action": "Einbeinstand, Reach nach vorn.",
+    "speech": "",
+    "onscreen": "EIN BEIN.",
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-balance-reach-2",
+    "action": "Reach seitlich.",
+    "speech": "",
+    "onscreen": "DREI RICHTUNGEN.",
+    "audio": "Silent/Musik",
+    "dur": "4–9 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-balance-reach-3",
+    "action": "Reach diagonal/hinten, Recovery.",
+    "speech": "",
+    "onscreen": "WACKELN ERLAUBT.",
+    "audio": "Silent/Musik",
+    "dur": "9–14 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-10",
+  "variants": "14 s.",
+  "material": "Bestandsmaterial Balance.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-anfaenger2",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Persönlichkeit / Haltung",
+  "title": "GUT SEIN IST BEQUEM.",
+  "hook": "Gut sein ist bequem. Lernen nicht.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "Nachfolger des Anfänger-Pieces; Haltung ohne Wiederholung derselben Hook.",
+  "speech": "Gut sein ist bequem. Lernen nicht. Wenn du etwas lange kannst, weißt du, wie du gut aussiehst. Als Anfänger sieht man Fehler. Man fragt. Man probiert. Man scheitert sichtbar. Genau deshalb versuche ich, mir das zu erhalten. Nicht Anfänger bleiben. Aber immer wieder einer werden.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-anfaenger2-1",
+    "action": "Halbnah, direkt.",
+    "speech": "Gut sein ist bequem. Lernen nicht.",
+    "onscreen": "GUT SEIN IST BEQUEM.",
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-anfaenger2-2",
+    "action": "Leichte Jumpcuts.",
+    "speech": "Wenn du etwas lange kannst, weißt du, wie du gut aussiehst. Als Anfänger sieht man Fehler. Man fragt. Man probiert. Man scheitert sichtbar.",
+    "onscreen": "",
+    "audio": "On-Cam",
+    "dur": "4–12 s",
+    "note": "",
+    "onscreenRequired": false
+  }, {
+    "id": "v22-oli-anfaenger2-3",
+    "action": "Minimal näher.",
+    "speech": "Genau deshalb versuche ich, mir das zu erhalten. Nicht Anfänger bleiben. Aber immer wieder einer werden.",
+    "onscreen": "IMMER WIEDER ANFÄNGER WERDEN.",
+    "audio": "On-Cam",
+    "dur": "12–19 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-11",
+  "variants": "19–21 s.",
+  "material": "Neutraler Hintergrund, ein Take plus 2 Jumpcuts.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-afterdesk",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "NACH 8 STUNDEN SITZEN",
+  "hook": "Nach 8 Stunden Sitzen braucht dein Körper nicht noch einen Stuhl.",
+  "status": "Drehbereit",
+  "prodType": "Recut",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Urlaubsfähige Silent-Variante des Anti-Desk-Themas; Vergleich VO vs Silent.",
+  "speech": "",
+  "scriptText": "RECUT – kein Neudreh. Nur aus vorhandenem Material schneiden (siehe Material). Reihenfolge, On-Screen-Text, Audio und Länge exakt wie in der Shotliste. VORPRODUZIEREN: fertig exportieren.",
+  "shots": [{
+    "id": "v22-joga-afterdesk-1",
+    "action": "Aufrichtung/Brustöffnung Frame 1.",
+    "speech": "",
+    "onscreen": "NACH 8 STUNDEN SITZEN ...",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-afterdesk-2",
+    "action": "Rotation.",
+    "speech": "",
+    "onscreen": "... NICHT NOCH EINEN STUHL.",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-afterdesk-3",
+    "action": "Seitöffnung/Reach.",
+    "speech": "",
+    "onscreen": "AUFRICHTEN · DREHEN · ÖFFNEN",
+    "audio": "Silent/Musik",
+    "dur": "10–16 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-12",
+  "variants": "16 s; expliziter Vergleich zum VO-Piece vom 17.10.",
+  "material": "Bestandsmaterial vom 17.10. oder verwandtes Desk-Material.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-video-urlaub",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Typisch Mann / Humor",
+  "title": "URLAUB. DER CONTENT ARBEITET TROTZDEM.",
+  "hook": "Urlaub. Der Content arbeitet trotzdem.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Meta-Humor über Vorproduktion; passt zum tatsächlichen 7-Wochen-System und benötigt keinen Urlaubsdreh.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-video-urlaub-1",
+    "action": "Du sitzt vor einer Liste/Timeline mit mehreren fertigen Clips.",
+    "speech": "",
+    "onscreen": "URLAUB.",
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-video-urlaub-2",
+    "action": "Du klickst/markierst mehrere fertige Exporte nacheinander.",
+    "speech": "",
+    "onscreen": "CONTENT: VORPRODUZIERT.",
+    "audio": "Silent/Musik",
+    "dur": "3–7 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-video-urlaub-3",
+    "action": "Stuhl leer, Kamera läuft noch 1 Sekunde.",
+    "speech": "",
+    "onscreen": "ICH: WEG.",
+    "audio": "Silent/Musik",
+    "dur": "7–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-13",
+  "variants": "Vor Urlaub produzieren. Kein Ortsbezug nötig.",
+  "material": "Am Schreibtisch/Content-Setup vorab drehen. Kalender/Exportliste auf eigenem Screen möglich.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-joga-fullbody3",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine / 1 Minute JOGA",
+  "title": "3 MOVES. GANZER KÖRPER.",
+  "hook": "Wenn du heute nur drei Bewegungen machst: diese.",
+  "status": "Drehbereit",
+  "prodType": "Recut",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Best-of-Rekombination der sieben Wochen; Save-Post.",
+  "speech": "",
+  "scriptText": "RECUT – kein Neudreh. Nur aus vorhandenem Material schneiden (siehe Material). Reihenfolge, On-Screen-Text, Audio und Länge exakt wie in der Shotliste. VORPRODUZIEREN: fertig exportieren.",
+  "shots": [{
+    "id": "v22-joga-fullbody3-1",
+    "action": "Squat + Rotation.",
+    "speech": "",
+    "onscreen": "WENN HEUTE NUR 3 MOVES:",
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-fullbody3-2",
+    "action": "90/90 Switch/Reach.",
+    "speech": "",
+    "onscreen": "1. DREHEN 2. HÜFTE",
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-fullbody3-3",
+    "action": "Schulter-/Brustöffnung.",
+    "speech": "",
+    "onscreen": "3. ÖFFNEN",
+    "audio": "Silent/Musik",
+    "dur": "10–15 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-joga-fullbody3-4",
+    "action": "Kurzer Loop aus erstem Move.",
+    "speech": "",
+    "onscreen": "SPEICHERN. MACHEN.",
+    "audio": "Silent/Musik",
+    "dur": "15–18 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-14",
+  "variants": "18 s.",
+  "material": "Beste vorhandene Takes aus Squat/Rotation, 90/90, Schulteröffnung.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}, {
+  "id": "v22-oli-7wochen",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "7 WOCHEN. WAS BLEIBT?",
+  "hook": "7 Wochen Content. Die wichtigste Zahl ist nicht die größte.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "Abschluss des Zeitraums; keine vorgetäuschte Erkenntnis, sondern Haltung zur Auswertung.",
+  "speech": "Sieben Wochen Content. Natürlich schaue ich auf Views. Aber die größte Zahl ist nicht automatisch der beste Inhalt. Mich interessiert: Was wird gespeichert? Was wird geteilt? Wofür folgen Menschen? Und bei welchem Content bleibe ich selbst gern dran? Danach wird nicht alles neu. Nur klarer.",
+  "scriptText": "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-7wochen-1",
+    "action": "Halbnah, direkt.",
+    "speech": "Sieben Wochen Content. Natürlich schaue ich auf Views.",
+    "onscreen": "7 WOCHEN CONTENT.",
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-7wochen-2",
+    "action": "Jumpcuts, ruhig.",
+    "speech": "Aber die größte Zahl ist nicht automatisch der beste Inhalt. Mich interessiert: Was wird gespeichert? Was wird geteilt? Wofür folgen Menschen?",
+    "onscreen": "VIEWS ≠ ALLES.",
+    "audio": "On-Cam",
+    "dur": "4–12 s",
+    "note": "",
+    "onscreenRequired": true
+  }, {
+    "id": "v22-oli-7wochen-3",
+    "action": "Blick halten, minimal näher.",
+    "speech": "Und bei welchem Content bleibe ich selbst gern dran? Danach wird nicht alles neu. Nur klarer.",
+    "onscreen": "NICHT ALLES NEU. NUR KLARER.",
+    "audio": "On-Cam",
+    "dur": "12–19 s",
+    "note": "",
+    "onscreenRequired": true
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-15",
+  "variants": "A-Version komplett vorproduzieren. Zahlen nicht sprechen; falls gewünscht am 15.11. nur On-Screen-Daten ergänzen.",
+  "material": "Vorproduzierbare A-Version + am 15.11. optional nur Zahlen/Text aktualisieren. Kein neuer Dreh nötig.",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2"
+}];
+// Einmalige Datenkorrektur für Bestandsdaten, die mit der ersten V2.2-Fassung geseedet wurden (Importartefakte in variants usw.).
+// Ersetzt ein Feld NUR, wenn es noch exakt dem alten, fehlerhaften Wert entspricht; Nutzeränderungen bleiben unberührt.
+const V22_SEED_FIXES = {
+  "v22-joga-aufstehen": {
+    "variants": ["IG/TT 9--11 s; FB/YT gleicher Master.", "IG/TT 9–11 s; FB/YT gleicher Master."]
+  },
+  "v22-joga-9090": {
+    "variants": ["IG/FB 16 s; TT 12--14 s.", "IG/FB 16 s; TT 12–14 s."],
+    "shots": {
+      "v22-joga-9090-2": {
+        "action": ["90/90 Switches 2--3 Wiederholungen.", "90/90 Switches 2–3 Wiederholungen."]
+      }
+    }
+  },
+  "v22-oli-knie": {
+    "variants": ["IG/FB Master 20 s; TT ggf. 17--18 s.", "IG/FB Master 20 s; TT ggf. 17–18 s."]
+  },
+  "v22-joga-koerperwecker": {
+    "variants": ["Master 18 s. Keine Moderation. ## W3/W4 --- 12.10.--25.10. --- BEREITS IN V2.1 VOLLSTÄNDIG AUSGEARBEITET Diese 14 Pieces werden **nicht neu erfunden oder überschrieben**. Sie bleiben mit ihren vorhandenen vollständigen Shotlists/Sprechtexten bestehen: - **12.10. · OLI:** MIT 56 BIN ICH WIEDER ANFÄNGER. ABSICHTLICH. - **13.10. · JOGA:** TORNADO-OPENER -- MORGENS EINGEROSTET - **14.10. · OLI:** FRÜHER KREATIVTEAM. HEUTE STATIV. - **15.10. · JOGA:** 1 MINUTE IN ALLE RICHTUNGEN -- RECUT - **16.10. · OLI:** WARUM KLINGT JEDE MARKE GLEICH? - **17.10. · JOGA:** ANTI-SCHREIBTISCH -- RÜCKEN - **18.10. · OLI:** KOPF: KANN ICH. - **19.10. · JOGA:** 3 MINUTEN AM TAG -- RECUT - **20.10. · OLI:** STEIF? MEHR DEHNEN. - **21.10. · JOGA:** TRY IT -- CHALLENGE RECUT - **22.10. · OLI:** WARUM ICH BEWEGUNG KÖRPERPFLEGE NENNE. - **23.10. · JOGA:** MOBILITY IST NICHT NUR DEHNEN -- RECUT - **24.10. · OLI:** 15 SEKUNDEN VIDEO. ZWEI STUNDEN ARBEIT. - **25.10. · JOGA:** BALANCE-CHECK -- WACKELN ERLAUBT ## W5 --- 26.10.--01.11. --- VERTIEFUNG", "Master 18 s. Keine Moderation."]
+  },
+  "v22-oli-stretch37": {
+    "variants": ["IG/TT 10--11 s.", "IG/TT 10–11 s."]
+  },
+  "v22-oli-algorithmus": {
+    "variants": ["Keine Algorithmus-Jammer-Caption. 17--20 s.", "Keine Algorithmus-Jammer-Caption. 17–20 s."]
+  },
+  "v22-oli-schnellvideo": {
+    "variants": ["Kein gesprochener CTA. ## W6 --- 02.11.--08.11. --- VORPRODUZIERT Alle Neudrehs dieser Woche vorab drehen; Recuts fertig exportieren.", "Kein gesprochener CTA."]
+  },
+  "v22-oli-muskeln": {
+    "variants": ["Keine medizinischen Versprechen. 20--22 s.", "Keine medizinischen Versprechen. 20–22 s."]
+  },
+  "v22-joga-thread": {
+    "shots": {
+      "v22-joga-thread-3": {
+        "onscreen": ["3--5 PRO SEITE.", "3–5 PRO SEITE."]
+      }
+    }
+  },
+  "v22-oli-nicht-optik": {
+    "variants": ["19--21 s.", "19–21 s."]
+  },
+  "v22-oli-anleitung": {
+    "scriptText": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."],
+    "variants": ["Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst Reserve `v22-oli-setup-check` verwenden.", ""]
+  },
+  "v22-joga-dolphin": {
+    "variants": ["15 s. ## W7 --- 09.11.--15.11. --- VORPRODUZIERT Keine spontane Urlaubsproduktion erforderlich. Der 15.11.-Abschluss kann vollständig vorproduziert werden; nur optionale Zahlen als On-Screen-Text nachtragen.", "15 s."],
+    "shots": {
+      "v22-joga-dolphin-3": {
+        "onscreen": ["6--10 LANGSAME.", "6–10 LANGSAME."]
+      }
+    }
+  },
+  "v22-oli-stretch-vor-sport": {
+    "variants": ["20 s; Caption muss `statisches Dehnen` präzise benennen.", "20 s; Caption muss statisches Dehnen präzise benennen."]
+  },
+  "v22-oli-anfaenger2": {
+    "variants": ["19--21 s.", "19–21 s."]
+  },
+  "v22-oli-7wochen": {
+    "variants": ["A-Version komplett vorproduzieren. Zahlen nicht sprechen; falls gewünscht am 15.11. nur On-Screen-Daten ergänzen. ## Qualitätsregeln für alle 28 neuen Seeds 1. Kein gesprochenes „Heute zeige ich...\". 2. Starker Bewegungscontent startet mit Bewegung in Frame 1. 3. Humor benötigt keine unkontrollierbaren Personen/Tiere/Ereignisse. 4. Kein künstliches Scheitern und kein künstliches „alt spielen\". 5. OLI-Haltung kurz, konkret, trocken; kein Motivationscoach-Ton. 6. On-Screen-Hooks ab Frame 1, wenn sie die Idee tragen. 7. Jeder Neudreh erhält 3--5 Sekunden sauberen Start/Ende ohne gesprochenen Text als zusätzliches Rohmaterial für spätere Recuts. 8. Maximal 5 Hashtags in späteren Captions; Hook nicht einfach in der Caption wiederholen. 9. Für W6/W7 sämtliche Dateien vorab exportieren und im Piece als fertig markieren. 10. Die 28 neuen Seeds plus die 14 V2.1-Pieces ergeben für W2--W7 genau 42 tägliche Hauptslots.", "A-Version komplett vorproduzieren. Zahlen nicht sprechen; falls gewünscht am 15.11. nur On-Screen-Daten ergänzen."]
+  }
+};
+const productionSeedV22 = () => PRODUCTION_SEED_V22.map(p => normPiece({
+  ...p,
+  created: '2026-10-05',
+  updated: '2026-10-05'
+}));
+
+/* ---------- V2.2b: 14 neue Pieces 16.–29.11.2026 (Woche 6 und 7 des 7-Wochen-Plans 12.10.–29.11.) ---------- */
+const PRODUCTION_SEED_V22B = [{
+  "id": "v22-joga-floor-rise",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge",
+  "title": "OHNE HÄNDE VOM BODEN HOCHKOMMEN",
+  "hook": "Kommst du ohne Hände vom Boden hoch?",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "Sofort verständlicher funktioneller Bewegungscheck. Kein Alters-Test, keine medizinische Behauptung.",
+  "speech": "",
+  "scriptText": "9:16. Zusätzlich 3–5 Sekunden cleanes Ausgangsmaterial ohne Text drehen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-joga-floor-rise-1",
+    "camera": "",
+    "action": "Oli sitzt am Boden und steht unmittelbar ohne Hände auf.",
+    "speech": "",
+    "onscreen": "OHNE HÄNDE HOCHKOMMEN?",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-floor-rise-2",
+    "camera": "",
+    "action": "Bewegung sauber wiederholen, komplett im Bild.",
+    "speech": "",
+    "onscreen": "PROBIER'S.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–7 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-floor-rise-3",
+    "camera": "",
+    "action": "Kontrolliert wieder hinunter und erneut hoch.",
+    "speech": "",
+    "onscreen": "KRAFT + MOBILITÄT + KOORDINATION",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "7–11 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-floor-rise-4",
+    "camera": "",
+    "action": "Kurzer sauberer Endstand.",
+    "speech": "",
+    "onscreen": "EINFACH MACHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "11–13 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-16",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-fertigsein",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "ICH WILL NICHT FERTIG SEIN",
+  "hook": "Mit 56 könnte ich langsam wissen, was ich kann.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "Mit 56 könnte ich langsam wissen, was ich kann. Das Problem ist: Dann weiß ich auch ziemlich genau, was ich nicht mehr lernen muss. Darauf habe ich keine Lust. Ich lerne gerade Dinge, bei denen andere besser sind als ich. Das ist manchmal unangenehm. Und ziemlich gut. Fertig sein kann ich später.",
+  "scriptText": "9:16. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-fertigsein-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Mit 56 könnte ich langsam wissen, was ich kann.",
+    "onscreen": "MIT 56 SOLLTE MAN DOCH...",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–4 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-fertigsein-2",
+    "camera": "",
+    "action": "Gehen/Umziehen auf zweite Position.",
+    "speech": "Das Problem ist: Dann weiß ich auch ziemlich genau, was ich nicht mehr lernen muss. Darauf habe ich keine Lust.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "4–11 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-fertigsein-3",
+    "camera": "",
+    "action": "Pilates-/Yoga-/Trainingsumgebung als kontrollierbares B-Roll.",
+    "speech": "Ich lerne gerade Dinge, bei denen andere besser sind als ich. Das ist manchmal unangenehm. Und ziemlich gut.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "11–19 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-fertigsein-4",
+    "camera": "",
+    "action": "Blick in Kamera.",
+    "speech": "Fertig sein kann ich später.",
+    "onscreen": "FERTIG SEIN KANN ICH SPÄTER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "19–22 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-17",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-90-90-flow",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "90/90 – NICHT NUR SITZEN",
+  "hook": "Deine Hüfte kann mehr als vor und zurück.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Keine Erklärung vor der Bewegung. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-joga-90-90-flow-1",
+    "camera": "",
+    "action": "90/90 Switch rechts/links.",
+    "speech": "",
+    "onscreen": "DEINE HÜFTE KANN MEHR.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–4 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-90-90-flow-2",
+    "camera": "",
+    "action": "Switch + Reach.",
+    "speech": "",
+    "onscreen": "ROTIEREN",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "4–8 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-90-90-flow-3",
+    "camera": "",
+    "action": "90/90 Lift bzw. kontrollierte Variante.",
+    "speech": "",
+    "onscreen": "KONTROLLIEREN",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "8–12 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-90-90-flow-4",
+    "camera": "",
+    "action": "Flüssige Kombination.",
+    "speech": "",
+    "onscreen": "NICHT NUR DEHNEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "12–16 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-18",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-nochmal",
+  "world": "OLI",
+  "fn": "US",
+  "format": "TYPISCH MANN",
+  "title": "NUR NOCH EINMAL",
+  "hook": "Nur noch einmal.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Vollständig kontrollierbarer Running Gag beim Contentdreh.",
+  "speech": "Nur noch einmal. Der war's. Einen noch.",
+  "scriptText": "9:16. Keine Slapstick-Panne, keine fremden Personen, keine zufälligen Ereignisse. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-oli-nochmal-1",
+    "camera": "",
+    "action": "Oli stellt Kamera auf.",
+    "speech": "Nur noch einmal.",
+    "onscreen": "TAKE 8",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-nochmal-2",
+    "camera": "",
+    "action": "Cut. Neuer Take.",
+    "speech": "Der war's.",
+    "onscreen": "TAKE 14",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3–6 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-nochmal-3",
+    "camera": "",
+    "action": "Cut. Oli kontrolliert Aufnahme.",
+    "speech": "Einen noch.",
+    "onscreen": "TAKE 21",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "6–9 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-nochmal-4",
+    "camera": "",
+    "action": "Oli sitzt trocken neben Stativ.",
+    "speech": "",
+    "onscreen": "ICH MACH NUR SCHNELL EIN VIDEO.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–13 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-19",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-lunge-rotate",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "LUNGE + ROTATION",
+  "hook": "Eine Bewegung. Mehrere Richtungen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Gesamtlänge ca. 15–18 Sekunden. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-joga-lunge-rotate-1",
+    "camera": "",
+    "action": "Reverse Lunge.",
+    "speech": "",
+    "onscreen": "ZURÜCK.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-lunge-rotate-2",
+    "camera": "",
+    "action": "Rotation über vorderes Bein.",
+    "speech": "",
+    "onscreen": "DREHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-lunge-rotate-3",
+    "camera": "",
+    "action": "Zurück zur Mitte.",
+    "speech": "",
+    "onscreen": "AUFRICHTEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-lunge-rotate-4",
+    "camera": "",
+    "action": "Seitenwechsel.",
+    "speech": "",
+    "onscreen": "WECHSEL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-lunge-rotate-5",
+    "camera": "",
+    "action": "Flüssiger Loop.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "12–16 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-20",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-kraft-beweglichkeit",
+  "world": "OLI",
+  "fn": "REACH",
+  "format": "Oli Klärt",
+  "title": "BEWEGLICHKEIT NUR DURCH DEHNEN?",
+  "hook": "Für mehr Beweglichkeit musst du nicht nur dehnen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Hybrid",
+  "goal": "",
+  "speech": "Beweglichkeit wird oft mit Dehnen gleichgesetzt. Aber du kannst Bewegungsumfang auch unter Belastung trainieren. Krafttraining über eine große, kontrollierte Bewegungsamplitude kann ebenfalls die Beweglichkeit verbessern. Ich will deshalb nicht nur irgendwo hinkommen. Ich will dort auch Kraft haben.",
+  "scriptText": "9:16. Keine Aussage „Dehnen ist unnötig“. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-oli-kraft-beweglichkeit-1",
+    "camera": "",
+    "action": "Tiefer kontrollierter Squat in sinnvoller Range.",
+    "speech": "Beweglichkeit wird oft mit Dehnen gleichgesetzt. Aber du kannst Bewegungsumfang auch unter Belastung trainieren.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "0–8 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-kraft-beweglichkeit-2",
+    "camera": "",
+    "action": "Split Squat in sinnvoller Range.",
+    "speech": "Krafttraining über eine große, kontrollierte Bewegungsamplitude kann ebenfalls die Beweglichkeit verbessern.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Voice-over",
+    "dur": "8–15 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-kraft-beweglichkeit-3",
+    "camera": "",
+    "action": "RDL in sinnvoller Range.",
+    "speech": "Ich will deshalb nicht nur irgendwo hinkommen. Ich will dort auch Kraft haben.",
+    "onscreen": "RANGE OF MOTION + KRAFT",
+    "onscreenRequired": true,
+    "audio": "Voice-over",
+    "dur": "15–21 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-21",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-balance-reaction",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge",
+  "title": "BALANCE WIRD SCHWERER, WENN DU NOCH ETWAS TUST",
+  "hook": "Stehen ist einfach. Mach jetzt noch das hier.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Kein „Balance-Alter“-Score. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-joga-balance-reaction-1",
+    "camera": "",
+    "action": "Einbeinstand.",
+    "speech": "",
+    "onscreen": "1 BEIN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-balance-reaction-2",
+    "camera": "",
+    "action": "Gegenstand kontrolliert von Hand zu Hand geben/werfen.",
+    "speech": "",
+    "onscreen": "JETZT ABLENKUNG DAZU.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–7 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-balance-reaction-3",
+    "camera": "",
+    "action": "Armposition verändern.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "7–10 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-balance-reaction-4",
+    "camera": "",
+    "action": "Seitenwechsel.",
+    "speech": "",
+    "onscreen": "SEITENWECHSEL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "10–14 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-22",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-koerper-kann",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "ICH WILL WISSEN, WAS MEIN KÖRPER KANN",
+  "hook": "Ich trainiere nicht gegen mein Alter.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "Hybrid",
+  "goal": "",
+  "speech": "Ich trainiere nicht gegen mein Alter. Ich bin 56. Das ist keine Krankheit. Mich interessiert auch nicht, ob ich mich wie 36 fühle. Mich interessiert, was mein Körper heute kann. Kraft. Beweglichkeit. Balance. Ausdauer. Und ob ich morgen noch Lust habe, weiterzumachen.",
+  "scriptText": "9:16. Nicht Anti-Aging, sondern Fähigkeit/Autonomie. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-oli-koerper-kann-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Ich trainiere nicht gegen mein Alter. Ich bin 56. Das ist keine Krankheit.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-koerper-kann-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Mich interessiert auch nicht, ob ich mich wie 36 fühle. Mich interessiert, was mein Körper heute kann.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "5–11 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-koerper-kann-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Kraft. Beweglichkeit. Balance. Ausdauer. Und ob ich morgen noch Lust habe, weiterzumachen.",
+    "onscreen": "NICHT JÜNGER. BEWEGLICHER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "11–17 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-23",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-squat-rotate",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "SQUAT → SIDE TAP → ROTATION",
+  "hook": "Drei Richtungen statt zehn Übungen.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Onscreen nur: RUNTER. SEITE. DREHEN. NOCHMAL. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-joga-squat-rotate-1",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "RUNTER.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-squat-rotate-2",
+    "camera": "",
+    "action": "Side Tap rechts.",
+    "speech": "",
+    "onscreen": "SEITE.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-squat-rotate-3",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-squat-rotate-4",
+    "camera": "",
+    "action": "Side Tap links.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-squat-rotate-5",
+    "camera": "",
+    "action": "Rotation.",
+    "speech": "",
+    "onscreen": "DREHEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "12–15 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-squat-rotate-6",
+    "camera": "",
+    "action": "Kompletter Flow als Loop.",
+    "speech": "",
+    "onscreen": "NOCHMAL.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "15–19 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-24",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-pause",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht / Haltung",
+  "title": "MIT 56 TRAINIERE ICH AUCH PAUSE",
+  "hook": "Früher war Pause für mich: nichts tun.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "Früher war Pause für mich: nichts tun. Heute gehört Pause für mich zum Training. Nicht weil ich weniger will. Sondern weil ich morgen wieder etwas können will. Training setzt den Reiz. Erholung gehört dazu. Das musste ich tatsächlich erst lernen.",
+  "scriptText": "9:16. Keine medizinischen Recovery-Versprechen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-oli-pause-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Früher war Pause für mich: nichts tun. Heute gehört Pause für mich zum Training.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-pause-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Nicht weil ich weniger will. Sondern weil ich morgen wieder etwas können will.",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "On-Cam",
+    "dur": "5–12 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-pause-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Training setzt den Reiz. Erholung gehört dazu. Das musste ich tatsächlich erst lernen.",
+    "onscreen": "PAUSE IST TEIL DES PLANS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "12–19 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-25",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-dolphin-flow",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Challenge/Routine",
+  "title": "DOLPHIN – SCHULTERN + CORE",
+  "hook": "Plank kennst du. Probier das.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-joga-dolphin-flow-1",
+    "camera": "",
+    "action": "Unterarmstütz.",
+    "speech": "",
+    "onscreen": "UNTERARME.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-dolphin-flow-2",
+    "camera": "",
+    "action": "Hüfte nach hinten/oben in Dolphin.",
+    "speech": "",
+    "onscreen": "HÜFTE HOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–6 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-dolphin-flow-3",
+    "camera": "",
+    "action": "Zurück nach vorne.",
+    "speech": "",
+    "onscreen": "VOR.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "6–9 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-dolphin-flow-4",
+    "camera": "",
+    "action": "3 kontrollierte Wiederholungen.",
+    "speech": "",
+    "onscreen": "ZURÜCK.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–15 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-dolphin-flow-5",
+    "camera": "",
+    "action": "Clean Loop.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "15–18 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-26",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-drei-sekunden",
+  "world": "OLI",
+  "fn": "US",
+  "format": "TYPISCH MANN",
+  "title": "DAS DAUERT DREI SEKUNDEN",
+  "hook": "Das dauert drei Sekunden.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Silent/Musik",
+  "goal": "Kontrollierter Gag: Oli versucht eine anspruchsvollere, aber sicher beherrschbare Bewegung für den Dreh.",
+  "speech": "",
+  "scriptText": "9:16. Kein Fake-Sturz. Kein absichtliches Scheitern. Keine Fremdpersonen. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-oli-drei-sekunden-1",
+    "camera": "",
+    "action": "Oli versucht eine anspruchsvollere, aber sicher beherrschbare Bewegung für den Dreh.",
+    "speech": "",
+    "onscreen": "KOPF: 3 SEKUNDEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–3 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-drei-sekunden-2",
+    "camera": "",
+    "action": "Cut auf mehrere vorbereitende Versuche/Positionierungen.",
+    "speech": "",
+    "onscreen": "KÖRPER: WIR BESPRECHEN DAS NOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "3–9 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-drei-sekunden-3",
+    "camera": "",
+    "action": "Bewegung gelingt.",
+    "speech": "",
+    "onscreen": "GEHT DOCH.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "9–12 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "2026-11-27",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-joga-fullbody-loop",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Routine",
+  "title": "30 SEKUNDEN GANZER KÖRPER",
+  "hook": "Wenn du heute nur 30 Sekunden hast.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "goal": "",
+  "speech": "",
+  "scriptText": "9:16. Keine Unterbrechung für Erklärung. Der letzte Frame muss in den ersten übergehen können → Loop. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Shot-Dauern vorläufig geschätzt (im Briefing nicht angegeben), beim Dreh anpassen.",
+  "shots": [{
+    "id": "v22-joga-fullbody-loop-1",
+    "camera": "",
+    "action": "Squat.",
+    "speech": "",
+    "onscreen": "30 SEKUNDEN.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "0–5 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-fullbody-loop-2",
+    "camera": "",
+    "action": "Rotation.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "5–10 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-fullbody-loop-3",
+    "camera": "",
+    "action": "Lunge.",
+    "speech": "",
+    "onscreen": "GANZER KÖRPER.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "10–15 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-fullbody-loop-4",
+    "camera": "",
+    "action": "Reach.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "15–20 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-fullbody-loop-5",
+    "camera": "",
+    "action": "Boden/90-90.",
+    "speech": "",
+    "onscreen": "",
+    "onscreenRequired": false,
+    "audio": "Silent/Musik",
+    "dur": "20–25 s",
+    "note": ""
+  }, {
+    "id": "v22-joga-fullbody-loop-6",
+    "camera": "",
+    "action": "Zurück zum Stand.",
+    "speech": "",
+    "onscreen": "KEINE AUSREDE NÖTIG.",
+    "onscreenRequired": true,
+    "audio": "Silent/Musik",
+    "dur": "25–30 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "2026-11-28",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}, {
+  "id": "v22-oli-testfazit",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "7 WOCHEN. UND JETZT?",
+  "hook": "49 Tage später interessiert mich nicht nur, was die meisten Views hatte.",
+  "status": "Drehbereit",
+  "prodType": "Neudreh",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "goal": "",
+  "speech": "49 Tage später interessiert mich natürlich, was viele Menschen gesehen haben. Aber noch mehr interessiert mich, was sie gespeichert haben. Was sie geteilt haben. Wofür sie mir gefolgt sind. Und ob JOGA besser funktioniert, wenn man nicht nur die Bewegung sieht, sondern auch den Menschen dahinter. Genau danach entscheide ich, was bleibt.",
+  "scriptText": "9:16. Wird in einer vorproduzierbaren A-Version gedreht. Tatsächliche Zahlen werden am 29.11. nur als Text ergänzt, kein neuer Dreh notwendig. Die echten Resultate dürfen am Veröffentlichungstag ausschließlich als zusätzliche Textlayer ergänzt werden. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“).",
+  "shots": [{
+    "id": "v22-oli-testfazit-1",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "49 Tage später interessiert mich natürlich, was viele Menschen gesehen haben.",
+    "onscreen": "49 TAGE.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–5 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-testfazit-2",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Aber noch mehr interessiert mich, was sie gespeichert haben. Was sie geteilt haben. Wofür sie mir gefolgt sind.",
+    "onscreen": "SAVES · SHARES · FOLLOWS",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "5–13 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-testfazit-3",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Und ob JOGA besser funktioniert, wenn man nicht nur die Bewegung sieht, sondern auch den Menschen dahinter.",
+    "onscreen": "JOGA + OLI",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "13–21 s",
+    "note": ""
+  }, {
+    "id": "v22-oli-testfazit-4",
+    "camera": "",
+    "action": "Direkt in Kamera.",
+    "speech": "Genau danach entscheide ich, was bleibt.",
+    "onscreen": "WAS BLEIBT?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "21–25 s",
+    "note": ""
+  }],
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "publishDate": "2026-11-29",
+  "variants": "",
+  "material": "",
+  "planPhase": "preproduced",
+  "preproductionRequired": true,
+  "src": "V2.2b"
+}];
+const productionSeedV22b = () => PRODUCTION_SEED_V22B.map(p => normPiece({
+  ...p,
+  created: '2026-10-06',
+  updated: '2026-10-06'
+}));
+// V2.3b: Nur noch der Pilot vom 08.10. Die Einzel-Ideen und die Doppel-/Zeitumstellungs-Platzhalter werden nicht mehr geseedet (Pool kommt separat, siehe DARK_SERIES_SEED).
+const PRODUCTION_SEED_V23 = [{
+  "id": "v23-herbst-4tipps",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp (4 in 1)",
+  "title": "DUNKLE JAHRESZEIT: 4 MORGEN-TIPPS",
+  "hook": "Dunkel draußen? So kommst du morgens in Gang.",
+  "status": "Gedreht",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "On-Cam",
+  "goal": "Pilot/Auftakt der Serie „Tipps für die Dunkle Jahreszeit“ (1 Tipp = 1 Video). Die vier Tipps in diesem Video werden nicht noch einmal als Einzelvideos angelegt.",
+  "speech": "",
+  "scriptText": "Bereits am 08.10. gedreht. Inhalt laut Oli: 1) Vorhang auf, trotz Wolken Richtung Himmel schauen. 2) Körper wecken mit kaltem Wasser oder Wechseldusch. 3) Oder 10 Min an die frische Luft. 4) Nach dem Aufstehen gerade hinstellen, Schultern zurück, in die Luft schauen. Arbeitshook und Titel bitte durch den echten Wortlaut aus dem Video ersetzen. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Datum selbst setzen.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": ["Instagram", "TikTok"],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": "",
+  "series": "Dunkle Jahreszeit"
+}];
+// Überholte V2.3-Platzhalter (reine Aufteilung der 4 Pilot-Tipps). Wird nur gelöscht, wenn das Piece noch exakt dem Seed entspricht (keine Nutzereingabe überschrieben).
+const V23_OBSOLETE = [{
+  "id": "v23-herbst-licht",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: VORHANG AUF",
+  "hook": "Draußen grau? Vorhang trotzdem auf.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Draußen grau? Vorhang trotzdem auf. Auch bei Wolken ist es draußen heller als drinnen. Schau kurz Richtung Himmel. Nicht in die Sonne. Dann startet dein Tag nicht im Halbdunkel.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Oli zieht den Vorhang auf, Blick zum Himmel. Onscreen: VORHANG AUF. BLICK HOCH. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+}, {
+  "id": "v23-herbst-raus",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: 10 MINUTEN RAUS",
+  "hook": "Zehn Minuten raus. Mehr nicht.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Zehn Minuten raus. Gehen reicht. Du bekommst Licht und Bewegung gleichzeitig. Auch bei Regen. Jacke an. Tür auf.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Jacke, Tür, erste Schritte, Schnitt auf Rückkehr. Onscreen: 10 MINUTEN. RAUS. Formulierung: „kann wacher machen“, keine Energie-, Immun- oder Gesundheitsversprechen. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+}, {
+  "id": "v23-herbst-kalt",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: 30 SEKUNDEN KALT",
+  "hook": "Duschen. Am Ende 30 Sekunden kalt.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Normal duschen. Am Ende 30 Sekunden kalt. Erst die Beine, dann der Rest. Manche werden davon wacher. Probier es aus. Bei Herz-Kreislauf-Problemen vorher ärztlich klären.",
+  "scriptText": "1 Tipp, 10–15 Sek. Bild: Hand am Mischer, Regler auf kalt, Atem. Onscreen: 30 SEKUNDEN KALT. Der Hinweis zu Herz-Kreislauf bleibt im Text oder als Einblendung. Keine Immun-Aussage. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+}, {
+  "id": "v23-herbst-aufrichten",
+  "world": "JOGA",
+  "fn": "DO",
+  "format": "Herbst-Tipp",
+  "title": "TIPP: AUFRICHTEN",
+  "hook": "Kurz hinstellen. Schultern zurück. Blick hoch.",
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "entry": "Situation first",
+  "audio": "Hybrid",
+  "goal": "Serie „Herbst-Tipp“: ein konkreter Alltagstipp für die dunkle Jahreszeit, speicherbar, ohne Versprechen.",
+  "speech": "Nach dem Aufstehen: gerade hinstellen. Schultern zurück. Blick Richtung Decke oder Himmel. Drei tiefe Atemzüge. Kein Wundermittel. Aber es fühlt sich für viele wacher an.",
+  "scriptText": "1 Tipp, 10–15 Sek. Ehrlich bleiben: Mini-Reset, kein Energiebeweis. Onscreen: GERADE. SCHULTERN ZURÜCK. BLICK HOCH. Idee, noch ohne Datum.",
+  "shots": [],
+  "moveIds": [],
+  "material": "",
+  "variants": "",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "publishDate": "",
+  "perf": [],
+  "shootId": "",
+  "cutId": "",
+  "src": "Herbst-Serie V2.3",
+  "planPhase": "",
+  "preproductionRequired": false,
+  "productionDate": "",
+  "caption": ""
+}];
+const sameAsSeed = (c, o) => Object.keys(o).every(k => k === 'created' || k === 'updated' || JSON.stringify(c[k]) === JSON.stringify(o[k]));
+// Pool „Tipps für die dunkle Jahreszeit“: 1 Tipp = 1 Video, 28 Stück. Die fertigen Briefings hier eintragen, dann DARK_SERIES_SEED_VERSION um 1 erhöhen.
+// Feldzuordnung: Titel→title · Hook→hook · Tipp/Kernaussage→tip · Sprechtext→speech · Umsetzung/Shot-Idee→scriptText (oder shots[]) · Audioart→audio · Sicherheit/Quelle→evidence · optional publishDate (Di/Do/Sa, siehe SERIES_SLOTS).
+// Pflicht je Eintrag: id (eindeutig, z. B. 'dj-01'). Alles andere hat Defaults (JOGA, DO, Format Herbst-Tipp, Status Idee, Neudreh, ohne Datum).
+const DARK_SERIES_SEED_VERSION = 2;
+const DARK_SERIES_SEED = [{
+  "id": "dj-01",
+  "title": "10 MINUTEN NACH DEM ESSEN",
+  "hook": "NACH DEM ESSEN DIREKT AUFS SOFA?",
+  "speech": "Probier mal was anderes. Geh nach dem Essen zehn Minuten spazieren. Das kann helfen, den Blutzuckeranstieg nach der Mahlzeit abzuflachen. Und du hast dich gleich noch bewegt.",
+  "shots": [{
+    "id": "dj-01-s1",
+    "camera": "",
+    "action": "Im Stehen sprechen, am Ende losgehen.",
+    "speech": "Probier mal was anderes. Geh nach dem Essen zehn Minuten spazieren. Das kann helfen, den Blutzuckeranstieg nach der Mahlzeit abzuflachen. Und du hast dich gleich noch bewegt.",
+    "onscreen": "NACH DEM ESSEN DIREKT AUFS SOFA?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-13",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach dem Essen zehn Minuten gehen statt direkt aufs Sofa.",
+  "evidence": "Plausibel bis gut belegt: kurze Spaziergänge nach Mahlzeiten dämpfen Blutzuckerspitzen. Quelle vor Dreh nachtragen. Grenze: nur „kann helfen“, nichts zu Diabetes oder Gewicht.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-02",
+  "title": "SITZEN UNTERBRECHEN",
+  "hook": "DU SITZT SEIT EINER STUNDE?",
+  "speech": "Dann steh auf. Geh zwei bis fünf Minuten durch die Wohnung oder durchs Büro. Regelmäßige Bewegungspausen sind besser, als stundenlang am Stück zu sitzen. So einfach.",
+  "shots": [{
+    "id": "dj-02-s1",
+    "camera": "",
+    "action": "Im Sitzen beginnen, aufstehen und ein paar Schritte gehen.",
+    "speech": "Dann steh auf. Geh zwei bis fünf Minuten durch die Wohnung oder durchs Büro. Regelmäßige Bewegungspausen sind besser, als stundenlang am Stück zu sitzen. So einfach.",
+    "onscreen": "DU SITZT SEIT EINER STUNDE?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-15",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach etwa einer Stunde Sitzen aufstehen und 2–5 Minuten gehen.",
+  "evidence": "Gut belegt: Bewegungspausen unterbrechen langes Sitzen. Die 2–5 Minuten sind eine praktische Richtgröße, kein Studienwert. Grenze: kein Risiko- oder Gesundheitsversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-03",
+  "title": "KALT? LANGSAM STARTEN.",
+  "hook": "DRAUSSEN KALT? NICHT GLEICH VOLLGAS.",
+  "speech": "Wenn du bei Kälte trainierst, fang langsam an. Erst ein paar Minuten locker bewegen, dann das Tempo steigern. Dein Körper bekommt Zeit, sich auf die Belastung einzustellen.",
+  "shots": [{
+    "id": "dj-03-s1",
+    "camera": "",
+    "action": "Im Stehen sprechen, locker marschieren/Arme bewegen.",
+    "speech": "Wenn du bei Kälte trainierst, fang langsam an. Erst ein paar Minuten locker bewegen, dann das Tempo steigern. Dein Körper bekommt Zeit, sich auf die Belastung einzustellen.",
+    "onscreen": "DRAUSSEN KALT? NICHT GLEICH VOLLGAS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-17",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei Kälte erst locker bewegen, dann das Tempo steigern.",
+  "evidence": "Standardempfehlung (Aufwärmen), plausibel. Grenze: keine Verletzungs- oder Herz-Kreislauf-Aussagen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-04",
+  "title": "TAGESLICHT BEIM ARBEITEN",
+  "hook": "DEIN ARBEITSPLATZ IST ZU DUNKEL?",
+  "speech": "Dann nutz tagsüber möglichst viel Tageslicht. Wenn du kannst, arbeite in Fensternähe. Helligkeit am Tag ist ein wichtiger Zeitgeber für deine innere Uhr.",
+  "shots": [{
+    "id": "dj-04-s1",
+    "camera": "",
+    "action": "Am Arbeitsplatz/Fenster sprechen.",
+    "speech": "Dann nutz tagsüber möglichst viel Tageslicht. Wenn du kannst, arbeite in Fensternähe. Helligkeit am Tag ist ein wichtiger Zeitgeber für deine innere Uhr.",
+    "onscreen": "DEIN ARBEITSPLATZ IST ZU DUNKEL?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-20",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Tagsüber möglichst viel Tageslicht nutzen, wenn möglich am Fenster arbeiten.",
+  "evidence": "Gut belegt: Tageslicht ist ein zentraler Zeitgeber der inneren Uhr; draußen und am Fenster ist es deutlich heller als im Raum. Grenze: nichts zu Stimmung oder Winterdepression.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-05",
+  "title": "LICHT RUNTER",
+  "hook": "ABENDS HELLWACH?",
+  "speech": "Dann schau dir mal deine Beleuchtung an. Helles Licht am späten Abend kann deine innere Uhr beeinflussen. Also: Vor dem Schlafengehen lieber etwas dimmen.",
+  "shots": [{
+    "id": "dj-05-s1",
+    "camera": "",
+    "action": "Im Raum sprechen, am Ende Licht dimmen.",
+    "speech": "Dann schau dir mal deine Beleuchtung an. Helles Licht am späten Abend kann deine innere Uhr beeinflussen. Also: Vor dem Schlafengehen lieber etwas dimmen.",
+    "onscreen": "ABENDS HELLWACH?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-22",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Abends vor dem Schlafen das Licht dimmen.",
+  "evidence": "Gut bis mittel belegt: helles Licht am späten Abend kann die innere Uhr beeinflussen; individuell verschieden. Grenze: „kann“, kein Schlafversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-06",
+  "title": "ZEITUMSTELLUNG",
+  "hook": "MORGEN WERDEN DIE UHREN ZURÜCKGESTELLT.",
+  "speech": "Mein Tipp zur Zeitumstellung: Versuch, deinen gewohnten Schlafrhythmus möglichst beizubehalten. Deine innere Uhr mag Regelmäßigkeit. Auch wenn die Uhr morgen etwas anderes behauptet.",
+  "shots": [{
+    "id": "dj-06-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera.",
+    "speech": "Mein Tipp zur Zeitumstellung: Versuch, deinen gewohnten Schlafrhythmus möglichst beizubehalten. Deine innere Uhr mag Regelmäßigkeit. Auch wenn die Uhr morgen etwas anderes behauptet.",
+    "onscreen": "MORGEN WERDEN DIE UHREN ZURÜCKGESTELLT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-24",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Den gewohnten Schlafrhythmus rund um die Zeitumstellung möglichst beibehalten.",
+  "evidence": "Plausibel: regelmäßige Schlafzeiten stützen die innere Uhr. Fakt: Uhren gehen am 25.10.2026 zurück, „morgen“ passt zum Post am 24.10. Grenze: keine Aussagen zu Gesundheitsfolgen der Umstellung.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-07",
+  "title": "EINE MINUTE ZÄHLT",
+  "hook": "EINE MINUTE IST KEIN TRAINING?",
+  "speech": "Stimmt. Aber eine Minute Bewegung ist besser als gar keine. Ein paar Kniebeugen, Treppensteigen oder einfach zügig gehen. Bewegung zählt auch ohne Trainingsplan.",
+  "shots": [{
+    "id": "dj-07-s1",
+    "camera": "",
+    "action": "Sprechen und einige Kniebeugen machen.",
+    "speech": "Stimmt. Aber eine Minute Bewegung ist besser als gar keine. Ein paar Kniebeugen, Treppensteigen oder einfach zügig gehen. Bewegung zählt auch ohne Trainingsplan.",
+    "onscreen": "EINE MINUTE IST KEIN TRAINING?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-27",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch eine Minute Bewegung ist besser als gar keine.",
+  "evidence": "Plausibel, deckt sich mit den WHO-Leitlinien („jede Bewegung zählt“). Grenze: nicht behaupten, eine Minute ersetze Training.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-08",
+  "title": "NIMM DIE TREPPE",
+  "hook": "DAS FITNESSSTUDIO HAT HEUTE TREPPEN.",
+  "speech": "Du willst dich im Alltag mehr bewegen? Nimm öfter die Treppe statt den Aufzug. Kostet dich meistens nur ein bisschen mehr Zeit. Und ist ziemlich unkompliziert.",
+  "shots": [{
+    "id": "dj-08-s1",
+    "camera": "",
+    "action": "An einer Treppe sprechen, anschließend hochgehen.",
+    "speech": "Du willst dich im Alltag mehr bewegen? Nimm öfter die Treppe statt den Aufzug. Kostet dich meistens nur ein bisschen mehr Zeit. Und ist ziemlich unkompliziert.",
+    "onscreen": "DAS FITNESSSTUDIO HAT HEUTE TREPPEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 15,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-29",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Öfter die Treppe statt den Aufzug nehmen.",
+  "evidence": "Alltagstipp, Treppensteigen zählt als Bewegung. Keine Zahlen im Video. Grenze: keine Kalorien- oder Gewichtsaussagen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-09",
+  "title": "REGEN IST KEINE AUSREDE",
+  "hook": "REGEN IST KEIN BEWEGUNGSVERBOT.",
+  "speech": "Im Herbst ist das Wetter selten perfekt. Muss es auch nicht sein. Leg dir eine Regenjacke bereit. Dann fällt der Spaziergang nicht jedes Mal aus, nur weil es draußen nass ist.",
+  "shots": [{
+    "id": "dj-09-s1",
+    "camera": "",
+    "action": "Regenjacke während des Sprechens anziehen.",
+    "speech": "Im Herbst ist das Wetter selten perfekt. Muss es auch nicht sein. Leg dir eine Regenjacke bereit. Dann fällt der Spaziergang nicht jedes Mal aus, nur weil es draußen nass ist.",
+    "onscreen": "REGEN IST KEIN BEWEGUNGSVERBOT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-10-31",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Regenjacke bereitlegen, damit der Spaziergang bei Nässe nicht ausfällt.",
+  "evidence": "Alltagstipp (Hürde senken), kein Beleg nötig. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-10",
+  "title": "NACKEN BEWEGEN",
+  "hook": "DEIN NACKEN IST KEIN BETONKLOTZ.",
+  "speech": "Wenn du lange am Bildschirm sitzt, beweg deinen Kopf zwischendurch langsam nach rechts und links. Dazu ein paar lockere Schulterkreise. Kein Reißen, kein Zerren. Einfach bewegen.",
+  "shots": [{
+    "id": "dj-10-s1",
+    "camera": "",
+    "action": "Bewegungen direkt beim Sprechen zeigen.",
+    "speech": "Wenn du lange am Bildschirm sitzt, beweg deinen Kopf zwischendurch langsam nach rechts und links. Dazu ein paar lockere Schulterkreise. Kein Reißen, kein Zerren. Einfach bewegen.",
+    "onscreen": "DEIN NACKEN IST KEIN BETONKLOTZ.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-03",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei langem Bildschirmsitzen Kopf langsam seitlich drehen und Schultern kreisen.",
+  "evidence": "Plausibel: sanfte Mobilisation. Grenze: nicht als Behandlung von Nackenschmerzen darstellen; „kein Reißen, kein Zerren“ im Text lassen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-11",
+  "title": "HÜFTE AUS DEM SITZEN HOLEN",
+  "hook": "DEINE HÜFTE HAT GENUG GESESSEN.",
+  "speech": "Nach einem langen Tag am Schreibtisch mach ein paar kontrollierte Ausfallschritte. Geh nur so tief, wie es angenehm ist. Deine Hüfte darf sich auch mal anders bewegen als im Sitzen.",
+  "shots": [{
+    "id": "dj-11-s1",
+    "camera": "",
+    "action": "Ausfallschritte beim Sprechen zeigen.",
+    "speech": "Nach einem langen Tag am Schreibtisch mach ein paar kontrollierte Ausfallschritte. Geh nur so tief, wie es angenehm ist. Deine Hüfte darf sich auch mal anders bewegen als im Sitzen.",
+    "onscreen": "DEINE HÜFTE HAT GENUG GESESSEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-05",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Nach langem Sitzen kontrollierte Ausfallschritte machen, nur so tief wie angenehm.",
+  "evidence": "Plausibel: Bewegung der Hüfte nach dem Sitzen. Grenze: keine Aussagen zu verkürzten Muskeln oder Haltungsschäden; „angenehme Tiefe“ im Text lassen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-12",
+  "title": "WADEN AKTIVIEREN",
+  "hook": "KALTE FÜSSE? BEWEG DEINE WADEN.",
+  "speech": "Stell dich hin und heb langsam die Fersen. Fünfzehnmal hoch und wieder runter. Das aktiviert deine Wadenmuskulatur. Ob deine Füße dadurch wärmer werden, probierst du am besten selbst.",
+  "shots": [{
+    "id": "dj-12-s1",
+    "camera": "",
+    "action": "Wadenheben beim Sprechen.",
+    "speech": "Stell dich hin und heb langsam die Fersen. Fünfzehnmal hoch und wieder runter. Das aktiviert deine Wadenmuskulatur. Ob deine Füße dadurch wärmer werden, probierst du am besten selbst.",
+    "onscreen": "KALTE FÜSSE? BEWEG DEINE WADEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 19,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-07",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Fersen langsam heben (15 Wiederholungen), um die Waden zu aktivieren.",
+  "evidence": "Fakt: Wadenheben beansprucht die Wadenmuskulatur. Der Wärmeeffekt ist bewusst offen formuliert. Grenze: keine Durchblutungs-, Kreislauf- oder Venenaussagen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-13",
+  "title": "BEWEGUNG STATT SCROLLEN",
+  "hook": "NACHMITTAGS MÜDE? HANDY WEG.",
+  "speech": "Bevor du dich durch die nächsten zwanzig Videos scrollst: Steh auf und geh ein paar Minuten zügig. Das kann dich wieder etwas wacher machen. Scrollen kannst du danach immer noch.",
+  "shots": [{
+    "id": "dj-13-s1",
+    "camera": "",
+    "action": "Handy weglegen, aufstehen und sprechen.",
+    "speech": "Bevor du dich durch die nächsten zwanzig Videos scrollst: Steh auf und geh ein paar Minuten zügig. Das kann dich wieder etwas wacher machen. Scrollen kannst du danach immer noch.",
+    "onscreen": "NACHMITTAGS MÜDE? HANDY WEG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-10",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei Nachmittagsmüdigkeit aufstehen und ein paar Minuten zügig gehen, statt zu scrollen.",
+  "evidence": "Plausibel: kurze Gehpausen können kurzfristig wacher machen. Quelle optional nachtragen. Grenze: „kann“, kein Energieversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-14",
+  "title": "MITTAGSSCHLAF",
+  "hook": "MITTAGSSCHLAF? NICHT BIS ZUM ABEND.",
+  "speech": "Wenn du nachts schlecht einschläfst, schau mal auf deinen Mittagsschlaf. Lange oder späte Nickerchen können deinen Nachtschlaf stören. Lieber kurz und nicht zu spät.",
+  "shots": [{
+    "id": "dj-14-s1",
+    "camera": "",
+    "action": "Auf Sofa/Stuhl direkt sprechen.",
+    "speech": "Wenn du nachts schlecht einschläfst, schau mal auf deinen Mittagsschlaf. Lange oder späte Nickerchen können deinen Nachtschlaf stören. Lieber kurz und nicht zu spät.",
+    "onscreen": "MITTAGSSCHLAF? NICHT BIS ZUM ABEND.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-12",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mittagsschlaf kurz halten und nicht zu spät am Tag.",
+  "evidence": "Gängige Schlafempfehlung: lange oder späte Nickerchen können den Nachtschlaf stören. Grenze: kein Rat bei Schlafstörungen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-15",
+  "title": "WOCHENENDE UND SCHLAFRHYTHMUS",
+  "hook": "AM WOCHENENDE BIS MITTAGS SCHLAFEN?",
+  "speech": "Ausschlafen ist schön. Aber wenn deine Schlafzeiten ständig wechseln, kann das deine innere Uhr durcheinanderbringen. Versuch, auch am Wochenende ungefähr zur gleichen Zeit aufzustehen.",
+  "shots": [{
+    "id": "dj-15-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera.",
+    "speech": "Ausschlafen ist schön. Aber wenn deine Schlafzeiten ständig wechseln, kann das deine innere Uhr durcheinanderbringen. Versuch, auch am Wochenende ungefähr zur gleichen Zeit aufzustehen.",
+    "onscreen": "AM WOCHENENDE BIS MITTAGS SCHLAFEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-14",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch am Wochenende ungefähr zur gleichen Zeit aufstehen.",
+  "evidence": "Gut belegt: stark schwankende Schlafzeiten stören den Rhythmus („Social Jetlag“). Grenze: „kann durcheinanderbringen“, keine Gesundheitsfolgen nennen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-16",
+  "title": "WENN-DANN",
+  "hook": "DEIN TRAININGSPLAN SCHEITERT AM ALLTAG?",
+  "speech": "Dann mach es konkret. Nicht: Ich müsste mich mehr bewegen. Sondern: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten. Ein fester Auslöser macht es einfacher.",
+  "shots": [{
+    "id": "dj-16-s1",
+    "camera": "",
+    "action": "Laptop zuklappen, aufstehen, sprechen.",
+    "speech": "Dann mach es konkret. Nicht: Ich müsste mich mehr bewegen. Sondern: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten. Ein fester Auslöser macht es einfacher.",
+    "onscreen": "DEIN TRAININGSPLAN SCHEITERT AM ALLTAG?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 19,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-17",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung an einen festen Auslöser koppeln: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten.",
+  "evidence": "Gut belegt: Wenn-Dann-Pläne (Implementation Intentions) helfen bei der Umsetzung von Vorhaben. Grenze: kein Erfolgsversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-17",
+  "title": "MACH NUR FÜNF",
+  "hook": "KEINE LUST AUF TRAINING?",
+  "speech": "Dann mach fünf Kniebeugen. Nur fünf. Wenn du danach weitermachen willst, gut. Wenn nicht, hast du wenigstens angefangen. Manchmal ist genau das die größte Hürde.",
+  "shots": [{
+    "id": "dj-17-s1",
+    "camera": "",
+    "action": "Fünf Kniebeugen beim Sprechen.",
+    "speech": "Dann mach fünf Kniebeugen. Nur fünf. Wenn du danach weitermachen willst, gut. Wenn nicht, hast du wenigstens angefangen. Manchmal ist genau das die größte Hürde.",
+    "onscreen": "KEINE LUST AUF TRAINING?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-19",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mit fünf Kniebeugen anfangen. Der Start ist die Hürde.",
+  "evidence": "Verhaltenstipp (Einstiegshürde senken), plausibel. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-18",
+  "title": "NICHT AUF MOTIVATION WARTEN",
+  "hook": "DU WARTEST AUF MOTIVATION? VIEL SPASS.",
+  "speech": "Mach Bewegung lieber zur Gewohnheit. Zum Beispiel immer nach dem ersten Kaffee eine Minute bewegen. Nicht erst überlegen, ob du Lust hast. Einfach machen.",
+  "shots": [{
+    "id": "dj-18-s1",
+    "camera": "",
+    "action": "Kaffeetasse abstellen und Bewegung beginnen.",
+    "speech": "Mach Bewegung lieber zur Gewohnheit. Zum Beispiel immer nach dem ersten Kaffee eine Minute bewegen. Nicht erst überlegen, ob du Lust hast. Einfach machen.",
+    "onscreen": "DU WARTEST AUF MOTIVATION? VIEL SPASS.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-21",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung an eine feste Gewohnheit koppeln, zum Beispiel eine Minute nach dem ersten Kaffee.",
+  "evidence": "Plausibel: Auslöser-Kopplung, verwandt mit Nr. 16. Grenze: kein Erfolgsversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-19",
+  "title": "BALANCE",
+  "hook": "DEIN GLEICHGEWICHT HAT KEINEN WINTERSCHLAF.",
+  "speech": "Stell dich regelmäßig mal auf ein Bein. Am Anfang ruhig neben einer Wand. Wenn du sicher stehst, versuch es etwas länger. Balance kann man trainieren.",
+  "shots": [{
+    "id": "dj-19-s1",
+    "camera": "",
+    "action": "Einbeinstand beim Sprechen.",
+    "speech": "Stell dich regelmäßig mal auf ein Bein. Am Anfang ruhig neben einer Wand. Wenn du sicher stehst, versuch es etwas länger. Balance kann man trainieren.",
+    "onscreen": "DEIN GLEICHGEWICHT HAT KEINEN WINTERSCHLAF.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 16,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-24",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Regelmäßig auf einem Bein stehen, am Anfang neben einer Wand.",
+  "evidence": "Gut belegt: Gleichgewicht ist trainierbar. Im Video die Wand als Halt zeigen. Grenze: keine Aussagen zu Sturzprävention.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-20",
+  "title": "KRAFT GEHÖRT DAZU",
+  "hook": "BEWEGLICHKEIT ALLEIN REICHT NICHT.",
+  "speech": "Dein Körper braucht auch Kraft. Mindestens zweimal pro Woche Muskeltraining ist eine gute Empfehlung. Das geht im Fitnessstudio. Oder mit einfachen Übungen zu Hause.",
+  "shots": [{
+    "id": "dj-20-s1",
+    "camera": "",
+    "action": "Sprechen und einfache Squats zeigen.",
+    "speech": "Dein Körper braucht auch Kraft. Mindestens zweimal pro Woche Muskeltraining ist eine gute Empfehlung. Das geht im Fitnessstudio. Oder mit einfachen Übungen zu Hause.",
+    "onscreen": "BEWEGLICHKEIT ALLEIN REICHT NICHT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-26",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mindestens zweimal pro Woche Muskeltraining.",
+  "evidence": "Gut belegt: entspricht den WHO-Bewegungsempfehlungen (mindestens 2 Tage pro Woche muskelkräftigend). Quelle in Caption oder Notiz, nicht ins Video.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-21",
+  "title": "KEINE SAISONPAUSE",
+  "hook": "DEIN KÖRPER KENNT KEINE SAISONPAUSE.",
+  "speech": "Nur weil es draußen kalt und dunkel ist, muss deine Bewegung nicht ausfallen. Lieber regelmäßig kleine Einheiten als gar nichts. Körperpflege hat schließlich auch keine Saison.",
+  "shots": [{
+    "id": "dj-21-s1",
+    "camera": "",
+    "action": "Direkt in die Kamera, gern leicht in Bewegung.",
+    "speech": "Nur weil es draußen kalt und dunkel ist, muss deine Bewegung nicht ausfallen. Lieber regelmäßig kleine Einheiten als gar nichts. Körperpflege hat schließlich auch keine Saison.",
+    "onscreen": "DEIN KÖRPER KENNT KEINE SAISONPAUSE.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "2026-11-28",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Auch bei Kälte und Dunkelheit in Bewegung bleiben, lieber regelmäßig kleine Einheiten.",
+  "evidence": "Haltung der Marke, keine Studienaussage. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-22",
+  "title": "SCHICHTEN STATT DICKE JACKE",
+  "hook": "BEIM SPORT IM WINTER FALSCH ANGEZOGEN?",
+  "speech": "Zieh lieber mehrere dünne Schichten an als eine richtig dicke. Dann kannst du unterwegs etwas ausziehen, wenn dir warm wird. Ziemlich praktisch.",
+  "shots": [{
+    "id": "dj-22-s1",
+    "camera": "",
+    "action": "Mit Jacke/Pullover sprechen.",
+    "speech": "Zieh lieber mehrere dünne Schichten an als eine richtig dicke. Dann kannst du unterwegs etwas ausziehen, wenn dir warm wird. Ziemlich praktisch.",
+    "onscreen": "BEIM SPORT IM WINTER FALSCH ANGEZOGEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 14,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Mehrere dünne Schichten statt einer dicken Jacke anziehen.",
+  "evidence": "Alltagswissen (Zwiebelprinzip), kein Beleg nötig. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-23",
+  "title": "SCHWITZEN BEI KÄLTE",
+  "hook": "BEI KÄLTE SCHWITZEN?",
+  "speech": "Wenn du draußen trainierst, zieh rechtzeitig eine Schicht aus. Stark verschwitzte Kleidung kann dich später schneller auskühlen lassen. Also nicht erst reagieren, wenn du komplett nass bist.",
+  "shots": [{
+    "id": "dj-23-s1",
+    "camera": "",
+    "action": "Jacke öffnen/ausziehen und sprechen.",
+    "speech": "Wenn du draußen trainierst, zieh rechtzeitig eine Schicht aus. Stark verschwitzte Kleidung kann dich später schneller auskühlen lassen. Also nicht erst reagieren, wenn du komplett nass bist.",
+    "onscreen": "BEI KÄLTE SCHWITZEN?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Rechtzeitig eine Schicht ausziehen, bevor die Kleidung nass geschwitzt ist.",
+  "evidence": "Plausibel: nasse Kleidung kühlt schneller aus. Grenze: keine Unterkühlungs- oder Gesundheitsaussagen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-24",
+  "title": "WETTERFENSTER NUTZEN",
+  "hook": "DEINE WETTER-APP KANN MEHR ALS REGEN ANZEIGEN.",
+  "speech": "Schau morgens, wann das Wetter heute am besten ist. Und leg deinen Spaziergang genau dorthin. Dann musst du nicht ausgerechnet beim nächsten Regenschauer los.",
+  "shots": [{
+    "id": "dj-24-s1",
+    "camera": "",
+    "action": "Handy/Wetter-App in der Hand.",
+    "speech": "Schau morgens, wann das Wetter heute am besten ist. Und leg deinen Spaziergang genau dorthin. Dann musst du nicht ausgerechnet beim nächsten Regenschauer los.",
+    "onscreen": "DEINE WETTER-APP KANN MEHR ALS REGEN ANZEIGEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Per Wetter-App das beste Wetterfenster für den Spaziergang nutzen.",
+  "evidence": "Alltagstipp, kein Beleg nötig. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-25",
+  "title": "INDOOR-PLAN",
+  "hook": "DRAUSSEN WELTUNTERGANG?",
+  "speech": "Dann beweg dich eben drinnen. Eine Minute Kniebeugen, eine Minute Rotation, eine Minute Arme nach oben strecken. Drei Minuten. Kein Wetterbericht notwendig.",
+  "shots": [{
+    "id": "dj-25-s1",
+    "camera": "",
+    "action": "Drei Bewegungen während des Sprechens zeigen.",
+    "speech": "Dann beweg dich eben drinnen. Eine Minute Kniebeugen, eine Minute Rotation, eine Minute Arme nach oben strecken. Drei Minuten. Kein Wetterbericht notwendig.",
+    "onscreen": "DRAUSSEN WELTUNTERGANG?",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 17,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bei schlechtem Wetter drei Minuten drinnen bewegen: Kniebeugen, Rotation, Arme nach oben strecken.",
+  "evidence": "Beispielroutine, plausibel, kein Studienwert. Grenze: keine.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-26",
+  "title": "BEWEGUNG AUFTEILEN",
+  "hook": "DU BRAUCHST KEINE 30 MINUTEN AM STÜCK.",
+  "speech": "Zehn Minuten morgens, zehn mittags, zehn abends. Du kannst Bewegung über den Tag verteilen. Es muss nicht immer ein großes Workout sein.",
+  "shots": [{
+    "id": "dj-26-s1",
+    "camera": "",
+    "action": "Beim Gehen direkt in die Kamera sprechen.",
+    "speech": "Zehn Minuten morgens, zehn mittags, zehn abends. Du kannst Bewegung über den Tag verteilen. Es muss nicht immer ein großes Workout sein.",
+    "onscreen": "DU BRAUCHST KEINE 30 MINUTEN AM STÜCK.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 14,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung über den Tag verteilen, zum Beispiel dreimal zehn Minuten statt 30 am Stück.",
+  "evidence": "Gut belegt: auch kurze Einheiten zählen zur Gesamtbewegung (WHO). Grenze: keine Aussage, dass Verteilen gleichwertig ist.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-27",
+  "title": "BEWEGLICHKEIT DURCH KRAFT",
+  "hook": "DEHNEN IST NICHT DIE EINZIGE LÖSUNG.",
+  "speech": "Du willst beweglicher werden? Auch Krafttraining über einen großen, kontrollierten Bewegungsumfang kann dabei helfen. Beweglichkeit kann man nicht nur dehnen. Sondern auch trainieren.",
+  "shots": [{
+    "id": "dj-27-s1",
+    "camera": "",
+    "action": "Kontrollierten Squat im eigenen Bewegungsumfang zeigen.",
+    "speech": "Du willst beweglicher werden? Auch Krafttraining über einen großen, kontrollierten Bewegungsumfang kann dabei helfen. Beweglichkeit kann man nicht nur dehnen. Sondern auch trainieren.",
+    "onscreen": "DEHNEN IST NICHT DIE EINZIGE LÖSUNG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 18,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Beweglichkeit auch durch Krafttraining über einen großen, kontrollierten Bewegungsumfang trainieren.",
+  "evidence": "Mittel bis gut belegt: Krafttraining über große Bewegungsamplitude kann die Beweglichkeit verbessern. Quelle vor Dreh nachtragen. Grenze: „kann helfen“, nicht „besser als Dehnen“.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}, {
+  "id": "dj-28",
+  "title": "TERMIN STATT VORSATZ",
+  "hook": "DER BESTE TRAININGSTIPP IST ZIEMLICH LANGWEILIG.",
+  "speech": "Trag deine Bewegung in den Kalender ein. Ein konkreter Termin ist oft hilfreicher als der Vorsatz, irgendwann mal wieder Sport zu machen. Irgendwann ist nämlich ziemlich unzuverlässig.",
+  "shots": [{
+    "id": "dj-28-s1",
+    "camera": "",
+    "action": "Handy/Kalender in der Hand.",
+    "speech": "Trag deine Bewegung in den Kalender ein. Ein konkreter Termin ist oft hilfreicher als der Vorsatz, irgendwann mal wieder Sport zu machen. Irgendwann ist nämlich ziemlich unzuverlässig.",
+    "onscreen": "DER BESTE TRAININGSTIPP IST ZIEMLICH LANGWEILIG.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": 20,
+    "note": "Ein durchgehender Shot, Originalton."
+  }],
+  "publishDate": "",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "format": "Freeshot",
+  "material": "Aufwand minimal: ein durchgehender Freeshot, Originalton. Nur Anfang/Ende trimmen, Hook als On-Screen-Text. Keine B-Roll, keine zusätzlichen Einstellungen, keine aufwendigen Requisiten.",
+  "src": "Herbst-Serie V2.3b",
+  "preproductionRequired": false,
+  "tip": "Bewegung als festen Termin in den Kalender eintragen.",
+  "evidence": "Gut belegt: konkrete Planung erhöht die Umsetzung (Nähe zu Nr. 16). Grenze: kein Erfolgsversprechen.",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"]
+}];
+// Korrekturen an bereits ausgelieferten Seed-Werten (wie *_TEXT_FIXES): je Version und Piece {Feld: [alter Seed-Wert, neuer Wert]}.
+// Ein Feld wird nur geändert, wenn es noch EXAKT dem alten Seed-Wert entspricht. Nutzeränderungen bleiben immer erhalten.
+// V2: tip + evidence ergänzt (vorher leer), Plattformen auf 4 erweitert (vorher Instagram + TikTok).
+const DARK_SERIES_FIXES = [{
+  v: 2,
+  fixes: {
+    "dj-01": {
+      "tip": ["", "Nach dem Essen zehn Minuten gehen statt direkt aufs Sofa."],
+      "evidence": ["", "Plausibel bis gut belegt: kurze Spaziergänge nach Mahlzeiten dämpfen Blutzuckerspitzen. Quelle vor Dreh nachtragen. Grenze: nur „kann helfen“, nichts zu Diabetes oder Gewicht."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-02": {
+      "tip": ["", "Nach etwa einer Stunde Sitzen aufstehen und 2–5 Minuten gehen."],
+      "evidence": ["", "Gut belegt: Bewegungspausen unterbrechen langes Sitzen. Die 2–5 Minuten sind eine praktische Richtgröße, kein Studienwert. Grenze: kein Risiko- oder Gesundheitsversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-03": {
+      "tip": ["", "Bei Kälte erst locker bewegen, dann das Tempo steigern."],
+      "evidence": ["", "Standardempfehlung (Aufwärmen), plausibel. Grenze: keine Verletzungs- oder Herz-Kreislauf-Aussagen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-04": {
+      "tip": ["", "Tagsüber möglichst viel Tageslicht nutzen, wenn möglich am Fenster arbeiten."],
+      "evidence": ["", "Gut belegt: Tageslicht ist ein zentraler Zeitgeber der inneren Uhr; draußen und am Fenster ist es deutlich heller als im Raum. Grenze: nichts zu Stimmung oder Winterdepression."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-05": {
+      "tip": ["", "Abends vor dem Schlafen das Licht dimmen."],
+      "evidence": ["", "Gut bis mittel belegt: helles Licht am späten Abend kann die innere Uhr beeinflussen; individuell verschieden. Grenze: „kann“, kein Schlafversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-06": {
+      "tip": ["", "Den gewohnten Schlafrhythmus rund um die Zeitumstellung möglichst beibehalten."],
+      "evidence": ["", "Plausibel: regelmäßige Schlafzeiten stützen die innere Uhr. Fakt: Uhren gehen am 25.10.2026 zurück, „morgen“ passt zum Post am 24.10. Grenze: keine Aussagen zu Gesundheitsfolgen der Umstellung."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-07": {
+      "tip": ["", "Auch eine Minute Bewegung ist besser als gar keine."],
+      "evidence": ["", "Plausibel, deckt sich mit den WHO-Leitlinien („jede Bewegung zählt“). Grenze: nicht behaupten, eine Minute ersetze Training."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-08": {
+      "tip": ["", "Öfter die Treppe statt den Aufzug nehmen."],
+      "evidence": ["", "Alltagstipp, Treppensteigen zählt als Bewegung. Keine Zahlen im Video. Grenze: keine Kalorien- oder Gewichtsaussagen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-09": {
+      "tip": ["", "Regenjacke bereitlegen, damit der Spaziergang bei Nässe nicht ausfällt."],
+      "evidence": ["", "Alltagstipp (Hürde senken), kein Beleg nötig. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-10": {
+      "tip": ["", "Bei langem Bildschirmsitzen Kopf langsam seitlich drehen und Schultern kreisen."],
+      "evidence": ["", "Plausibel: sanfte Mobilisation. Grenze: nicht als Behandlung von Nackenschmerzen darstellen; „kein Reißen, kein Zerren“ im Text lassen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-11": {
+      "tip": ["", "Nach langem Sitzen kontrollierte Ausfallschritte machen, nur so tief wie angenehm."],
+      "evidence": ["", "Plausibel: Bewegung der Hüfte nach dem Sitzen. Grenze: keine Aussagen zu verkürzten Muskeln oder Haltungsschäden; „angenehme Tiefe“ im Text lassen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-12": {
+      "tip": ["", "Fersen langsam heben (15 Wiederholungen), um die Waden zu aktivieren."],
+      "evidence": ["", "Fakt: Wadenheben beansprucht die Wadenmuskulatur. Der Wärmeeffekt ist bewusst offen formuliert. Grenze: keine Durchblutungs-, Kreislauf- oder Venenaussagen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-13": {
+      "tip": ["", "Bei Nachmittagsmüdigkeit aufstehen und ein paar Minuten zügig gehen, statt zu scrollen."],
+      "evidence": ["", "Plausibel: kurze Gehpausen können kurzfristig wacher machen. Quelle optional nachtragen. Grenze: „kann“, kein Energieversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-14": {
+      "tip": ["", "Mittagsschlaf kurz halten und nicht zu spät am Tag."],
+      "evidence": ["", "Gängige Schlafempfehlung: lange oder späte Nickerchen können den Nachtschlaf stören. Grenze: kein Rat bei Schlafstörungen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-15": {
+      "tip": ["", "Auch am Wochenende ungefähr zur gleichen Zeit aufstehen."],
+      "evidence": ["", "Gut belegt: stark schwankende Schlafzeiten stören den Rhythmus („Social Jetlag“). Grenze: „kann durcheinanderbringen“, keine Gesundheitsfolgen nennen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-16": {
+      "tip": ["", "Bewegung an einen festen Auslöser koppeln: Wenn ich den Laptop zuklappe, bewege ich mich drei Minuten."],
+      "evidence": ["", "Gut belegt: Wenn-Dann-Pläne (Implementation Intentions) helfen bei der Umsetzung von Vorhaben. Grenze: kein Erfolgsversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-17": {
+      "tip": ["", "Mit fünf Kniebeugen anfangen. Der Start ist die Hürde."],
+      "evidence": ["", "Verhaltenstipp (Einstiegshürde senken), plausibel. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-18": {
+      "tip": ["", "Bewegung an eine feste Gewohnheit koppeln, zum Beispiel eine Minute nach dem ersten Kaffee."],
+      "evidence": ["", "Plausibel: Auslöser-Kopplung, verwandt mit Nr. 16. Grenze: kein Erfolgsversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-19": {
+      "tip": ["", "Regelmäßig auf einem Bein stehen, am Anfang neben einer Wand."],
+      "evidence": ["", "Gut belegt: Gleichgewicht ist trainierbar. Im Video die Wand als Halt zeigen. Grenze: keine Aussagen zu Sturzprävention."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-20": {
+      "tip": ["", "Mindestens zweimal pro Woche Muskeltraining."],
+      "evidence": ["", "Gut belegt: entspricht den WHO-Bewegungsempfehlungen (mindestens 2 Tage pro Woche muskelkräftigend). Quelle in Caption oder Notiz, nicht ins Video."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-21": {
+      "tip": ["", "Auch bei Kälte und Dunkelheit in Bewegung bleiben, lieber regelmäßig kleine Einheiten."],
+      "evidence": ["", "Haltung der Marke, keine Studienaussage. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-22": {
+      "tip": ["", "Mehrere dünne Schichten statt einer dicken Jacke anziehen."],
+      "evidence": ["", "Alltagswissen (Zwiebelprinzip), kein Beleg nötig. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-23": {
+      "tip": ["", "Rechtzeitig eine Schicht ausziehen, bevor die Kleidung nass geschwitzt ist."],
+      "evidence": ["", "Plausibel: nasse Kleidung kühlt schneller aus. Grenze: keine Unterkühlungs- oder Gesundheitsaussagen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-24": {
+      "tip": ["", "Per Wetter-App das beste Wetterfenster für den Spaziergang nutzen."],
+      "evidence": ["", "Alltagstipp, kein Beleg nötig. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-25": {
+      "tip": ["", "Bei schlechtem Wetter drei Minuten drinnen bewegen: Kniebeugen, Rotation, Arme nach oben strecken."],
+      "evidence": ["", "Beispielroutine, plausibel, kein Studienwert. Grenze: keine."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-26": {
+      "tip": ["", "Bewegung über den Tag verteilen, zum Beispiel dreimal zehn Minuten statt 30 am Stück."],
+      "evidence": ["", "Gut belegt: auch kurze Einheiten zählen zur Gesamtbewegung (WHO). Grenze: keine Aussage, dass Verteilen gleichwertig ist."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-27": {
+      "tip": ["", "Beweglichkeit auch durch Krafttraining über einen großen, kontrollierten Bewegungsumfang trainieren."],
+      "evidence": ["", "Mittel bis gut belegt: Krafttraining über große Bewegungsamplitude kann die Beweglichkeit verbessern. Quelle vor Dreh nachtragen. Grenze: „kann helfen“, nicht „besser als Dehnen“."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    },
+    "dj-28": {
+      "tip": ["", "Bewegung als festen Termin in den Kalender eintragen."],
+      "evidence": ["", "Gut belegt: konkrete Planung erhöht die Umsetzung (Nähe zu Nr. 16). Grenze: kein Erfolgsversprechen."],
+      "platforms": [["Instagram", "TikTok"], ["Instagram", "TikTok", "Facebook", "YouTube"]]
+    }
+  }
+}];
+const applyDarkFixes = (c, prev) => {
+  let n = c;
+  DARK_SERIES_FIXES.filter(f => f.v > prev).forEach(f => {
+    const fx = f.fixes[c.id];
+    if (!fx) return;
+    Object.entries(fx).forEach(([k, [o, nw]]) => {
+      if (JSON.stringify(n[k]) === JSON.stringify(o)) n = {
+        ...n,
+        [k]: nw
+      };
+    });
+  });
+  return n;
+};
+const darkSeriesSeed = () => DARK_SERIES_SEED.map(({
+  seedSince,
+  ...p
+}) => normPiece({
+  world: 'JOGA',
+  fn: 'DO',
+  format: 'Freeshot',
+  status: 'Idee',
+  prodType: 'Neudreh',
+  platforms: ['Instagram', 'TikTok', 'Facebook', 'YouTube'],
+  publishDate: '',
+  ...p,
+  series: SERIES_DARK,
+  created: '2026-10-08',
+  updated: '2026-10-08'
+}));
+
+/* ---------- Statement-Bibliothek (Nov 2026): 28 Statements in Olivers Stimme, eigenes Format „Statement“ ---------- */
+// Feldzuordnung: Titel→title · erster Satz→hook · Sprechtext→speech · Dauer/Bildmaterial/Hinweise→scriptText · Einordnung/Quelle→evidence.
+// Annahmen: Typ je Gruppe (A/B REACH, C ME, D/E DO), Audio Voice-over, Einstieg Move first. Alles im Piece änderbar.
+const STATEMENT_SEED = [{
+  "id": "st-01",
+  "title": "DU BIST NICHT ZU ALT. DU HAST NUR AUFGEHÖRT.",
+  "hook": "Du bist nicht zu alt.",
+  "speech": "Du bist nicht zu alt. Du hast nur aufgehört. Aufgehört, in die Hocke zu gehen, zu springen, dich auf dem Boden zu bewegen. Irgendwann fühlt sich das fremd an. Klar verändert sich der Körper mit dem Alter. Aber längst nicht alles, was wir aufs Alter schieben, liegt am Alter. Manches haben wir einfach verlernt.",
+  "scriptText": "Dauer: ca. 20–25 Sekunden. Bildmaterial: Hocke, Sprünge, Balance, Bodenbewegungen.\n\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "Einordnung: Bewusst provokante Hook. Altersbedingte Einschränkungen sind real; viele Fähigkeiten bleiben jedoch trainierbar.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-02",
+  "title": "DEIN FITNESSSTUDIO KANN DICH NICHT RETTEN.",
+  "hook": "Das Studio kann dich nicht retten.",
+  "speech": "Das Studio kann dich nicht retten. Du gehst vielleicht zwei, drei Mal die Woche hin, meistens mit Überwindung. Oft lässt man es aus, weil der Schritt dahin einfach zu groß ist. Bau Bewegung in deinen Alltag ein. Stündlich, minütlich. Mach aus jeder Situation deine Bewegungssituation.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Mobility, Alltag, dynamische Bewegungsfolgen.",
+  "evidence": "Einordnung: Regelmäßiges Training ist gesundheitlich wertvoll. Zusätzliche Alltagsbewegung und weniger langes Sitzen sind ebenfalls sinnvoll.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-03",
+  "title": "ICH WILL MIT 70 NICHT JÜNGER AUSSEHEN.",
+  "hook": "Ich will mit 70 nicht jünger aussehen.",
+  "speech": "Ich will mit 70 nicht jünger aussehen. Ich will mit 70 noch vom Boden aufstehen. Mich bücken, balancieren, vielleicht sogar springen. Mein Leben soll nicht kleiner werden, nur weil mein Körper weniger kann. Deshalb bewege ich mich heute. Für alles, was ich später noch erleben will.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Bodenaufstehen, Balance, anspruchsvolle Flows.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "Einordnung: Persönliches Statement über körperliche Selbstständigkeit im Alter.",
+  "status": "Idee",
+  "fn": "REACH"
+}, {
+  "id": "st-04",
+  "title": "DU BRAUCHST KEINEN SIXPACK.",
+  "hook": "Du brauchst keinen Sixpack.",
+  "speech": "Du brauchst keinen Sixpack. Kannst du haben, keine Frage. Aber der kommt nicht allein vom Training. Wichtig ist, dass du dir Beweglichkeit antrainierst. Beweglichkeit jetzt, im Alter und fürs Alter. Das ist das Entscheidende, um gut durchs Leben zu gehen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Kraft, Balance, Körperkontrolle.",
+  "evidence": "Einordnung: Funktionelle Fähigkeiten statt rein ästhetischer Fitnessziele.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-05",
+  "title": "BEWEGLICHKEIT IST KEIN TALENT.",
+  "hook": "Du musst nicht beweglich sein, um anzufangen.",
+  "speech": "Du musst nicht beweglich sein, um anzufangen. Das ist, als würdest du sagen: Ich geh erst schwimmen, wenn ich schwimmen kann. Beweglichkeit kannst du trainieren. Fang da an, wo du bist. Nicht da, wo irgendein Fitness-Influencer schon steht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Einfache und anspruchsvolle Varianten einer Bewegung.",
+  "evidence": "Einordnung: Beweglichkeit lässt sich trainieren, auch wenn individuelle Voraussetzungen unterschiedlich sind.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-06",
+  "title": "WER HAT EIGENTLICH BESCHLOSSEN, DASS ERWACHSENE NICHT MEHR SPIELEN?",
+  "hook": "Wer hat eigentlich beschlossen, dass Erwachsene nicht mehr spielen?",
+  "speech": "Wer hat eigentlich beschlossen, dass Erwachsene nicht mehr spielen? Kinder springen, rennen, klettern, probieren was aus. Und wir? Zählen Wiederholungen, Schritte und Kalorien. Spiel doch mal wieder. Ganz ohne Leistungsnachweis.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Sprünge, spielerische Flows, kreative Übergänge.",
+  "evidence": "Einordnung: Markenstatement über Bewegungsfreude.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-07",
+  "title": "1,8 MILLIARDEN MENSCHEN BEWEGEN SICH ZU WENIG.",
+  "hook": "1,8 Milliarden Erwachsene.",
+  "speech": "1,8 Milliarden Erwachsene. So viele haben sich laut WHO im Jahr 2022 nicht ausreichend bewegt. Fast jeder Dritte. Und da geht es nicht um Marathon oder Extremsport, sondern um ganz normale Bewegung im Alltag. Unser größtes Fitnessproblem ist vielleicht gar nicht, dass wir zu wenig trainieren. Wir bewegen uns insgesamt zu wenig.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Einfache Mobility-Routine, Spaziergang, Ganzkörperbewegung.",
+  "evidence": "Quelle: WHO, 2024. Weltweite Schätzung für 2022: rund 31 % der Erwachsenen erreichten die empfohlenen Aktivitätswerte nicht.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-08",
+  "title": "150 MINUTEN. DAS IST DIE ZAHL.",
+  "hook": "150 Minuten.",
+  "speech": "150 Minuten. So viel moderate Ausdauerbewegung pro Woche empfiehlt die WHO Erwachsenen mindestens. Klingt viel? Sind im Schnitt gut 21 Minuten am Tag. Dafür musst du nicht ins Studio. Gehen, Radfahren, Tanzen zählt auch. Such dir was aus, das dir Spaß macht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Gehen, Mobility, dynamische Alltagsbewegung.",
+  "evidence": "Quelle: WHO-Leitlinien 2020. Zusätzlich wird muskelkräftigende Aktivität an mindestens zwei Tagen empfohlen.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-09",
+  "title": "DEIN KÖRPER KENNT KEINE ZEHN-MINUTEN-GRENZE.",
+  "hook": "Du hast nur fünf Minuten?",
+  "speech": "Du hast nur fünf Minuten? Dann beweg dich fünf Minuten. Früher mussten Einheiten mindestens zehn Minuten dauern, damit sie bei bestimmten Empfehlungen mitzählen. Die aktuellen WHO-Empfehlungen haben diese Mindestdauer nicht mehr. Jede Bewegung zählt. Also warte nicht auf die perfekte Stunde.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Kurze Bewegungssequenzen, Morning Moves.",
+  "evidence": "Quelle: WHO-Leitlinien 2020.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-10",
+  "title": "TRAINIERST DU EIGENTLICH DEIN GLEICHGEWICHT?",
+  "hook": "Arme, Beine, vielleicht der Bauch: Das trainierst du.",
+  "speech": "Arme, Beine, vielleicht der Bauch: Das trainierst du. Aber wann hast du zuletzt dein Gleichgewicht trainiert? Gerade im höheren Alter wird Balance wichtiger. Nicht für irgendeine Pose, sondern damit du sicher stehst und gehst. Balance ist keine Nebensache.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Einbeinstand, Balance-Übergänge.",
+  "evidence": "Quelle: CDC-Bewegungsempfehlungen für ältere Erwachsene.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-11",
+  "title": "BEWEGUNG KANN MEHR ALS KALORIEN VERBRENNEN.",
+  "hook": "Beim Sport reden wir dauernd über Kalorien.",
+  "speech": "Beim Sport reden wir dauernd über Kalorien. Dabei kann Bewegung viel mehr. Sie kann den Schlaf verbessern, Ängste verringern und den Blutdruck günstig beeinflussen. Langfristig kann sie außerdem das Risiko für verschiedene chronische Erkrankungen senken. Miss Bewegung nicht nur daran, was sie verbrennt, sondern daran, was sie dir gibt.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Flow, Spaziergang, ruhigere Bewegung.",
+  "evidence": "Quelle: CDC, Health Benefits of Physical Activity.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-12",
+  "title": "KRAFTTRAINING IST NICHT NUR FÜR MUSKELN DA.",
+  "hook": "Krafttraining ist nicht nur für den Spiegel.",
+  "speech": "Krafttraining ist nicht nur für den Spiegel. Es hilft dir beim Aufstehen, beim Tragen, beim Treppensteigen. Kurz: Du bleibst selbstständig. Die WHO empfiehlt Erwachsenen mindestens zweimal pro Woche muskelkräftige Aktivität. Nicht für den perfekten Bizeps. Für einen Körper, auf den du dich verlassen kannst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Bodyweight, Stützpositionen, kontrollierte Übergänge.",
+  "evidence": "Quelle: WHO-Leitlinien 2020.",
+  "status": "Skript fertig",
+  "fn": "REACH"
+}, {
+  "id": "st-13",
+  "title": "DEIN GEBURTSDATUM IST KEIN TRAININGSPLAN.",
+  "hook": "Dein Geburtsdatum ist kein Trainingsplan.",
+  "speech": "Dein Geburtsdatum ist kein Trainingsplan. Nur weil du 40, 50 oder 60 wirst, musst du nicht aufhören, Neues auszuprobieren. Der Körper verändert sich, klar. Aber er bleibt anpassungsfähig. Du musst nicht mehr trainieren wie mit 20. Aber probier weiter was aus.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Anspruchsvoller Flow, Balance, Kraft.\n\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "ME"
+}, {
+  "id": "st-14",
+  "title": "DIE WICHTIGSTE KRAFT SIEHT MAN NICHT IM SPIEGEL.",
+  "hook": "Die wichtigste Kraft siehst du nicht im Spiegel.",
+  "speech": "Die wichtigste Kraft siehst du nicht im Spiegel. Du merkst sie, wenn du vom Boden aufstehst. Wenn du eine schwere Tasche trägst. Wenn du dich abfangen kannst. Muskeln sehen gut aus. Wichtiger ist, was du mit ihnen kannst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Aufstehen vom Boden, tiefe Hocke, Stützbewegungen.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "ME"
+}, {
+  "id": "st-15",
+  "title": "ICH TRAINIERE NICHT FÜR DEN SOMMER.",
+  "hook": "Ich trainiere nicht für den Sommer.",
+  "speech": "Ich trainiere nicht für den Sommer. Nicht für den Strandurlaub, nicht für ein Vorher-nachher-Foto. Ich trainiere für die nächsten 20 Jahre. Für Reisen, für Bewegung, für Selbstständigkeit.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Ganzkörperflow, ruhige und kräftige Bewegungen.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.",
+  "evidence": "",
+  "status": "Idee",
+  "fn": "ME"
+}, {
+  "id": "st-16",
+  "title": "ALT WERDEN IST KEIN GRUND, KLEINER ZU DENKEN.",
+  "hook": "Beim Älterwerden reden wir ständig darüber, was irgendwann nicht mehr geht.",
+  "speech": "Beim Älterwerden reden wir ständig darüber, was irgendwann nicht mehr geht. Warum nicht darüber, was wir noch lernen können? Eine neue Bewegung, eine neue Fähigkeit. Ich muss nicht alles können. Aber ich bleibe neugierig. Auch körperlich.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Anspruchsvolle Yoga-Skills, Handstand, Balance.\n\nSELBST SPRECHEN: persönliche Ich-Aussage, frei einsprechen und Platzhalter durch eigenes Beispiel ersetzen.\nALTER-HINWEIS: Alter als Hook oder Verlustangst-nah, kollidiert mit den JOGA_BRAIN-Regeln. Vor Dreh entscheiden.",
+  "evidence": "",
+  "status": "Idee",
+  "fn": "ME"
+}, {
+  "id": "st-17",
+  "title": "DU MUSST DICH NICHT FERTIG MACHEN.",
+  "hook": "Du musst dich beim Sport nicht jedes Mal fertigmachen.",
+  "speech": "Du musst dich beim Sport nicht jedes Mal fertigmachen. Nicht jede Bewegung braucht Schweiß, Muskelkater oder einen neuen Rekord. Manchmal reichen ein paar Minuten, und dein Körper ist wieder in Bewegung. Nicht jede Bewegung muss ein Workout werden.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Sanfte Mobility, entspannter Flow, Morning Moves.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-18",
+  "title": "DEIN KOPF HAT FEIERABEND. DEIN KÖRPER NOCH NICHT.",
+  "hook": "Acht Stunden gearbeitet, Kopf voll, Akku leer.",
+  "speech": "Acht Stunden gearbeitet, Kopf voll, Akku leer. Und jetzt noch Sport? Musst du nicht. Beweg dich einfach ein bisschen. Ein paar Schritte, ein paar Drehungen, bisschen Mobility. Kein Pflichtprogramm. Damit auch dein Körper Feierabend machen kann.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Abendroutine, Stretching, ruhiger Flow.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-19",
+  "title": "MOTIVATION IST ÜBERSCHÄTZT.",
+  "hook": "Motivation ist überschätzt?",
+  "speech": "Motivation ist überschätzt? Mal so, mal so. Ich bin auch nicht immer motiviert. Aber dann hilft nur: einfach machen. Nicht lange nachdenken. Eine Bewegung nachmachen, die du bei mir gesehen hast, Video raussuchen, bewegen. Überall, jederzeit. Dafür musst du nicht ins Studio.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Wiederkehrende Morning-Moves-Sequenzen.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-20",
+  "title": "DEIN KÖRPER IST KEIN PROJEKT MIT ABGABETERMIN.",
+  "hook": "Dein Körper ist kein Projekt mit Abgabetermin.",
+  "speech": "Dein Körper ist kein Projekt mit Abgabetermin. Du musst nicht in zwölf Wochen ein neuer Mensch sein. Du darfst langsam besser werden, Pausen machen und Bewegung einfach genießen. Im besten Fall begleitet sie dich ein Leben lang, nicht zwölf Wochen.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Unterschiedliche Flows, Alltag, kleine Fortschritte.",
+  "evidence": "",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-21",
+  "title": "DIE BESTE BEWEGUNG IST DIE, DIE DU WIRKLICH MACHST.",
+  "hook": "Die beste Bewegung ist die, die du wirklich machst.",
+  "speech": "Die beste Bewegung ist die, die du wirklich machst. Deshalb gibt es bei mir einfache Einheiten. Klar, hier und da auch mal eine Challenge, man soll sich ja auch herausfordern. Aber im Idealfall bewegst du dich einfach. Wie es dir Spaß macht, wie es dir in den Sinn kommt. Nur nicht dauernd sitzen oder rumliegen. Nimm meine Videos als Inspiration.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Unterschiedliche JOGA-Flows, einfache Alltagsbewegungen.",
+  "evidence": "Einordnung: Regelmäßigkeit und langfristige Umsetzbarkeit sind zentrale Faktoren. Die beste Trainingsform hängt zusätzlich vom jeweiligen Gesundheitsziel ab.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-22",
+  "title": "BEWEGUNG KANN DEINE STIMMUNG VERÄNDERN.",
+  "hook": "Manchmal ist nicht der Körper das Hindernis, sondern der Kopf.",
+  "speech": "Manchmal ist nicht der Körper das Hindernis, sondern der Kopf. Da kann Bewegung helfen. Eine große Auswertung mit über 14.000 Menschen zeigt: Gehen, Joggen, Yoga und Krafttraining können depressive Symptome lindern. Bewegung löst nicht jedes Problem. Aber sie kann mehr verändern als nur deine Fitness.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Gehen, ruhige Flows, Mobility.",
+  "evidence": "Quelle: Noetel et al., BMJ 2024, 218 randomisierte Studien mit 14.170 Teilnehmenden. Die Evidenzsicherheit war überwiegend niedrig bis sehr niedrig.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-23",
+  "title": "TANZEN IST ERNSTHAFTE BEWEGUNG.",
+  "hook": "Du denkst, Tanzen ist kein richtiges Training?",
+  "speech": "Du denkst, Tanzen ist kein richtiges Training? Dann unterschätzt du, was da passiert. Du bewegst dich, koordinierst deinen Körper, reagierst auf Rhythmus. Und hast vielleicht sogar Spaß. In einer großen Analyse zeigte Tanzen vielversprechende Effekte auf depressive Symptome. Wir müssen Bewegung nicht immer so verdammt ernst nehmen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Spielerische Flows, rhythmische Bewegungen.",
+  "evidence": "Quelle: BMJ 2024. Der besonders große geschätzte Effekt des Tanzens beruht auf einer kleinen Datenbasis und ist entsprechend unsicher.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-24",
+  "title": "DEIN GEHIRN WILL AUCH TRAINIEREN.",
+  "hook": "Dein Gehirn will auch trainieren.",
+  "speech": "Dein Gehirn will auch trainieren. Und dafür brauchst du kein Kreuzworträtsel. Lern eine neue Bewegung. Balance halten, Arme und Beine anders koordinieren, eine Abfolge merken. Dann arbeitet nicht nur dein Körper, sondern auch dein Kopf.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Koordination, Balance, ungewohnte Bewegungsübergänge.",
+  "evidence": "Einordnung: Motorisches Lernen beansprucht neuronale Lernprozesse. Ein allgemeiner kognitiver Nutzen jeder beliebigen Übung ist damit nicht automatisch belegt.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-25",
+  "title": "KRAFTTRAINING IST AUCH KOPFSACHE.",
+  "hook": "Beim Krafttraining geht es nicht nur um Muskelaufbau.",
+  "speech": "Beim Krafttraining geht es nicht nur um Muskelaufbau. Du lernst, Bewegungen zu kontrollieren, Kraft gezielt einzusetzen und deinen Körper besser zu koordinieren. Dazu gibt es wissenschaftliche Hinweise, dass Krafttraining auch depressive Symptome lindern kann. Ein starker Körper ist also nicht die einzige gute Nachricht.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Stützpositionen, kontrollierte Kraftübungen, Balance.",
+  "evidence": "Quelle: BMJ 2024. Die Analyse berichtet positive Effekte von Krafttraining auf depressive Symptome.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-26",
+  "title": "DU MUSST NICHT IMMER MEHR MACHEN.",
+  "hook": "Schneller.",
+  "speech": "Schneller. Härter. Mehr. So klingt ein Großteil von dem, was wir heute Fitness nennen. Aber dein Körper braucht nicht dauernd die nächste Herausforderung. Manchmal braucht er Ruhe, langsame Bewegung und einen Moment, in dem du wieder bewusst atmest. Nicht jede Bewegung muss dich auspowern. Manche darf dich einfach runterbringen.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Yin-Flow, Atembewegungen, langsame Mobilität.",
+  "evidence": "Einordnung: Entspannungsverfahren und langsame Atmung können kurzfristig Stressreaktionen beeinflussen.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-27",
+  "title": "DEPRESSION IST KEIN FITNESSPROBLEM.",
+  "hook": "Depression ist kein Fitnessproblem.",
+  "speech": "Depression ist kein Fitnessproblem. Und niemand muss sich anhören, er solle einfach nur mehr Sport machen. Aber Bewegung kann Teil der Behandlung sein. Studien zeigen, dass verschiedene Bewegungsformen depressive Symptome lindern können. Kein Vorwurf, keine Wunderheilung. Sondern eine zusätzliche Möglichkeit, die helfen kann.",
+  "scriptText": "Dauer: ca. 25 Sekunden. Bildmaterial: Ruhiges Talking-Head-Statement, sanfte Bewegung.\n\nERNSTES THEMA: ruhig sprechen, kein Humor, vor Dreh selbst prüfen.",
+  "evidence": "Quelle: BMJ 2024. Bewegung kann therapeutisch unterstützen, ersetzt aber nicht pauschal eine individuell notwendige medizinische oder psychotherapeutische Behandlung.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}, {
+  "id": "st-28",
+  "title": "DIE BESTE BEWEGUNG HAT KEINEN NAMEN.",
+  "hook": "Die beste Bewegung hat keinen Namen.",
+  "speech": "Die beste Bewegung hat keinen Namen. Oder doch? Oliver ist ein Name, Mensch ist keiner, das ist eine Gattung. Bewegung auch. Egal, wie du dich bewegst: Es bleibt Bewegung. Und sie ist genau dann richtig für dich, wenn du sie ausführst.",
+  "scriptText": "Dauer: ca. 20 Sekunden. Bildmaterial: Unterschiedliche JOGA-Formate, Yoga, Pilates, freie Bewegung.",
+  "evidence": "Einordnung: JOGA-Markenstatement. Unterschiedliche Trainingsformen haben je nach Ziel unterschiedliche Vorteile.",
+  "status": "Skript fertig",
+  "fn": "DO"
+}];
+const statementSeed = () => STATEMENT_SEED.map(p => normPiece({
+  world: 'JOGA',
+  format: 'Statement',
+  prodType: 'Neudreh',
+  entry: 'Move first',
+  audio: 'Voice-over',
+  platforms: ['Instagram', 'TikTok', 'YouTube'],
+  publishDate: '',
+  ...p,
+  created: '2026-11-13',
+  updated: '2026-11-13'
+}));
+const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({
+  ...p,
+  created: '2026-10-08',
+  updated: '2026-10-08'
+}));
+// Die Notiz „vor Beginn von W6 (02.11.)“ stammt aus der Zählung 28.09.–15.11. und ist mit dem Plan 12.10.–29.11. falsch. Ersetzt wird nur der exakte alte Seed-Text.
+const V22B_TEXT_FIXES = {
+  "v22-oli-muskeln": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-joga-thread": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-nicht-optik": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-joga-squat-taps": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-anleitung": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren. Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“). Nur drehen, wenn vorhandenes Equipment eine glaubwürdige Mini-Handlung ermöglicht; sonst eine Reserve-Idee verwenden."],
+  "v22-joga-dolphin": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-stretch-vor-sport": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-anfaenger2": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-video-urlaub": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."],
+  "v22-oli-7wochen": ["9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vor Beginn von W6 (02.11.) drehen, schneiden und exportieren.", "9:16. Zusätzlich 3–5 Sek. sauberer Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts. VORPRODUZIEREN: vorab drehen, schneiden und exportieren (mindestens „Geschnitten“)."]
+};
+
+// Alt-Daten (Oli-Bibliothek) → Content-Modell. Deterministische IDs: mehrfaches Migrieren ist idempotent.
+const OLI_FN = {
+  'Oli Geht': 'ME',
+  'Oli Klärt': 'DO',
+  'Typisch Mann': 'REACH',
+  'Oli Bewegt Hamburg': 'REACH'
+};
+const OLI_STATUS_MAP = {
+  'Idee': 'Idee',
+  'Skript fertig': 'Skript fertig',
+  'gedreht': 'Gedreht',
+  'gepostet': 'Gepostet'
+};
+function migrateOliItem(m, forceId) {
+  const r = ruleFor(m.format);
+  const talk = m.format === 'Oli Geht' || m.format === 'Oli Klärt';
+  return normPiece({
+    id: forceId || 'oli-' + m.id,
+    world: 'OLI',
+    fn: OLI_FN[m.format] || 'ME',
+    format: m.format || '',
+    title: m.title || '',
+    hook: m.title || '',
+    status: OLI_STATUS_MAP[m.status] || 'Idee',
+    prodType: 'Neudreh',
+    entry: r ? r.entry : 'Situation first',
+    audio: r ? r.audio : 'Silent/Musik',
+    speech: talk ? m.script || '' : '',
+    scriptText: talk ? '' : m.script || '',
+    src: m.src || 'Oli-Bibliothek',
+    created: '',
+    updated: ''
+  });
+}
+function migrateState(s) {
+  const out = {
+    ...s
+  };
+  if (!Array.isArray(out.content)) out.content = [];
+  if (!Array.isArray(out.tests)) out.tests = []; // Altbestand (14-Tage-Test) bleibt unangetastet im State, ohne Funktion
+  if (!out.contentMigrated) {
+    const have = new Set(out.content.map(c => c.id));
+    const src = Array.isArray(out.oliContent) ? out.oliContent : [];
+    out.content = [...out.content, ...src.map(m => migrateOliItem(m)).filter(c => !have.has(c.id))];
+    out.contentMigrated = true; // oliContent bleibt unverändert als Sicherung im State
+  }
+  out.content = out.content.map(normPiece);
+  // V2.1: Produktions-Seeds einmalig ergänzen. Idempotent (IDs), überschreibt nichts, der Marker verhindert
+  // das Wiederauftauchen gelöschter Seeds. Das Testfenster wird nur gesetzt, wenn der Nutzer keins eingetragen hat.
+  if (!out.productionSeedV21) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV21().filter(c => !have.has(c.id))];
+    out.productionSeedV21 = true;
+  }
+  // V2.2: 28 neue Pieces fuer den 7-Wochen-Plan. Eigener Marker; nur fehlende IDs; nichts wird ueberschrieben.
+  if (!out.productionSeedV22SevenWeek) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV22().filter(c => !have.has(c.id))];
+    out.productionSeedV22SevenWeek = true;
+  }
+  // V2.2-Datenbereinigung (einmalig): Die erste V2.2-Fassung hat Markdown-Reste (Wochenüberschriften, Qualitätsregeln) in `variants`
+  // einzelner Seeds mitgeseedet. Korrigiert wird ein Feld nur, wenn es noch exakt dem alten Fehlerwert entspricht.
+  if (!out.seedCleanV22a) {
+    out.content = out.content.map(c => {
+      const fx = V22_SEED_FIXES[c.id];
+      if (!fx) return c;
+      const n = {
+        ...c
+      };
+      Object.entries(fx).forEach(([k, v]) => {
+        if (k !== 'shots' && n[k] === v[0]) n[k] = v[1];
+      });
+      if (fx.shots) n.shots = n.shots.map(sh => {
+        const f = fx.shots[sh.id];
+        if (!f) return sh;
+        const m = {
+          ...sh
+        };
+        Object.entries(f).forEach(([k, v]) => {
+          if (m[k] === v[0]) m[k] = v[1];
+        });
+        return m;
+      });
+      return n;
+    });
+    out.seedCleanV22a = true;
+  }
+  // sevenWeekPlanFixV22b: Der 7-Wochen-Plan läuft 12.10.–29.11.2026 (49 Tage). Ergänzt werden nur die 14 fehlenden Pieces 16.–29.11.
+  // Nichts Bestehendes wird gelöscht oder überschrieben; die Pieces 05.–11.10. bleiben als Content erhalten und liegen schlicht außerhalb von Plan und Test.
+  // Alte Marker bleiben unberührt, V2.1/V2.2-Seeding läuft nicht erneut.
+  if (!out.sevenWeekPlanFixV22b) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV22b().filter(c => !have.has(c.id))];
+    out.content = out.content.map(c => {
+      const fx = V22B_TEXT_FIXES[c.id];
+      return fx && c.scriptText === fx[0] ? {
+        ...c,
+        scriptText: fx[1]
+      } : c;
+    });
+    out.sevenWeekPlanFixV22b = true;
+  }
+  // V2.3: Serie „Herbst-Tipp“ (Test-Piece 08.10. + 6 Ideen, alle ohne Datum, außerhalb des Plans). Eigener Marker, nur fehlende IDs.
+  if (!out.autumnSeriesV23) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...productionSeedV23().filter(c => !have.has(c.id))];
+    out.autumnSeriesV23 = true;
+  }
+  // V2.3b (einmalig): Pilot als Serie kennzeichnen; die 4 überholten Platzhalter nur löschen, wenn sie noch unverändert sind.
+  // Alle anderen Pieces (inkl. der 49 Plan-Pieces) bleiben unberührt.
+  if (!out.autumnSeriesV23b) {
+    out.content = out.content.filter(c => {
+      const o = V23_OBSOLETE.find(x => x.id === c.id);
+      return !(o && sameAsSeed(c, o));
+    });
+    out.content = out.content.map(c => c.id === 'v23-herbst-4tipps' && !c.series ? {
+      ...c,
+      series: SERIES_DARK
+    } : c);
+    out.autumnSeriesV23b = true;
+  }
+  // Serien-Pool: erst aktiv, sobald DARK_SERIES_SEED gefüllt ist. Versionsgebunden und idempotent (nur fehlende IDs, nichts überschrieben).
+  // Neue Seed-Pieces kommen nur einmal je ID dazu (darkSeriesSeededIds): ein von dir gelöschtes dj-Piece taucht bei Versionssprüngen nicht wieder auf.
+  // Vorhandene Pieces werden nie pauschal ersetzt; Seed-Korrekturen laufen über DARK_SERIES_FIXES (nur bei unverändertem Altwert).
+  if (DARK_SERIES_SEED.length && out.darkSeriesSeedVer !== DARK_SERIES_SEED_VERSION) {
+    const prev = out.darkSeriesSeedVer || 0;
+    const have = new Set(out.content.map(c => c.id));
+    const seeded = new Set(out.darkSeriesSeededIds || (prev >= 1 ? DARK_SERIES_SEED.filter(p => (p.seedSince || 1) <= prev).map(p => p.id) : []));
+    const add = darkSeriesSeed().filter(c => !seeded.has(c.id) && !have.has(c.id));
+    out.content = [...out.content, ...add].map(c => /^dj-\d+$/.test(c.id) ? applyDarkFixes(c, prev) : c);
+    out.darkSeriesSeededIds = [...new Set([...seeded, ...add.map(c => c.id)])];
+    out.darkSeriesSeedVer = DARK_SERIES_SEED_VERSION;
+  }
+  // Statement-Bibliothek: einmalig, nur fehlende IDs (st-01…st-28). Bestehende oder von dir geänderte Pieces werden nie überschrieben,
+  // gelöschte kommen nicht wieder.
+  if (!out.statementLibV1) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...statementSeed().filter(c => !have.has(c.id))];
+    out.statementLibV1 = true;
+  }
+  return out;
+}
+
+// Pipeline: IDEE → SKRIPT → DREH → CUTS → POST → ERGEBNIS. Zeigt für jedes Piece, wo es steht.
+const hasPerf = p => p.perf.some(x => Number(x.views) > 0);
+function pipeState(p) {
+  const st = C_STATUS.indexOf(p.status);
+  const doneThrough = [-1, 1, 1, 2, 3, hasPerf(p) ? 5 : 4][st];
+  const active = doneThrough >= 5 ? -1 : doneThrough + 1;
+  return PIPE.map((_, i) => i <= doneThrough ? 'done' : i === active ? 'active' : 'todo');
+}
+const pipeNow = p => {
+  const s = pipeState(p),
+    i = s.indexOf('active');
+  return i < 0 ? 'abgeschlossen' : PIPE[i];
+};
+
+/* ---------- Content-System: UI ---------- */
+const lblStyle = {
+  fontSize: 11,
+  color: 'var(--muted)',
+  fontWeight: 700,
+  letterSpacing: '.06em',
+  textTransform: 'uppercase',
+  margin: '14px 0 6px'
+};
+const NumD = ({
+  value,
+  onChange,
+  placeholder
+}) => /*#__PURE__*/React.createElement("input", {
+  type: "number",
+  inputMode: "decimal",
+  step: "any",
+  value: value ?? '',
+  placeholder: placeholder,
+  onChange: e => onChange(e.target.value === '' ? '' : Number(e.target.value))
+});
+const WorldBadge = ({
+  w
+}) => /*#__PURE__*/React.createElement("span", {
+  style: {
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '.06em',
+    padding: '2px 7px',
+    borderRadius: 4,
+    background: w === 'OLI' ? 'var(--accent)' : 'var(--panel2)',
+    color: w === 'OLI' ? 'var(--accent-ink)' : 'var(--text)'
+  }
+}, w);
+function PipeBar({
+  p,
+  compact,
+  onJump
+}) {
+  const st = pipeState(p);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: compact ? 3 : 5
+    }
+  }, PIPE.map((l, i) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    "data-pipe": l,
+    "data-state": st[i],
+    onClick: onJump ? () => onJump(i) : undefined,
+    style: {
+      flex: 1,
+      cursor: onJump ? 'pointer' : 'default',
+      textAlign: 'center'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: compact ? 4 : 7,
+      borderRadius: 3,
+      background: st[i] === 'done' ? 'var(--accent)' : 'var(--panel2)',
+      border: st[i] === 'active' ? '1px solid var(--accent)' : '1px solid transparent'
+    }
+  }), !compact && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      marginTop: 5,
+      letterSpacing: '.04em',
+      color: st[i] === 'todo' ? 'var(--muted)' : 'var(--accent)',
+      fontWeight: st[i] === 'active' ? 800 : 600
+    }
+  }, l))));
+}
+
+// Sortierbare Shotliste. Drag & Drop per Pointer-Events (funktioniert auch auf dem Handy), zusätzlich ▲▼.
+function ShotList({
+  shots,
+  onChange,
+  defaultAudio
+}) {
+  const [open, setOpen] = useState(null);
+  const [drag, setDrag] = useState(null);
+  const refs = useRef({});
+  const setShot = (id, patch) => onChange(shots.map(s => s.id === id ? {
+    ...s,
+    ...patch
+  } : s));
+  const move = (from, to) => {
+    if (to < 0 || to >= shots.length || from === to) return;
+    const a = shots.slice();
+    const [x] = a.splice(from, 1);
+    a.splice(to, 0, x);
+    onChange(a);
+  };
+  const startDrag = (ev, idx) => {
+    ev.preventDefault();
+    const startY = ev.clientY,
+      id = shots[idx].id;
+    const rects = shots.map(s => refs.current[s.id].getBoundingClientRect());
+    setDrag({
+      id,
+      dy: 0
+    });
+    const onMove = e => setDrag({
+      id,
+      dy: e.clientY - startY
+    });
+    const onUp = e => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      const y = rects[idx].top + rects[idx].height / 2 + (e.clientY - startY);
+      const pos = rects.filter((r, i) => i !== idx && r.top + r.height / 2 < y).length;
+      setDrag(null);
+      move(idx, pos);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+  };
+  const total = Math.round(shots.reduce((a, s) => a + durSec(s.dur), 0) * 10) / 10;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, shots.length, " Shots · Σ ", total, " Sek."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 6,
+      margin: '8px 0'
+    }
+  }, shots.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: s.id,
+    "data-shot": i + 1,
+    ref: el => {
+      refs.current[s.id] = el;
+    },
+    style: {
+      background: 'var(--panel2)',
+      border: '1px solid var(--line)',
+      borderRadius: 10,
+      padding: '8px 10px',
+      position: 'relative',
+      transform: drag && drag.id === s.id ? `translateY(${drag.dy}px)` : 'none',
+      zIndex: drag && drag.id === s.id ? 3 : 1,
+      boxShadow: drag && drag.id === s.id ? '0 6px 18px rgba(0,0,0,.5)' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    "data-handle": true,
+    onPointerDown: ev => startDrag(ev, i),
+    title: "Ziehen zum Sortieren",
+    style: {
+      touchAction: 'none',
+      cursor: 'grab',
+      padding: '6px 8px',
+      color: 'var(--muted)',
+      fontSize: 18,
+      lineHeight: 1,
+      userSelect: 'none'
+    }
+  }, "⠿"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    },
+    onClick: () => setOpen(open === s.id ? null : s.id)
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 14,
+      fontWeight: 700,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, "SHOT ", i + 1, s.action ? ' | ' + s.action : ''), /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, [s.speech && '„' + s.speech + '“', AUDIO_SHORT[s.audio] || s.audio, fmtDur(s.dur)].filter(Boolean).join(' | '))), /*#__PURE__*/React.createElement("button", {
+    className: "x",
+    "aria-label": "nach oben",
+    onClick: () => move(i, i - 1)
+  }, "▲"), /*#__PURE__*/React.createElement("button", {
+    className: "x",
+    "aria-label": "nach unten",
+    onClick: () => move(i, i + 1)
+  }, "▼")), open === s.id && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Kamera / Bildausschnitt"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.camera || '',
+    onChange: e => setShot(s.id, {
+      camera: e.target.value
+    }),
+    placeholder: "z. B. Halbtotale, Detail Hände"
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Bild / Aktion"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.action,
+    onChange: e => setShot(s.id, {
+      action: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Gesprochener Text"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    value: s.speech,
+    onChange: e => setShot(s.id, {
+      speech: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "On-Screen-Text"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.onscreen,
+    onChange: e => setShot(s.id, {
+      onscreen: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("label", {
+    "data-onscreen-required": true,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      margin: '0 0 8px',
+      fontSize: 13,
+      color: 'var(--muted)'
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!s.onscreenRequired,
+    onChange: e => setShot(s.id, {
+      onscreenRequired: e.target.checked
+    }),
+    style: {
+      width: 20,
+      height: 20,
+      flex: 'none'
+    }
+  }), "On-Screen-Text ist Pflicht (trägt Hook oder Pointe)"), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Audioart"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: s.audio,
+    onChange: e => setShot(s.id, {
+      audio: e.target.value
+    })
+  }, AUDIOS.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Geschätzte Dauer (Sek. oder Bereich)"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.dur ?? '',
+    onChange: e => setShot(s.id, {
+      dur: e.target.value
+    }),
+    placeholder: "3 oder 0–3 s"
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Notiz"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: s.note,
+    onChange: e => setShot(s.id, {
+      note: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => onChange(shots.filter(x => x.id !== s.id))
+  }, "Shot löschen")))))), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => {
+      const n = {
+        ...newShot(),
+        audio: defaultAudio || 'On-Cam'
+      };
+      onChange([...shots, n]);
+      setOpen(n.id);
+    }
+  }, "+ Shot"));
+}
+
+/* ---------- Kachel-Generator: Daten, Fotos, Oberfläche ---------- */
+// Vorbelegung der Kacheln 01 bis 40 (Schlüssel: Titel in Kleinbuchstaben). Eigene Änderungen werden im Piece unter `tile` gespeichert und haben Vorrang.
+const TILE_DATA = {
+  "aufstehen vom boden ist ein test.": {
+    "hook": "Aufstehen vom Boden|ist ein Test.",
+    "kern": "Niedriger Wert: deutlich höheres Sterberisiko.",
+    "theme": "dunkel",
+    "head2": "So geht der Test.",
+    "mode": "facts",
+    "facts": ["Barfuß im Schneidersitz hinsetzen.", "Aufstehen ohne Hände, Knie oder Unterarme.", "Jede Stütze kostet einen Punkt. Start sind 10.", "Studie mit 2.002 Menschen (51 bis 80): niedriger Wert, deutlich höheres Sterberisiko."],
+    "caption": "Barfuß im Schneidersitz hinsetzen, ohne Hände, Knie und Unterarme wieder aufstehen. Jede Stütze kostet einen Punkt, Start sind 10. Ich komme auf [HIER FEHLT: dein Wert]. Und du? Schreib deine Punkte in die Kommentare. Der Test sagt, wo du stehst, nicht, was aus dir wird. Kraft und Beweglichkeit lassen sich trainieren."
+  },
+  "10 sekunden. ein bein. schaffst du das?": {
+    "hook": "10 Sekunden. Ein Bein.|Schaffst du das?",
+    "kern": "Wer es nicht schafft, hat ein fast doppelt so hohes Sterberisiko.",
+    "theme": "dunkel",
+    "head2": "So viele schaffen es nicht.",
+    "mode": "bars",
+    "rows": [["51–55 Jahre", 5, "5 %"], ["56–60 Jahre", 8, "8 %"], ["61–65 Jahre", 18, "18 %"], ["66–70 Jahre", 37, "37 %"], ["71–75 Jahre", 54, "54 %"]],
+    "sub": "Studie mit 1.702 Menschen. Nicht geschafft haben es ungefähr:",
+    "caption": "Zehn Sekunden auf einem Bein, ohne Abstützen. Klingt leicht. Bei mir waren es [HIER FEHLT: dein Ergebnis]. In der Studie schaffte es mit 51 bis 55 etwa jeder Zwanzigste nicht, mit 71 bis 75 mehr als die Hälfte. Das ist ein Test, kein Urteil: Balance lässt sich üben. Probier es gleich und schreib mir, wie es lief."
+  },
+  "dein händedruck verrät mehr, als du denkst.": {
+    "hook": "Dein Händedruck|verrät mehr, als du denkst.",
+    "kern": "Je 5 kg weniger Griffkraft: 16 % mehr Sterberisiko.",
+    "theme": "dunkel",
+    "head2": "Griffkraft ist Gesamtkraft.",
+    "mode": "facts",
+    "facts": ["PURE-Studie: 139.691 Erwachsene in 17 Ländern.", "Mit jedem Verlust von 5 kg Griffkraft stieg das Sterberisiko um 16 %.", "Griffkraft sagte Sterblichkeit besser voraus als der systolische Blutdruck.", "Sie steht für deine Muskelkraft insgesamt, nicht für die Hände allein."],
+    "caption": "Griffkraft sagte in einer großen Studie die Sterblichkeit besser voraus als der Blutdruck. Dahinter steckt deine Muskelkraft insgesamt, nicht die Hand allein. Ob Handtraining Leben verlängert, ist damit nicht bewiesen. Die Autoren sagen selbst, das muss noch geprüft werden. Kraft trainieren ist trotzdem eine gute Idee. Wann zuletzt?"
+  },
+  "3 tests. 3 minuten. kein equipment.": {
+    "hook": "3 Tests. 3 Minuten.|Kein Equipment.",
+    "kern": "Notiere, was nicht klappt. Das ist dein Trainingsplan.",
+    "theme": "hell",
+    "head2": "Deine 3 Tests.",
+    "mode": "facts",
+    "facts": ["1. Aufstehen vom Boden ohne Hände.", "2. 10 Sekunden auf einem Bein.", "3. Beim Sitzen auf dem Stuhl 5 Mal aufstehen, ohne Schwung."],
+    "caption": "Drei Tests, drei Minuten, nur Fußboden und Stuhl. Vom Boden aufstehen ohne Hände. Zehn Sekunden auf einem Bein. Fünfmal vom Stuhl aufstehen, ohne Schwung. Was nicht klappt, ist dein Trainingsplan. Speichern und heute noch testen. Das ist kein medizinischer Test. Bei Schwindel, Schmerzen oder Vorerkrankungen vorher mit dem Arzt sprechen."
+  },
+  "muskeln verschwinden leise. ab 30.": {
+    "hook": "Muskeln verschwinden leise.|Ab 30.",
+    "kern": "Krafttraining an mindestens 2 Tagen pro Woche.",
+    "theme": "dunkel",
+    "head2": "Der Abbau beginnt früh.",
+    "mode": "facts",
+    "facts": ["Ab etwa 30 gehen je nach Quelle grob 3 bis 8 % pro Jahrzehnt verloren.", "Die WHO empfiehlt Krafttraining an mindestens 2 Tagen pro Woche.", "Muskeln bleiben bis ins hohe Alter trainierbar."],
+    "caption": "Ab etwa 30 bauen wir Muskeln ab, leise und ohne Ansage. Wie schnell, hängt von Quelle und Mensch ab, merk dir die Richtung, nicht die Zahl. Die WHO empfiehlt Krafttraining an mindestens zwei Tagen pro Woche. Muskeln bleiben bis ins hohe Alter trainierbar. Welche zwei Tage sind deine?"
+  },
+  "knochen wollen druck.": {
+    "hook": "Knochen|wollen Druck.",
+    "kern": "Gehen, Kraft und Sprünge setzen Reize. Schwimmen deutlich weniger.",
+    "theme": "dunkel",
+    "head2": "Ab 40 überwiegt der Abbau.",
+    "mode": "facts",
+    "facts": ["Bis etwa 40 bleibt die Knochenmasse ungefähr stabil, danach gehen grob 0,5 bis 1 % pro Jahr verloren.", "Belastung wie Krafttraining, Gehen oder Sprünge setzt Reize.", "Schwimmen belastet die Knochen deutlich weniger.", "Auch die DVO-Leitlinie nennt Training zur Frakturvorbeugung."],
+    "caption": "Knochen reagieren auf Druck. Krafttraining, Gehen und Sprünge setzen Reize, Schwimmen belastet die Knochen deutlich weniger. Bis etwa 40 bleibt die Knochenmasse ungefähr stabil, danach überwiegt der Abbau. Bei bekannter Osteoporose, Schmerzen oder einem Bruch erst mit Arzt oder Physio klären, was für dich passt."
+  },
+  "jeder vierte über 65 stürzt mindestens einmal im jahr.": {
+    "hook": "Jeder Vierte über 65|stürzt mindestens einmal im Jahr.",
+    "kern": "Übungen senken die Sturzrate im Mittel um etwa 23 %.",
+    "theme": "dunkel",
+    "head2": "Was dagegen hilft.",
+    "mode": "facts",
+    "facts": ["Das meldet das Robert Koch-Institut für Deutschland.", "Bei den über 80-Jährigen ist es etwa jeder Dritte.", "Übungen für Gleichgewicht, Gang und Kraft senken die Sturzrate im Mittel um etwa 23 % (Cochrane-Review)."],
+    "caption": "Jeder Vierte über 65 stürzt mindestens einmal im Jahr, bei den über 80-Jährigen etwa jeder Dritte. Übungen für Gleichgewicht, Gang und Kraft senken die Sturzrate im Mittel um etwa 23 Prozent. Das ist ein Durchschnitt aus vielen Studien, bei dir hängt es vom Programm ab. Fang heute an: Ein Bein, eine Minute."
+  },
+  "zahnputzzeit ist balance-zeit.": {
+    "hook": "Zahnputzzeit|ist Balance-Zeit.",
+    "kern": "1 Minute auf einem Bein, dann wechseln.",
+    "theme": "hell",
+    "head2": "Ein Trick für den Alltag.",
+    "mode": "facts",
+    "facts": ["Beim Zahnputzen auf einem Bein stehen, 1 Minute, dann wechseln.", "Gleichgewichtstraining zählt zu den wichtigsten Maßnahmen gegen Stürze.", "Die WHO empfiehlt Älteren ab 65 Gleichgewichts- und Krafttraining an mindestens 3 Tagen pro Woche."],
+    "caption": "Zähneputzen dauert zwei Minuten. Eine Minute auf dem linken Bein, eine auf dem rechten. Das ist ein Alltagstrick, keine Studie. Gleichgewichtstraining gehört aber zu den wichtigsten Maßnahmen gegen Stürze. Wenn du unsicher bist, halt dich an der Wand fest. Wer macht heute Abend mit?"
+  },
+  "mit 90 noch 174 % mehr kraft.": {
+    "hook": "Mit 90 noch|174 % mehr Kraft.",
+    "kern": "8 Wochen Beintraining im Pflegeheim, Studie von 1990.",
+    "theme": "hell",
+    "head2": "8 Wochen. Mit 90.",
+    "mode": "facts",
+    "facts": ["Pflegeheimbewohner, im Schnitt 90 Jahre alt, trainierten 8 Wochen lang die Beinkraft.", "Die Kraft stieg im Mittel um 174 %, die Muskelfläche am Oberschenkel um 9 %.", "Die Studie hat das Bild vom Krafttraining im Alter verändert."],
+    "caption": "Pflegeheimbewohner, im Schnitt 90 Jahre alt, acht Wochen Beintraining: Die Kraft stieg im Mittel um 174 Prozent. Die Studie ist von 1990 und sehr klein, nur 9 Leute haben das Training zu Ende gemacht. Sie zeigt, was möglich ist, nicht, was jedem gelingt. Wann hast du zuletzt Kraft trainiert?"
+  },
+  "7 bis 9 stunden. oder 7 bis 8.": {
+    "hook": "7 bis 9 Stunden.|Oder 7 bis 8.",
+    "kern": "Erwachsene 7 bis 9 Stunden, ab 65 etwa 7 bis 8.",
+    "theme": "hell",
+    "head2": "Schlaf: Richtwerte.",
+    "mode": "facts",
+    "facts": ["Zu kurzer und sehr langer Schlaf hängen in Beobachtungsstudien mit höherem Sterberisiko zusammen.", "Langer Schlaf kann auch ein Zeichen einer Erkrankung sein.", "Auch regelmäßige Schlafzeiten spielen eine Rolle."],
+    "caption": "Für Erwachsene gelten sieben bis neun Stunden Schlaf als Richtwert, ab 65 eher sieben bis acht. Das sind Orientierungswerte, keine Grenzen. Zu kurzer und sehr langer Schlaf hängen in Beobachtungsstudien mit höherem Sterberisiko zusammen. Auch regelmäßige Schlafzeiten spielen eine Rolle. Wie viele Stunden schläfst du im Schnitt? Ehrlich antworten."
+  },
+  "wie viel eiweiß brauchst du wirklich?": {
+    "hook": "Wie viel Eiweiß|brauchst du wirklich?",
+    "kern": "DGE: 0,8 g pro kg. Viele Fachgesellschaften nennen für Ältere 1,0 bis 1,2 g.",
+    "theme": "hell",
+    "head2": "Beispiel: 70 kg.",
+    "mode": "facts",
+    "facts": ["DGE für 19 bis 64 Jahre: 0,8 g pro kg Körpergewicht. Ab 65: Schätzwert 1,0 g.", "Viele Fachgesellschaften nennen für gesunde Ältere eher 1,0 bis 1,2 g.", "Bei 70 kg sind das 56 g (0,8) bis 84 g (1,2) pro Tag.", "Die Verteilung auf die Mahlzeiten zählt, nicht nur die Tagessumme."],
+    "caption": "Die DGE nennt 0,8 Gramm Eiweiß pro Kilo Körpergewicht, ab 65 einen Schätzwert von 1,0. Viele Fachgesellschaften empfehlen für gesunde Ältere eher 1,0 bis 1,2. Bei 70 Kilo sind das 56 bis 84 Gramm am Tag. Rechne mal nach, wo du landest. Bei Nierenerkrankung oder anderen Diagnosen gelten andere Werte, da bitte erst zum Arzt."
+  },
+  "von oktober bis märz reicht die sonne nicht.": {
+    "hook": "Von Oktober bis März|reicht die Sonne nicht.",
+    "kern": "Der Körper zehrt im Winter vom Vorrat. Ein Bluttest zeigt, wo du stehst.",
+    "theme": "hell",
+    "head2": "Vitamin D im Winter.",
+    "mode": "facts",
+    "facts": ["In Deutschland bildet die Haut in diesen Monaten nicht genug Vitamin D.", "Der Körper speichert es im Fett- und Muskelgewebe.", "Die DGE empfiehlt Gesunden keine generelle Ergänzung. Mehr Risiko haben Ältere und Menschen, die kaum draußen sind.", "Ein Bluttest (25-OH-Vitamin D) zeigt, wo du stehst."],
+    "caption": "Von Oktober bis März bildet die Haut in Deutschland nicht genug Vitamin D. Im Winter zehrst du vom Vorrat im Fett- und Muskelgewebe. Die DGE empfiehlt Gesunden keine generelle Ergänzung, mehr Risiko haben Ältere und Menschen, die kaum draußen sind. Ein Bluttest zeigt, wo du stehst. Erst messen, dann mit dem Arzt besprechen."
+  },
+  "b12: wer ein risiko hat.": {
+    "hook": "B12:|Wer ein Risiko hat.",
+    "kern": "Veganer sind klare Risikogruppe. Im Alter wird die Aufnahme schwerer.",
+    "theme": "hell",
+    "head2": "Wer betroffen ist.",
+    "mode": "facts",
+    "facts": ["B12 steckt fast nur in tierischen Lebensmitteln.", "Im Alter bildet der Magen weniger Säure und Intrinsic Factor, das erschwert die Aufnahme.", "Säurehemmer und Metformin können es ebenfalls erschweren.", "Bei Mischkost ist ein Mangel laut Verbraucherzentrale eher selten. DGE-Richtwert: 4 µg pro Tag."],
+    "caption": "B12 steckt fast nur in tierischen Lebensmitteln, Veganer sind klare Risikogruppe. Im Alter nimmt der Magen es schlechter auf, auch Säurehemmer und Metformin können das erschweren. Bei Mischkost ist ein Mangel laut Verbraucherzentrale eher selten. Müdigkeit hat viele Ursachen. Lass den Wert beim Arzt prüfen, bevor du etwas kaufst."
+  },
+  "du brauchst keine 10.000 schritte.": {
+    "hook": "Du brauchst keine|10.000 Schritte.",
+    "kern": "7.000 Schritte: 47 % weniger Sterberisiko als bei 2.000.",
+    "theme": "hell",
+    "head2": "Weniger Risiko mit mehr Schritten.",
+    "mode": "bars",
+    "rows": [["4.000 · Sterberisiko", 36, "−36 %"], ["7.000 · Sterberisiko", 47, "−47 %"], ["7.000 · Demenz", 38, "−38 %"], ["7.000 · Depression", 22, "−22 %"], ["7.000 · Diabetes", 14, "−14 %"]],
+    "sub": "Im Vergleich zu 2.000 Schritten am Tag. Meta-Analyse, Lancet Public Health 2025.",
+    "caption": "7.000 Schritte reichen. Eine Meta-Analyse im Lancet Public Health sieht bei 7.000 statt 2.000 Schritten am Tag ein um 47 Prozent niedrigeres Sterberisiko, schon bei 4.000 sind es 36 Prozent. Das sind Beobachtungsdaten: Wer viel geht, ist oft auch sonst gesund. Eine gute Richtung, kein Wundermittel. Wie viele Schritte hast du heute schon?"
+  },
+  "drei minuten, die zählen.": {
+    "hook": "Drei Minuten,|die zählen.",
+    "kern": "3 Mal 1 Minute aus der Puste: etwa 38 bis 40 % weniger Sterberisiko.",
+    "theme": "hell",
+    "head2": "VILPA: kurz und kräftig.",
+    "mode": "facts",
+    "facts": ["Gemeint: im Alltag etwa dreimal täglich eine Minute lang kräftig aus der Puste kommen, zum Beispiel schnell Treppen steigen.", "Untersucht bei Menschen, die sonst nicht trainieren.", "Das gilt für die Gesamt- und die Krebssterblichkeit.", "Der Fachbegriff: VILPA, Vigorous Intermittent Lifestyle Physical Activity."],
+    "caption": "Dreimal am Tag eine Minute kräftig aus der Puste kommen, zum Beispiel schnell die Treppe hoch. Wer sonst nicht trainiert, hatte in einer Studie ein um etwa 38 bis 40 Prozent niedrigeres Sterberisiko. Das ist ein Zusammenhang, keine Garantie. Wer lange nichts gemacht hat, steigert langsam. Kommst du heute auf drei Minuten?"
+  },
+  "das empfiehlt die who. und das ist machbar.": {
+    "hook": "Das empfiehlt die WHO.|Und das ist machbar.",
+    "kern": "150 bis 300 Minuten Bewegung pro Woche. Kraft an mindestens 2 Tagen.",
+    "theme": "hell",
+    "head2": "Die Empfehlung.",
+    "mode": "facts",
+    "facts": ["150 bis 300 Minuten moderate Bewegung pro Woche.", "Kraft an mindestens 2 Tagen pro Woche.", "Ab 65: zusätzlich Gleichgewicht und Kraft an mindestens 3 Tagen.", "Weniger sitzen, wo es geht."],
+    "caption": "Die WHO empfiehlt Erwachsenen 150 bis 300 Minuten moderate Bewegung pro Woche und Kraft an mindestens zwei Tagen. 150 Minuten sind rund 20 Minuten am Tag. Ab 65 kommen Gleichgewicht und Kraft an mindestens drei Tagen dazu. Und: weniger sitzen, wo es geht. Speicher dir das. Was fehlt dir gerade, Bewegung oder Kraft?"
+  },
+  "5 minuten gehen, alle halbe stunde.": {
+    "hook": "5 Minuten gehen,|alle halbe Stunde.",
+    "kern": "Blutzuckerspitzen nach großen Mahlzeiten: 58 % niedriger.",
+    "theme": "hell",
+    "head2": "Eine kleine Studie.",
+    "mode": "facts",
+    "facts": ["11 Erwachsene, meist 40 bis 70 Jahre.", "5 Minuten Gehen alle 30 Minuten senkten die Blutzuckerspitzen nach großen Mahlzeiten um 58 %.", "Auch 1 Minute alle 30 Minuten half dem Blutzucker, alle 60 Minuten nicht."],
+    "caption": "Alle 30 Minuten fünf Minuten gehen. In einer kleinen Studie mit 11 Erwachsenen sanken dadurch die Blutzuckerspitzen nach großen Mahlzeiten um 58 Prozent. Auch eine Minute alle 30 Minuten half, alle 60 Minuten nicht. Elf Leute sind ein Hinweis, kein Beweis. Stell dir heute mal einen Timer."
+  },
+  "nach dem essen: erst mal raus.": {
+    "hook": "Nach dem Essen:|Erst mal raus.",
+    "kern": "Bei Typ-2-Diabetes wirkten 3 Mal 10 Minuten Gehen besser als 1 Mal 30.",
+    "theme": "hell",
+    "head2": "Kurz gehen nach dem Essen.",
+    "mode": "facts",
+    "facts": ["Bei Typ-2-Diabetes senkten drei 10-Minuten-Gänge nach den Mahlzeiten den Blutzucker stärker als ein einzelner 30-Minuten-Gang.", "Meta-Analyse (2022): Schon 2 bis 5 Minuten Gehen oder Stehen können den Blutzucker nach dem Essen dämpfen, Gehen mehr als Stehen.", "Ob 15 oder 30 Minuten nach dem Essen besser ist, ist nicht abschließend geklärt."],
+    "caption": "Nach dem Essen kurz raus. Bei Typ-2-Diabetes senkten drei Zehn-Minuten-Gänge nach den Mahlzeiten den Blutzucker stärker als ein einziger langer. Eine Meta-Analyse sagt: Schon zwei bis fünf Minuten Gehen oder Stehen können helfen, Gehen mehr als Stehen. Die Studien sind oft klein. Bei Diabetes bitte mit dem Arzt absprechen. Probier es eine Woche."
+  },
+  "zweimal pro woche reicht zum start.": {
+    "hook": "Zweimal pro Woche|reicht zum Start.",
+    "kern": "Kraft an mindestens 2 Tagen. Ein Studio brauchst du nicht.",
+    "theme": "hell",
+    "head2": "Ohne Studio.",
+    "mode": "facts",
+    "facts": ["WHO: muskelkräftigende Aktivität an mindestens 2 Tagen pro Woche für alle Erwachsenen.", "Kraft schützt vor Stürzen und hängt in Studien mit längerem Leben zusammen.", "Kniebeugen, Liegestütze, Aufstehen vom Boden."],
+    "caption": "Zweimal pro Woche Kraft reicht zum Start. Das ist die Mindestempfehlung der WHO für alle Erwachsenen. Mehr bringt bei vielen mehr. Du brauchst kein Studio: Kniebeugen, Liegestütze, Aufstehen vom Boden. Bei Beschwerden vorher abklären. Wann sind deine zwei Tage?"
+  },
+  "5 zahlen für deinen körper.": {
+    "hook": "5 Zahlen|für deinen Körper.",
+    "kern": "Fünf Richtwerte aus Studien und WHO-Empfehlungen.",
+    "theme": "hell",
+    "head2": "Merk dir diese fünf.",
+    "mode": "items",
+    "rows": [["10 Sekunden", "auf einem Bein"], ["7.000 Schritte", "am Tag"], ["2 Mal Kraft", "pro Woche"], ["3 Mal 1 Minute", "kräftig aus der Puste"], ["Alle 30 Minuten", "aufstehen"]],
+    "caption": "Fünf Zahlen für deinen Körper: 10 Sekunden auf einem Bein, 7.000 Schritte am Tag, 2 Mal Kraft pro Woche, 3 Mal eine Minute kräftig aus der Puste, alle 30 Minuten aufstehen. Das sind Richtwerte aus Studien und WHO-Empfehlungen, keine individuelle Beratung. Speichern. Welche Zahl fällt dir am schwersten?"
+  },
+  "rückenschmerzen? bleib in bewegung.": {
+    "hook": "Rückenschmerzen?|Bleib in Bewegung.",
+    "kern": "Bei akuten Kreuzschmerzen rät die Leitlinie zu Bewegung statt Bettruhe.",
+    "theme": "hell",
+    "head2": "Das sagt die Leitlinie.",
+    "mode": "facts",
+    "facts": ["Die Nationale Versorgungsleitlinie rät bei akuten Kreuzschmerzen zu Bewegung statt Bettruhe.", "Meist bessern sich akute Kreuzschmerzen von allein.", "Bettruhe kann die Schmerzen verstärken und die Heilung verzögern.", "Behalte deine normalen Alltagstätigkeiten bei, so gut es geht."],
+    "caption": "Bei akuten Kreuzschmerzen rät die Nationale Versorgungsleitlinie zu Bewegung statt Bettruhe. Meist bessern sie sich von allein, Bettruhe kann sie verstärken. Behalte deine normalen Alltagstätigkeiten bei, so gut es geht. Das gilt für nicht-spezifische Kreuzschmerzen. Bei Taubheit, Lähmung, Fieber oder Schmerzen nach einem Unfall sofort zum Arzt."
+  },
+  "rücken: was die leitlinie nicht empfiehlt.": {
+    "hook": "Rücken: Was die Leitlinie|nicht empfiehlt.",
+    "kern": "Paracetamol und Bettruhe bei akutem Kreuzschmerz.",
+    "theme": "dunkel",
+    "head2": "Bewegung bleibt der Kern.",
+    "mode": "facts",
+    "facts": ["Paracetamol: Laut Studienlage half es bei akutem Kreuzschmerz nicht.", "Bettruhe erhöht zudem die Gefahr von Blutgerinnseln.", "Medikamente können kurz helfen, wieder in Bewegung zu kommen."],
+    "caption": "Bei akutem Kreuzschmerz rät die Leitlinie von Paracetamol ab, laut Studienlage half es nicht. Bettruhe erhöht außerdem die Gefahr von Blutgerinnseln. Bewegung bleibt der Kern der Behandlung. Das ist keine Anleitung zur Selbstmedikation. Schmerzmittel immer mit Arzt oder Apotheke besprechen."
+  },
+  "1,5 liter. nicht 2, nicht 3.": {
+    "hook": "1,5 Liter.|Nicht 2, nicht 3.",
+    "kern": "Die DGE empfiehlt gesunden Erwachsenen etwa 1,5 Liter am Tag.",
+    "theme": "hell",
+    "head2": "Wann du mehr brauchst.",
+    "mode": "facts",
+    "facts": ["Mehr brauchst du bei Hitze, Fieber, Durchfall und Sport.", "Für die oft genannten 2 Liter gibt es keinen Beleg.", "Am besten Wasser oder ungesüßte Tees."],
+    "caption": "Die DGE empfiehlt gesunden Erwachsenen etwa 1,5 Liter Flüssigkeit am Tag. Für die oft genannten 2 Liter gibt es keinen Beleg. Bei Hitze, Fieber, Durchfall und Sport brauchst du mehr. Am besten Wasser oder ungesüßte Tees. Bei Herz- oder Nierenerkrankungen gelten andere Mengen. Wie viel trinkst du am Tag?"
+  },
+  "mit dem alter wird durst leiser.": {
+    "hook": "Mit dem Alter|wird Durst leiser.",
+    "kern": "Ab 65: mindestens 1,3 Liter am Tag, bei Hitze mehr.",
+    "theme": "hell",
+    "head2": "Trinken im Alter.",
+    "mode": "facts",
+    "facts": ["Das Durstgefühl lässt im Alter nach.", "Zu wenig Flüssigkeit kann bei Älteren zu Verwirrtheit führen.", "Hilfreich: feste Trinkzeiten oder ein volles Glas in Sichtweite."],
+    "caption": "Mit dem Alter wird das Durstgefühl leiser. Die DGE nennt ab 65 mindestens 1,3 Liter am Tag, bei Hitze mehr. Zu wenig Flüssigkeit kann bei Älteren zu Verwirrtheit führen. Feste Trinkzeiten oder ein volles Glas in Sichtweite helfen. Stell dir jetzt eins hin."
+  },
+  "für alkohol gibt es keinen sicheren wert.": {
+    "hook": "Für Alkohol gibt es|keinen sicheren Wert.",
+    "kern": "Das Risiko beginnt beim ersten Tropfen und wächst mit der Menge.",
+    "theme": "dunkel",
+    "head2": "Die Haltung der WHO.",
+    "mode": "facts",
+    "facts": ["Die WHO sagt: Ein gesundheitlich unbedenkliches Maß an Alkohol gibt es nicht.", "Das Risiko beginnt beim ersten Tropfen, es wächst mit der Menge.", "Je weniger du trinkst, desto geringer das Risiko."],
+    "caption": "Ein gesundheitlich unbedenkliches Maß an Alkohol gibt es laut WHO nicht. Das Risiko beginnt beim ersten Tropfen und wächst mit der Menge. Das ist die Haltung von WHO und Deutscher Hauptstelle für Suchtfragen, kein Verbot. Wie du damit umgehst, entscheidest du."
+  },
+  "alkohol und krebs.": {
+    "hook": "Alkohol|und Krebs.",
+    "kern": "Mindestens sieben Krebsarten, darunter Brust- und Darmkrebs.",
+    "theme": "dunkel",
+    "head2": "Warum.",
+    "mode": "facts",
+    "facts": ["Alkohol ist für mindestens sieben Krebsarten verantwortlich.", "Darunter Brustkrebs bei Frauen und Darmkrebs.", "Der Körper baut Alkohol zu Stoffen ab, die Krebs auslösen können."],
+    "caption": "Alkohol ist für mindestens sieben Krebsarten verantwortlich, darunter Brustkrebs bei Frauen und Darmkrebs. Der Körper baut ihn zu Stoffen ab, die Krebs auslösen können. Das Risiko steigt mit der Menge. Über dein persönliches Risiko sagt das nichts. Bei Fragen hilft der Hausarzt."
+  },
+  "dein gehtempo ist ein gesundheitswert.": {
+    "hook": "Dein Gehtempo ist|ein Gesundheitswert.",
+    "kern": "Jede 0,1 m/s schneller: 12 % niedrigeres Sterberisiko.",
+    "theme": "hell",
+    "head2": "Mit Stoppuhr und 4 Metern.",
+    "mode": "facts",
+    "facts": ["Auswertung von 34.485 Menschen ab 65.", "Bei etwa 0,8 m/s lag die Lebenserwartung im Mittel dessen, was für Alter und Geschlecht zu erwarten ist.", "Messen kannst du es mit Stoppuhr und 4 Metern."],
+    "caption": "Messen kannst du es mit Stoppuhr und vier Metern. In einer Auswertung von 34.485 Menschen ab 65 hing jedes 0,1 Meter pro Sekunde schnelleres Gehen mit einem 12 Prozent niedrigeren Sterberisiko zusammen. Bei mir: [HIER FEHLT: dein Wert]. Das Tempo ist ein Hinweis auf die Gesundheit, kein Trainingsziel. Wie schnell bist du?"
+  },
+  "treppe statt aufzug.": {
+    "hook": "Treppe|statt Aufzug.",
+    "kern": "Regelmäßig Treppen: 24 % niedrigeres Risiko für frühen Tod.",
+    "theme": "hell",
+    "head2": "9 Studien, 480.479 Menschen.",
+    "mode": "facts",
+    "facts": ["Wer regelmäßig Treppen stieg, hatte ein 24 % niedrigeres Risiko für frühen Tod.", "Das Risiko, an einer Herz-Kreislauf-Erkrankung zu sterben, war um 39 % niedriger.", "Wie viel Treppensteigen nötig ist, ist offen."],
+    "caption": "Treppe statt Aufzug. In einer Meta-Analyse aus 9 Studien mit 480.479 Menschen hatten die, die regelmäßig Treppen stiegen, ein 24 Prozent niedrigeres Risiko für einen frühen Tod. Wer Treppen nimmt, bewegt sich vermutlich auch sonst mehr. Bei Gelenkproblemen oder Herzerkrankung vorher abklären. Nimmst du heute die Treppe?"
+  },
+  "60 stufen in einer minute.": {
+    "hook": "60 Stufen|in einer Minute.",
+    "kern": "Wer es schafft, hat mit hoher Wahrscheinlichkeit auch ein gutes Herz.",
+    "theme": "dunkel",
+    "head2": "Der Treppentest.",
+    "mode": "facts",
+    "facts": ["4 Stockwerke mit 60 Stufen steigen.", "Eine Minute oder weniger: mit hoher Wahrscheinlichkeit gute Herzgesundheit.", "Mehr als anderthalb Minuten: eher schlechte.", "Bei Brustschmerz, starker Atemnot, Schwindel oder Herzstolpern sofort abbrechen."],
+    "caption": "Vier Stockwerke, 60 Stufen. Wer das in einer Minute oder weniger schaffte, hatte in einer Studie mit hoher Wahrscheinlichkeit eine gute Herzgesundheit. Das ersetzt keine Untersuchung. Bei Brustschmerz, starker Atemnot, Schwindel oder Herzstolpern sofort abbrechen. Wenn du lange nichts gemacht hast: langsam anfangen."
+  },
+  "fisch: ein- bis zweimal pro woche.": {
+    "hook": "Fisch: ein- bis|zweimal pro Woche.",
+    "kern": "1 bis 2 Portionen, je etwa 120 g. Fetter Fisch liefert Omega-3.",
+    "theme": "hell",
+    "head2": "Welcher Fisch.",
+    "mode": "facts",
+    "facts": ["Die DGE empfiehlt 1 bis 2 Portionen Fisch pro Woche, je etwa 120 g.", "Fetter Fisch wie Lachs, Hering oder Makrele liefert Omega-3-Fettsäuren.", "Seefisch wie Kabeljau liefert Jod."],
+    "caption": "Die DGE empfiehlt ein bis zwei Portionen Fisch pro Woche, je etwa 120 Gramm. Fetter Fisch wie Lachs, Hering oder Makrele liefert Omega-3, Seefisch wie Kabeljau Jod. Das ist ein Richtwert für Erwachsene. Bei Allergie, Schwangerschaft oder besonderen Erkrankungen gelten andere Hinweise. Was kommt diese Woche auf den Tisch?"
+  },
+  "30 gramm ballaststoffe.": {
+    "hook": "30 Gramm|Ballaststoffe.",
+    "kern": "Erwachsene essen im Schnitt nur 18 bis 19 g am Tag.",
+    "theme": "hell",
+    "head2": "Wo du sie findest.",
+    "mode": "facts",
+    "facts": ["Die DGE empfiehlt mindestens 30 g pro Tag.", "Erwachsene essen im Schnitt nur 18 bis 19 g.", "Zwei Scheiben Vollkornbrot liefern etwa 7,5 g."],
+    "caption": "Die DGE empfiehlt mindestens 30 Gramm Ballaststoffe am Tag, Erwachsene essen im Schnitt nur 18 bis 19. Zwei Scheiben Vollkornbrot bringen etwa 7,5 Gramm. Langsam steigern und genug trinken, sonst gibt es Blähungen. Bei Darmerkrankungen vorher mit dem Arzt sprechen. Wie viel schaffst du?"
+  },
+  "hülsenfrüchte und weniger fleisch.": {
+    "hook": "Hülsenfrüchte|und weniger Fleisch.",
+    "kern": "Mindestens 1 Portion Hülsenfrüchte, höchstens 300 g Fleisch pro Woche.",
+    "theme": "hell",
+    "head2": "Die DGE-Empfehlung.",
+    "mode": "facts",
+    "facts": ["Mindestens 1 Portion Hülsenfrüchte pro Woche, etwa 125 g gegart.", "Fleisch und Wurst: höchstens 300 g pro Woche.", "Hülsenfrüchte liefern viel Eiweiß, Vitamine, Mineralstoffe und Ballaststoffe."],
+    "caption": "Die DGE empfiehlt mindestens eine Portion Hülsenfrüchte pro Woche, etwa 125 Gramm gegart, und höchstens 300 Gramm Fleisch und Wurst. Hülsenfrüchte liefern viel Eiweiß, Vitamine, Mineralstoffe und Ballaststoffe. Das sind die DGE-Empfehlungen von 2024, andere Fachgesellschaften setzen andere Schwerpunkte. Gibt es diese Woche Linsen?"
+  },
+  "kaffee: wann ist schluss?": {
+    "hook": "Kaffee:|Wann ist Schluss?",
+    "kern": "Bei 107 mg Koffein: etwa 8,8 Stunden vor dem Schlafen aufhören.",
+    "theme": "hell",
+    "head2": "Das Modell.",
+    "mode": "facts",
+    "facts": ["Ein Getränk mit etwa 107 mg Koffein sollte rund 8,8 Stunden vor dem Schlafen enden.", "Bei etwa 217 mg waren es rund 13 Stunden.", "Koffein kann die Schlafzeit verkürzen und den Tiefschlaf reduzieren."],
+    "caption": "Eine Meta-Analyse hat modelliert: Ein Getränk mit etwa 107 Milligramm Koffein sollte rund 8,8 Stunden vor dem Schlafen enden, bei etwa 217 Milligramm sind es rund 13 Stunden. Das sind Schätzungen für alle, nicht für dich. Du reagierst vielleicht empfindlicher oder weniger. Wann trinkst du deinen letzten Kaffee?"
+  },
+  "abends trainieren? muss kein problem sein.": {
+    "hook": "Abends trainieren?|Muss kein Problem sein.",
+    "kern": "Training 2 bis 4 Stunden vor dem Schlaf beendet: im Mittel kein Problem.",
+    "theme": "hell",
+    "head2": "Entscheidend ist deine Reaktion.",
+    "mode": "facts",
+    "facts": ["Meta-Analysen bei gesunden Erwachsenen: Hochintensives Training, das 2 bis 4 Stunden vor dem Zubettgehen endet, verschlechtert den Schlaf im Mittel nicht relevant.", "Abendliches Training ist nicht grundsätzlich schlecht für den Schlaf.", "Wichtig ist, wie du darauf reagierst."],
+    "caption": "Abends trainieren muss kein Problem sein. Bei gesunden Erwachsenen verschlechtert hochintensives Training, das zwei bis vier Stunden vor dem Schlafen endet, den Schlaf im Mittel nicht relevant. Im Mittel heißt: nicht für jeden. Beobachte, wie du schläfst, und passe die Zeit an. Wann trainierst du?"
+  },
+  "die gleiche aufstehzeit.": {
+    "hook": "Die gleiche|Aufstehzeit.",
+    "kern": "Regelmäßigerer Schlaf ging mit niedrigerer Sterblichkeit einher.",
+    "theme": "hell",
+    "head2": "Die Schlafregeln.",
+    "mode": "facts",
+    "facts": ["Möglichst konstante Aufstehzeit ist Teil der Schlafregeln.", "Morgens und tagsüber Tageslicht nutzen, abends sehr helles Licht und aktivierende Medien reduzieren.", "In einer großen Kohortenstudie ging regelmäßigerer Schlaf mit niedrigerer Sterblichkeit einher, unabhängig von der Dauer."],
+    "caption": "Möglichst jeden Tag zur gleichen Zeit aufstehen gehört zu den Schlafregeln. In einer großen Kohortenstudie ging regelmäßigerer Schlaf mit niedrigerer Sterblichkeit einher, unabhängig von der Dauer. Das sind Beobachtungsdaten. Bei chronischer Schlaflosigkeit reicht das allein nicht, da hilft der Arzt. Wann stehst du auf?"
+  },
+  "sonne: wie viel braucht die haut?": {
+    "hook": "Sonne:|Wie viel braucht die Haut?",
+    "kern": "5 bis 25 Minuten, 2 bis 3 Mal pro Woche.",
+    "theme": "hell",
+    "head2": "So nennt es die DGE.",
+    "mode": "facts",
+    "facts": ["Gesicht, Hände und Arme unbedeckt.", "Je nach Hauttyp und Jahreszeit.", "Die Sonne liefert den Großteil des Vitamin D."],
+    "caption": "Die DGE nennt 5 bis 25 Minuten Sonne, zwei- bis dreimal pro Woche, Gesicht, Hände und Arme unbedeckt. Je nach Hauttyp und Jahreszeit. Sonnenbrand unbedingt vermeiden. Im Winter reicht die Sonne in Deutschland nicht, siehe die Kachel zu Vitamin D."
+  },
+  "augen prüfen, stürze vermeiden.": {
+    "hook": "Augen prüfen,|Stürze vermeiden.",
+    "kern": "Ab 65: Sehstärke einmal im Jahr prüfen lassen.",
+    "theme": "dunkel",
+    "head2": "Warum das zählt.",
+    "mode": "facts",
+    "facts": ["Etwa jeder Vierte über 65 stürzt mindestens einmal im Jahr.", "Sehschwächen gehören zu den Ursachen.", "Auch ein Medikationscheck zählt zu den Maßnahmen."],
+    "caption": "Etwa jeder Vierte über 65 stürzt mindestens einmal im Jahr, Sehschwächen gehören zu den Ursachen. Ab 65 gilt: Sehstärke einmal im Jahr prüfen lassen. Auch ein Medikationscheck zählt zu den Maßnahmen. Für deine Situation sind Augenarzt und Hausarzt die richtigen Ansprechpartner. Wann warst du zuletzt beim Augenarzt?"
+  },
+  "knochendichtemessung: wann?": {
+    "hook": "Knochendichtemessung:|Wann?",
+    "kern": "Empfohlen für Frauen ab 70 und Männer ab 80. Bei Risikofaktoren früher.",
+    "theme": "dunkel",
+    "head2": "Was sie kostet.",
+    "mode": "facts",
+    "facts": ["Der Dachverband Osteologie empfahl eine Basisdiagnostik für Frauen ab 70 und Männer ab 80.", "Die Messung kostet laut Zeitungsartikel etwa 40 bis 60 Euro, wenn du sie selbst zahlst.", "Bei Risikofaktoren früher."],
+    "caption": "Der Dachverband Osteologie empfahl eine Basisdiagnostik für Frauen ab 70 und Männer ab 80, bei Risikofaktoren früher. Selbst gezahlt kostet die Messung laut Zeitungsartikel etwa 40 bis 60 Euro. Empfehlungen ändern sich. Frag deinen Arzt, was für dich gilt."
+  },
+  "protein und hüftbruch.": {
+    "hook": "Protein|und Hüftbruch.",
+    "kern": "Möglicherweise weniger Hüftbrüche bei mehr als 1 g Protein pro kg.",
+    "theme": "dunkel",
+    "head2": "Ein Hinweis, kein Beweis.",
+    "mode": "facts",
+    "facts": ["Die DGE-Leitlinie zu Protein und Knochengesundheit: Bei über 65-Jährigen ist das Risiko für Hüftfrakturen bei mehr als 1 g Protein pro kg Körpergewicht möglicherweise verringert.", "Das ist ein Hinweis, kein Beweis.", "Heißt: nicht Mangel essen, sondern eher an der oberen Grenze."],
+    "caption": "Bei über 65-Jährigen ist das Risiko für Hüftfrakturen bei mehr als 1 Gramm Protein pro Kilo Körpergewicht möglicherweise verringert. Möglicherweise: Das ist ein Hinweis, kein Beweis, größere Studien stehen aus. Rechne mal nach, wie viel Eiweiß du am Tag isst."
+  },
+  "3 dinge, die du dir sparen kannst.": {
+    "hook": "3 Dinge,|die du dir sparen kannst.",
+    "kern": "10.000 Schritte. 2 Liter Wasser. Bettruhe bei Rücken.",
+    "theme": "dunkel",
+    "head2": "Was stattdessen gilt.",
+    "mode": "items",
+    "rows": [["10.000 Schritte", "7.000 bringen laut Meta-Analyse schon viel (Kachel 14)."], ["2 Liter Wasser", "Die DGE nennt 1,5 Liter für Gesunde."], ["Bettruhe bei Rücken", "Die Leitlinie rät ab, Bewegung ist besser."]],
+    "caption": "Drei Dinge, die du dir sparen kannst. 10.000 Schritte: 7.000 bringen laut Meta-Analyse schon viel. 2 Liter Wasser: Die DGE nennt 1,5 Liter für Gesunde. Bettruhe bei Rückenschmerzen: Die Leitlinie rät ab, Bewegung ist besser. Das ist eine Einordnung, kein Verbot. Wenn dir die alte Regel hilft, bleib dabei. Welchen Mythos glaubst du noch?"
+  }
+};
+// Alte Caption-Entwürfe (vor dem 14.11.2026). Der Sammel-Button ersetzt nur Captions, die noch genau so lauten oder leer sind.
+const OLD_TILE_CAPTIONS = {
+  "aufstehen vom boden ist ein test.": "Aufstehen können wir alle. Die Frage ist wie. Probier es heute, zähl deine Punkte.",
+  "10 sekunden. ein bein. schaffst du das?": "Zehn Sekunden kosten dich nichts. Teste dich und schreib in die Kommentare, wie es lief.",
+  "dein händedruck verrät mehr, als du denkst.": "Kraft ist ein Gesundheitswert. Misst dein Arzt ihn? Eher nicht. Du kannst ihn trotzdem trainieren.",
+  "3 tests. 3 minuten. kein equipment.": "Speichern, testen, in vier Wochen wiederholen. Ich bin gespannt auf eure Ergebnisse.",
+  "muskeln verschwinden leise. ab 30.": "Mit 56 trainiere ich Kraft nicht für den Spiegel. Sondern, damit ich morgen noch alles kann.",
+  "knochen wollen druck.": "Dein Skelett merkt sich, was du ihm zumutest. Gib ihm etwas zu tun.",
+  "jeder vierte über 65 stürzt mindestens einmal im jahr.": "Sturzprophylaxe beginnt nicht mit 80. Sie beginnt, wenn du heute auf einem Bein stehst.",
+  "zahnputzzeit ist balance-zeit.": "Zwei Minuten am Tag, keine Ausrede. Wer macht mit?",
+  "mit 90 noch 174 % mehr kraft.": "Wenn das mit 90 geht, was ist dann deine Ausrede?",
+  "7 bis 9 stunden. oder 7 bis 8.": "Training ohne Schlaf ist wie Gießen ohne Erde. Wie viele Stunden schläfst du im Schnitt?",
+  "wie viel eiweiß brauchst du wirklich?": "Nicht jeder braucht Shakes. Aber viele essen weniger Eiweiß, als sie denken. Rechne nach.",
+  "von oktober bis märz reicht die sonne nicht.": "Erst messen, dann supplementieren. Nicht andersrum.",
+  "b12: wer ein risiko hat.": "Nicht jede Pille ist nötig. Aber manchmal fehlt wirklich was. Der Bluttest klärt es.",
+  "du brauchst keine 10.000 schritte.": "Hast du heute schon 4.000? Dann sind 3.000 mehr ein Spaziergang.",
+  "drei minuten, die zählen.": "Eine Minute. Mehr will ich gar nicht von dir. Heute dreimal.",
+  "das empfiehlt die who. und das ist machbar.": "150 Minuten sind etwa 20 Minuten am Tag. Speicher dir das.",
+  "5 minuten gehen, alle halbe stunde.": "Timer auf 30 Minuten. Aufstehen. Zwei Minuten reichen zum Anfangen.",
+  "nach dem essen: erst mal raus.": "Zehn Minuten nach dem Essen. Mehr nicht. Probier es eine Woche.",
+  "zweimal pro woche reicht zum start.": "Zweimal pro Woche. 20 Minuten. Nimm dir heute den Kalender.",
+  "5 zahlen für deinen körper.": "Speichern und in der Küche aufhängen. Welche Zahl fällt dir am schwersten?",
+  "rückenschmerzen? bleib in bewegung.": "Schonen fühlt sich richtig an. Meistens ist es das nicht. Kleine Wege, Gehen, locker bleiben.",
+  "rücken: was die leitlinie nicht empfiehlt.": "Gut gemeint ist nicht gut gemacht. Frag nach, bevor du zur Tablette greifst.",
+  "1,5 liter. nicht 2, nicht 3.": "Der Becher ist nicht der Gradmesser. Trink über den Tag verteilt, nicht in einem Zug.",
+  "mit dem alter wird durst leiser.": "Stell dir ein Glas auf den Tisch. Das ist das ganze Programm.",
+  "für alkohol gibt es keinen sicheren wert.": "Kein Zeigefinger. Nur eine Zahl, die man kennen sollte.",
+  "alkohol und krebs.": "Weniger ist besser. Das reicht als Botschaft.",
+  "dein gehtempo ist ein gesundheitswert.": "Wie schnell gehst du? Miss es. Es kostet eine Minute.",
+  "treppe statt aufzug.": "Heute die Treppe. Einmal. Mehr will ich nicht.",
+  "60 stufen in einer minute.": "Mach den Test nicht allein im 6. Stock, wenn du lange nichts getan hast. Starte in kleinen Schritten.",
+  "fisch: ein- bis zweimal pro woche.": "Zweimal pro Woche Fisch. Das ist die ganze Regel.",
+  "30 gramm ballaststoffe.": "Dein Frühstück entscheidet viel. Was isst du morgens?",
+  "hülsenfrüchte und weniger fleisch.": "Linsen sind nicht langweilig. Du hast nur die falschen Rezepte.",
+  "kaffee: wann ist schluss?": "Der letzte Kaffee ist früher, als du denkst. Rechne mal zurück.",
+  "abends trainieren? muss kein problem sein.": "Du schläfst nach dem Training schlecht? Dann früher trainieren. Sonst nicht.",
+  "die gleiche aufstehzeit.": "Aufstehzeit festlegen. Auch am Wochenende. Eine Woche testen.",
+  "sonne: wie viel braucht die haut?": "Raus an die Luft. Das ist gesund. Mit Sonnenschutz, wenn es lang wird.",
+  "augen prüfen, stürze vermeiden.": "Der Weg zum Augenarzt ist kürzer als der Weg zur Reha.",
+  "knochendichtemessung: wann?": "Du musst nicht warten, bis es knackt. Frag nach.",
+  "protein und hüftbruch.": "Erst das Frühstück prüfen. Meist fehlt dort das Eiweiß.",
+  "3 dinge, die du dir sparen kannst.": "Welchen Mythos glaubst du noch? Schreib es in die Kommentare."
+};
+const STILLS = [{
+  label: 'Stand auf einem Bein',
+  off: 0.18
+}, {
+  label: 'Rocker-Hocke',
+  off: 0.25
+}, {
+  label: 'Knien, Hände',
+  off: 0.25
+}, {
+  label: 'Unterarmstand Wohnzimmer',
+  off: 0.15
+}, {
+  label: 'Seitwinkel',
+  off: 0.1
+}, {
+  label: 'Unterarmstand Mandala',
+  off: 0.3,
+  warn: true
+}, {
+  label: 'Drehung',
+  off: 0.15
+}, {
+  label: 'Arme hoch Studio',
+  off: 0.2,
+  warn: true
+}, {
+  label: 'Unterarmstand Kamin',
+  off: 0.3
+}, {
+  label: 'Schwebe Schwarz-Weiß',
+  off: 0.2
+}, {
+  label: 'Terrasse Düne (Oberkörper frei)',
+  off: 0.1,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Düne',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Düne Spagat',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Seitwinkel Düne',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Brücke s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Unterarmstand s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Pflug Hocke s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Pflug Seite s/w (unscharf)',
+  off: 0.2,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Seitstütz s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Bogen s/w',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Drehung Bein hoch s/w',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Teppich',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Teppich 2',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Liegestütz',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Hocke Gebet',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Pflug Sonnenlicht',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Schmetterling Sonnenlicht',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Bein hoch',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Bein hoch Variation',
+  off: 0.15,
+  pos: 'oben'
+}, {
+  label: 'Krähe',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Heuschrecke',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Knien Rückbeuge',
+  off: 0.25,
+  pos: 'oben'
+}, {
+  label: 'Rücken Beine verschränkt',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Frosch-Hocke',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Lotus',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Spagat Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Sonne',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Rücken Hände Gesicht',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Kopfstand Bein schief',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Drehung Bein',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Seitstütz Bein weg',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Baum Hände Herz',
+  off: 0.3,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Lampe',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Dreieck Variation',
+  off: 0.2,
+  pos: 'oben'
+}, {
+  label: 'Knien Drehung s/w (Oberkörper frei)',
+  off: 0.25,
+  warn: true,
+  pos: 'oben'
+}, {
+  label: 'Ausfallschritt s/w (Oberkörper frei)',
+  off: 0.25,
+  warn: true,
+  pos: 'oben'
+}];
+const stillNo = n => String(n).padStart(2, '0');
+const stillCache = {};
+const loadStill = n => stillCache[n] || (stillCache[n] = new Promise((res, rej) => {
+  const im = new Image();
+  im.onload = () => res(im);
+  im.onerror = () => {
+    delete stillCache[n];
+    rej(new Error('Foto nicht gefunden (stills/still-' + stillNo(n) + '.jpg)'));
+  };
+  im.src = 'stills/still-' + stillNo(n) + '.jpg';
+}));
+function resolveTile(p) {
+  const d = TILE_DATA[(p.title || '').trim().toLowerCase()] || {},
+    o = p.tile || {};
+  const t = {
+    hook: p.hook || p.title || '',
+    kern: '',
+    theme: 'dunkel',
+    head2: '',
+    mode: 'facts',
+    facts: [],
+    rows: [],
+    sub: '',
+    ...d,
+    ...o
+  };
+  if (!(o.facts && o.facts.length) && !(d.facts && d.facts.length) && !(t.rows && t.rows.length)) t.facts = (p.speech || '').split('\n').filter(Boolean);
+  return t;
+}
+function TileStudio({
+  p,
+  set
+}) {
+  const t = resolveTile(p);
+  const still = t.still || 1;
+  const off = t.off != null ? t.off : (STILLS[still - 1] || {}).off;
+  const c1 = useRef(null),
+    c2 = useRef(null);
+  const [info, setInfo] = useState({
+    o1: false,
+    o2: false
+  });
+  const [err, setErr] = useState('');
+  const ev = JogaTile.parseEvidence(p.evidence);
+  const upd = patch => set({
+    tile: {
+      ...(p.tile || {}),
+      ...patch
+    }
+  });
+  const sig = JSON.stringify([t, still, off, ev]);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      try {
+        await JogaTile.ready();
+        const img = await loadStill(still);
+        if (dead) return;
+        const r1 = JogaTile.render(c1.current, 1, t, img, off, ev);
+        const r2 = JogaTile.render(c2.current, 2, t, img, off, ev);
+        setInfo({
+          o1: r1.overflow,
+          o2: r2.overflow
+        });
+        setErr('');
+      } catch (e) {
+        if (!dead) setErr(e.message || 'Fehler beim Zeichnen');
+      }
+    })();
+    return () => {
+      dead = true;
+    };
+  }, [sig]);
+  const base = 'joga-kachel-' + ((p.title || 'kachel').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'kachel');
+  const blobs = async () => [await JogaTile.toBlob(c1.current), await JogaTile.toBlob(c2.current)];
+  const download = (blob, name) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  const saveOne = async i => {
+    const b = (await blobs())[i];
+    download(b, base + '-' + (i + 1) + '.png');
+  };
+  const shareBoth = async () => {
+    const [b1, b2] = await blobs();
+    const files = [new File([b1], base + '-1.png', {
+      type: 'image/png'
+    }), new File([b2], base + '-2.png', {
+      type: 'image/png'
+    })];
+    if (navigator.canShare && navigator.canShare({
+      files
+    })) {
+      try {
+        await navigator.share({
+          files
+        });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    download(b1, base + '-1.png');
+    setTimeout(() => download(b2, base + '-2.png'), 400);
+  };
+  const cv = {
+    width: '100%',
+    display: 'block',
+    borderRadius: 8,
+    border: '1px solid var(--line)',
+    background: '#222'
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "data-tile-studio": true,
+    className: "sheet",
+    style: {
+      background: 'var(--panel2)',
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 4
+    }
+  }, "Kachel erzeugen"), /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Zwei Folien, 1080 × 1350: Folie 1 mit deinem Foto und dem Kernsatz, Folie 2 mit Fakten, Einordnung und Quelle. Hook und Titel erscheinen in Versalien."), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Foto"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      gap: 6
+    }
+  }, STILLS.map((s, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    onClick: () => upd({
+      still: i + 1,
+      off: undefined
+    }),
+    title: s.label + (s.warn ? ' (Text wird unruhig)' : ''),
+    style: {
+      padding: 0,
+      border: still === i + 1 ? '2px solid var(--accent)' : '2px solid transparent',
+      borderRadius: 6,
+      background: 'none',
+      position: 'relative',
+      lineHeight: 0
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: 'stills/thumb-' + stillNo(i + 1) + '.jpg',
+    alt: s.label,
+    style: {
+      width: 52,
+      height: 92,
+      objectFit: 'cover',
+      borderRadius: 4
+    }
+  }), s.warn && /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      right: 2,
+      top: 2,
+      fontSize: 11,
+      fontWeight: 800,
+      background: 'var(--accent)',
+      color: '#1a1408',
+      borderRadius: 4,
+      padding: '0 4px',
+      lineHeight: '16px'
+    }
+  }, "!")))), /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginTop: 4
+    }
+  }, (STILLS[still - 1] || {}).label, (STILLS[still - 1] || {}).warn ? ' · Text wird auf diesem Foto unruhig, Ausschnitt prüfen' : ''), /*#__PURE__*/React.createElement(Field, {
+    label: "Bildausschnitt (hoch / runter)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: "0",
+    max: "1",
+    step: "0.01",
+    value: off == null ? 0.2 : off,
+    onChange: e => upd({
+      off: parseFloat(e.target.value)
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Folie 2"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, [['dunkel', 'Dunkel'], ['hell', 'Hell']].map(([v, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: v,
+    on: t.theme === v,
+    onClick: () => upd({
+      theme: v
+    })
+  }, l))), /*#__PURE__*/React.createElement(Field, {
+    label: "Hook auf Folie 1 (| trennt schwarzen und orangen Teil)"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: t.hook || '',
+    onChange: e => upd({
+      hook: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Kernsatz auf Folie 1 (unten, die Aussage)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    value: t.kern || '',
+    onChange: e => upd({
+      kern: e.target.value
+    }),
+    placeholder: "Ein Satz mit der Kernaussage oder Zahl"
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Titel Folie 2"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: t.head2 || '',
+    onChange: e => upd({
+      head2: e.target.value
+    })
+  })), t.mode === 'facts' && /*#__PURE__*/React.createElement(Field, {
+    label: "Fakten auf Folie 2 (eine Zeile pro Punkt)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 5,
+    value: (t.facts || []).join('\n'),
+    onChange: e => upd({
+      facts: e.target.value.split('\n')
+    })
+  })), (t.mode === 'bars' || t.mode === 'items') && /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Folie 2 zeigt ", t.mode === 'bars' ? 'Balken' : 'Zahlenblöcke', " aus der Vorbelegung. Zum Ändern: Format im JSON anpassen."), /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Einordnung und Quelle kommen aus dem Feld „Sicherheit / Quelle“ (Zeilen „Einordnung: …“ und „Quelle: …“).", !ev.einordnung && !ev.quelle ? ' Dort steht noch nichts, Folie 2 hat dann keinen Fußblock.' : ''), err && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-tile-err": true
+  }, err), (info.o1 || info.o2) && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-tile-over": true
+  }, "Zu viel Text auf ", info.o1 ? 'Folie 1' : '', info.o1 && info.o2 ? ' und ' : '', info.o2 ? 'Folie 2' : '', ". Kürzen oder anderes Foto wählen."), !t.kern && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-tile-kern": true
+  }, "Der Kernsatz fehlt. Folie 1 trägt sonst keine Aussage."), !t.checked && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-tile-check": true
+  }, "Zahlen noch nicht am Original geprüft. Vor dem Posten Quelle öffnen und Werte vergleichen."), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      margin: '6px 0 10px',
+      fontSize: 13,
+      color: 'var(--muted)'
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!t.checked,
+    onChange: e => upd({
+      checked: e.target.checked
+    }),
+    style: {
+      width: 20,
+      height: 20,
+      flex: 'none'
+    }
+  }), "Zahlen am Original geprüft"), (() => {
+    const d = TILE_DATA[(p.title || '').trim().toLowerCase()];
+    const cap = d && d.caption;
+    return /*#__PURE__*/React.createElement(React.Fragment, null, cap && p.caption !== cap && /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      "data-tile-caption": true,
+      style: {
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => set({
+        caption: cap
+      })
+    }, "Neue Caption einsetzen"), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "ersetzt die aktuelle Caption dieses Pieces")), /\[HIER FEHLT/.test(p.caption || '') && /*#__PURE__*/React.createElement("div", {
+      className: "warn",
+      "data-tile-caption-gap": true
+    }, "In der Caption steht noch ein Platzhalter [HIER FEHLT …]. Bitte vor dem Posten ausfüllen."));
+  })(), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginBottom: 4
+    }
+  }, "Folie 1"), /*#__PURE__*/React.createElement("canvas", {
+    ref: c1,
+    style: cv
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginBottom: 4
+    }
+  }, "Folie 2"), /*#__PURE__*/React.createElement("canvas", {
+    ref: c2,
+    style: cv
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: shareBoth
+  }, "Beide Folien teilen / speichern"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => saveOne(0)
+  }, "Folie 1 (PNG)"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => saveOne(1)
+  }, "Folie 2 (PNG)")));
+}
+
+/* ---------- Spruch-Bilder: Karte (Studio + Spruch des Tages) ---------- */
+const hashStr = str => {
+  let h = 0;
+  for (const ch of String(str)) h = h * 31 + ch.charCodeAt(0) >>> 0;
+  return h;
+};
+const spruchStill = p => {
+  const t = p.tile || {};
+  if (t.still) return t.still;
+  const ok = STILLS.map((x, i) => x.warn ? 0 : i + 1).filter(Boolean);
+  return ok[hashStr(p.id) % ok.length];
+};
+const dlBlob = (blob, name) => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+const TOEPFE = ['Bewegung', 'Alltag', 'Humor', 'Ich', 'Aufgabe'];
+function SpruchCard({
+  p,
+  set,
+  edit
+}) {
+  const t = p.tile || {};
+  const still = spruchStill(p),
+    off = t.off != null ? t.off : (STILLS[still - 1] || {}).off,
+    pos = t.pos || (STILLS[still - 1] || {}).pos || 'unten';
+  const text = p.title || p.hook || '';
+  const [fmt, setFmt] = useState('feed');
+  const cv = useRef(null);
+  const [err, setErr] = useState(''),
+    [over, setOver] = useState(false);
+  const upd = patch => set({
+    tile: {
+      ...(p.tile || {}),
+      ...patch
+    }
+  });
+  const sig = JSON.stringify([text, still, off, pos, fmt]);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      try {
+        await JogaTile.ready();
+        const img = await loadStill(still);
+        if (dead) return;
+        const r = JogaTile.render(cv.current, 'spruch', {
+          text,
+          pos
+        }, img, off, null, fmt);
+        setOver(r.overflow);
+        setErr('');
+      } catch (e) {
+        if (!dead) setErr(e.message || 'Fehler beim Zeichnen');
+      }
+    })();
+    return () => {
+      dead = true;
+    };
+  }, [sig]);
+  const blobOf = async f => {
+    const c = document.createElement('canvas');
+    await JogaTile.ready();
+    const img = await loadStill(still);
+    JogaTile.render(c, 'spruch', {
+      text,
+      pos
+    }, img, off, null, f);
+    return JogaTile.toBlob(c);
+  };
+  const name = f => 'joga-spruch-' + (p.id || 'x') + '-' + f + '.png';
+  const share = async formats => {
+    const files = [];
+    for (const f of formats) files.push(new File([await blobOf(f)], name(f), {
+      type: 'image/png'
+    }));
+    if (navigator.canShare && navigator.canShare({
+      files
+    })) {
+      try {
+        await navigator.share({
+          files
+        });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    files.forEach((f, i) => setTimeout(() => dlBlob(f, f.name), i * 400));
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "data-spruch-card": true,
+    style: {
+      margin: '8px 0'
+    }
+  }, edit && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: "Spruch"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: text,
+    onChange: e => set({
+      title: e.target.value,
+      hook: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, TOEPFE.map(x => /*#__PURE__*/React.createElement(Tag, {
+    key: x,
+    on: t.topf === x,
+    onClick: () => upd({
+      topf: x
+    })
+  }, x))), t.ich && /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      margin: '8px 0',
+      fontSize: 13,
+      color: 'var(--muted)'
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!t.freigabe,
+    onChange: e => upd({
+      freigabe: e.target.checked
+    }),
+    style: {
+      width: 20,
+      height: 20,
+      flex: 'none'
+    }
+  }), "Ich-Spruch: stimmt für mich, darf gepostet werden")), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Foto"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      gap: 6
+    }
+  }, STILLS.map((s, i) => /*#__PURE__*/React.createElement("button", {
+    key: i,
+    onClick: () => upd({
+      still: i + 1,
+      off: undefined
+    }),
+    title: s.label,
+    style: {
+      padding: 0,
+      border: still === i + 1 ? '2px solid var(--accent)' : '2px solid transparent',
+      borderRadius: 6,
+      background: 'none',
+      position: 'relative',
+      lineHeight: 0
+    }
+  }, /*#__PURE__*/React.createElement("img", {
+    src: 'stills/thumb-' + stillNo(i + 1) + '.jpg',
+    alt: s.label,
+    style: {
+      width: 44,
+      height: 78,
+      objectFit: 'cover',
+      borderRadius: 4
+    }
+  }), s.warn && /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: 'absolute',
+      right: 2,
+      top: 2,
+      fontSize: 11,
+      fontWeight: 800,
+      background: 'var(--accent)',
+      color: '#1a1408',
+      borderRadius: 4,
+      padding: '0 4px',
+      lineHeight: '16px'
+    }
+  }, "!")))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      marginTop: 8
+    }
+  }, [['feed', 'Feed 4:5'], ['story', 'Story 9:16']].map(([v, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: v,
+    on: fmt === v,
+    onClick: () => setFmt(v)
+  }, l)), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Text"), [['unten', 'unten'], ['oben', 'oben']].map(([v, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: v,
+    on: pos === v,
+    onClick: () => upd({
+      pos: v
+    })
+  }, l))), /*#__PURE__*/React.createElement(Field, {
+    label: "Bildausschnitt (hoch / runter)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "range",
+    min: "0",
+    max: "1",
+    step: "0.01",
+    value: off == null ? 0.2 : off,
+    onChange: e => upd({
+      off: parseFloat(e.target.value)
+    })
+  })), err && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-spruch-err": true
+  }, err), over && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-spruch-over": true
+  }, "Der Spruch ist für dieses Bild zu lang. Kürzen."), /*#__PURE__*/React.createElement("canvas", {
+    ref: cv,
+    style: {
+      width: '100%',
+      maxWidth: fmt === 'story' ? 260 : 340,
+      display: 'block',
+      margin: '8px auto',
+      borderRadius: 8,
+      border: '1px solid var(--line)',
+      background: '#222'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => share([fmt])
+  }, fmt === 'story' ? 'Story teilen / speichern' : 'Feed teilen / speichern'), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => share(['feed', 'story'])
+  }, "Beide Größen")));
+}
+function ContentDetail({
+  id,
+  state,
+  update,
+  onClose,
+  gotoContent
+}) {
+  const p = state.content.find(c => c.id === id);
+  const secRefs = useRef({});
+  const [blocked, setBlocked] = useState([]);
+  if (!p) return null;
+  const set = patch => update(s => ({
+    ...s,
+    content: s.content.map(c => c.id === id ? {
+      ...c,
+      ...patch,
+      updated: todayISO()
+    } : c)
+  }));
+  const jump = i => {
+    const el = secRefs.current[i];
+    if (el && el.scrollIntoView) el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+  const rule = ruleFor(p.format);
+  const setFormat = v => {
+    const r = ruleFor(v);
+    const patch = {
+      format: v
+    };
+    if (r) {
+      if (!p.entryManual) patch.entry = r.entry;
+      if (!p.audioManual) patch.audio = r.audio;
+    }
+    set(patch);
+  };
+  const changeStatus = v => {
+    if (v === 'Drehbereit') {
+      const m = readinessMissing(p);
+      if (m.length) {
+        setBlocked(m);
+        return;
+      }
+    }
+    setBlocked([]);
+    set({
+      status: v
+    });
+  };
+  const resetDefaults = () => {
+    if (rule) set({
+      entry: rule.entry,
+      audio: rule.audio,
+      entryManual: false,
+      audioManual: false
+    });
+  };
+  const shoot = state.shoots.find(s => s.id === p.shootId);
+  const siblings = p.shootId ? state.content.filter(c => c.shootId === p.shootId && c.id !== p.id) : [];
+  const moves = p.moveIds.map(mid => state.moves.find(m => m.id === mid)).filter(Boolean);
+  // Hook-Bibliothek: gemerkte Hooks + Hook-Ideen der Moves (zuerst die der gewählten Moves)
+  const hookOptions = (() => {
+    const seen = new Set(),
+      out = [];
+    const add = (v, l) => {
+      if (v && !seen.has(v)) {
+        seen.add(v);
+        out.push({
+          v,
+          l
+        });
+      }
+    };
+    moves.forEach(m => add(m.hookIdea, m.title + ': ' + m.hookIdea));
+    state.hookNotes.forEach(n => add(n.line, 'Gemerkt: ' + n.line));
+    state.moves.forEach(m => add(m.hookIdea, m.title + ': ' + m.hookIdea));
+    return out;
+  })();
+  const addCut = () => {
+    const n = newPiece({
+      world: p.world,
+      fn: p.fn,
+      shootId: p.shootId,
+      moveIds: p.moveIds,
+      material: p.material,
+      prodType: 'Bestand',
+      title: '',
+      status: 'Idee'
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, n]
+    }));
+    gotoContent(n.id);
+  };
+  const del = () => {
+    if (confirm('Content-Piece löschen?')) {
+      update(s => ({
+        ...s,
+        content: s.content.filter(c => c.id !== id),
+        shoots: s.shoots.map(sh => ({
+          ...sh,
+          cuts: sh.cuts.map(c => c.contentId === id ? {
+            ...c,
+            contentId: ''
+          } : c)
+        }))
+      }));
+      onClose();
+    }
+  };
+  const setPerf = (eid, patch) => set({
+    perf: p.perf.map(e => e.id === eid ? {
+      ...e,
+      ...patch
+    } : e)
+  });
+  const sec = (i, title, children) => /*#__PURE__*/React.createElement("div", {
+    ref: el => {
+      secRefs.current[i] = el;
+    },
+    className: "sheet",
+    "data-section": PIPE[i]
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 4
+    }
+  }, i + 1, " · ", title), children);
+  const choice = (opts, val, on) => /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, opts.map(o => /*#__PURE__*/React.createElement(Tag, {
+    key: o,
+    on: val === o,
+    onClick: () => on(o)
+  }, o)));
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: onClose
+  }, "← Zurück"), /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), /*#__PURE__*/React.createElement("span", {
+    className: `type type-${p.fn}`
+  }, p.fn))), /*#__PURE__*/React.createElement("h1", {
+    style: {
+      fontSize: 24,
+      marginBottom: 10
+    }
+  }, p.title || '(ohne Titel)'), /*#__PURE__*/React.createElement(PipeBar, {
+    p: p,
+    onJump: jump
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row between",
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-now": true
+  }, "Jetzt: ", /*#__PURE__*/React.createElement("b", {
+    style: {
+      color: 'var(--accent)'
+    }
+  }, pipeNow(p))), /*#__PURE__*/React.createElement("select", {
+    value: p.status,
+    "data-status": true,
+    onChange: e => changeStatus(e.target.value),
+    style: {
+      width: 'auto'
+    }
+  }, C_STATUS.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s
+  }, s)))), blocked.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-blocked": true
+  }, "Nicht drehbereit. Es fehlt: ", blocked.join(' · ')), blocked.length === 0 && p.status === 'Drehbereit' && readinessMissing(p).length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-incomplete": true
+  }, "Als Drehbereit markiert, aber unvollständig: ", readinessMissing(p).join(' · ')), blocked.length === 0 && (p.status === 'Idee' || p.status === 'Skript fertig') && readinessMissing(p).length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-needs": true,
+    style: {
+      marginTop: 6
+    }
+  }, "Für „Drehbereit“ fehlt noch: ", readinessMissing(p).join(' · ')), sec(0, 'Idee', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Content-Welt"), choice(WORLDS, p.world, v => set({
+    world: v
+  })), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Funktion"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, TYPES.map(t => /*#__PURE__*/React.createElement(Tag, {
+    key: t,
+    on: p.fn === t,
+    onClick: () => set({
+      fn: t
+    })
+  }, t))), /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, TYPE_INFO[p.fn]), /*#__PURE__*/React.createElement(Field, {
+    label: "Format (frei, mit Presets)"
+  }, /*#__PURE__*/React.createElement("input", {
+    list: "format-presets",
+    value: p.format,
+    onChange: e => setFormat(e.target.value),
+    placeholder: "z. B. Oli Klärt, Routine / 1 Minute JOGA …"
+  })), /*#__PURE__*/React.createElement("datalist", {
+    id: "format-presets"
+  }, FORMAT_PRESETS.map(f => /*#__PURE__*/React.createElement("option", {
+    key: f,
+    value: f
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Titel"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: p.title,
+    onChange: e => set({
+      title: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Hook"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: p.hook,
+    onChange: e => set({
+      hook: e.target.value
+    })
+  })), hookOptions.length > 0 && /*#__PURE__*/React.createElement("select", {
+    "data-hook-picker": true,
+    value: "",
+    onChange: e => {
+      if (e.target.value) set({
+        hook: e.target.value
+      });
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "Hook aus Bibliothek wählen …"), hookOptions.map(h => /*#__PURE__*/React.createElement("option", {
+    key: h.v,
+    value: h.v
+  }, h.l))), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Serie"), choice(['–', SERIES_DARK], p.series || '–', v => set({
+    series: v === '–' ? '' : v
+  })), p.series && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: "Tipp / Kernaussage"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: p.tip || '',
+    onChange: e => set({
+      tip: e.target.value
+    }),
+    placeholder: "Der eine Tipp dieses Videos in einem Satz"
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Redaktionelle Sicherheit / Quelle (intern)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 2,
+    value: p.evidence || '',
+    onChange: e => set({
+      evidence: e.target.value
+    }),
+    placeholder: "Wie gut belegt? Quelle? Formulierungsgrenze (kein Gesundheitsversprechen)"
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Ziel / Hypothese des Posts"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: p.goal,
+    onChange: e => set({
+      goal: e.target.value
+    }),
+    placeholder: "Was soll dieser Post zeigen oder testen?"
+  })))), sec(1, 'Skript', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Einstieg ", rule && !p.entryManual && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "· Default"), p.entryManual && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "· manuell")), choice(ENTRIES, p.entry, v => set({
+    entry: v,
+    entryManual: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Audio ", rule && !p.audioManual && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "· Default"), p.audioManual && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "· manuell")), choice(AUDIOS, p.audio, v => set({
+    audio: v,
+    audioManual: true
+  })), rule && /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    "data-rule": true
+  }, "Regel „", rule.format, "“: ", rule.note, p.entryManual || p.audioManual ? ' ' : '', (p.entryManual || p.audioManual) && /*#__PURE__*/React.createElement("button", {
+    className: "x",
+    style: {
+      fontSize: 13,
+      textDecoration: 'underline'
+    },
+    onClick: resetDefaults
+  }, "Zurück auf Default")), /*#__PURE__*/React.createElement(Field, {
+    label: "Sprechtext"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 5,
+    value: p.speech,
+    onChange: e => set({
+      speech: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Drehskript / Shotlist"), /*#__PURE__*/React.createElement(ShotList, {
+    shots: p.shots,
+    onChange: shots => set({
+      shots
+    }),
+    defaultAudio: p.audio === 'Silent/Musik' ? 'Silent/Musik' : p.audio === 'Voice-over' ? 'Voice-over' : 'On-Cam'
+  }), /*#__PURE__*/React.createElement(Field, {
+    label: "Drehskript (frei, Notizen)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 4,
+    value: p.scriptText,
+    onChange: e => set({
+      scriptText: e.target.value
+    })
+  })))), sec(2, 'Dreh', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Produktionsart"), choice(PROD_TYPES, p.prodType, v => set({
+    prodType: v
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Produktions-/Drehdatum (optional)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: p.productionDate,
+    onChange: e => set({
+      productionDate: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      margin: '4px 0 8px',
+      fontSize: 13,
+      color: 'var(--muted)'
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!p.preproductionRequired,
+    onChange: e => set({
+      preproductionRequired: e.target.checked
+    }),
+    style: {
+      width: 20,
+      height: 20,
+      flex: 'none'
+    }
+  }), "Muss vorproduziert werden (spätestens „Geschnitten“ vor der Veröffentlichung, keine spontane Aufnahme)"), /*#__PURE__*/React.createElement(Field, {
+    label: "Master-Dreh (Rohmaterial)"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: p.shootId,
+    onChange: e => {
+      const v = e.target.value;
+      const sh = state.shoots.find(s => s.id === v);
+      set({
+        shootId: v,
+        ...(sh && p.moveIds.length === 0 ? {
+          moveIds: sh.moves
+        } : {})
+      });
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "– keiner –"), state.shoots.slice().sort((a, b) => b.date.localeCompare(a.date)).map(s => /*#__PURE__*/React.createElement("option", {
+    key: s.id,
+    value: s.id
+  }, fmtD(s.date), " · ", s.theme)))), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Benötigte Moves"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, moves.map(m => /*#__PURE__*/React.createElement(Tag, {
+    key: m.id,
+    on: true,
+    onClick: () => set({
+      moveIds: p.moveIds.filter(x => x !== m.id)
+    })
+  }, m.title, " ×")), moves.length === 0 && /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Keine gewählt")), /*#__PURE__*/React.createElement("select", {
+    value: "",
+    onChange: e => {
+      if (e.target.value) set({
+        moveIds: [...p.moveIds, e.target.value]
+      });
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "+ Move hinzufügen …"), state.moves.filter(m => m.src !== '22 Flows' && !p.moveIds.includes(m.id)).map(m => /*#__PURE__*/React.createElement("option", {
+    key: m.id,
+    value: m.id
+  }, m.title))), /*#__PURE__*/React.createElement(Field, {
+    label: "Vorhandenes Ausgangsmaterial"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: p.material,
+    onChange: e => set({
+      material: e.target.value
+    }),
+    placeholder: "Welches Rohmaterial gibt es schon? (Clips, Ordner, Dreh vom …)"
+  })))), sec(3, 'Cuts', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: "Geplante Cuts / Varianten"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: p.variants,
+    onChange: e => set({
+      variants: e.target.value
+    }),
+    placeholder: "z. B. andere Hook, 15-Sek.-Version, Recut in einer Woche"
+  })), p.shootId ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Weitere Pieces aus demselben Master", shoot ? ' · ' + shoot.theme : ''), siblings.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, "Noch keine weiteren."), /*#__PURE__*/React.createElement("ul", {
+    className: "list"
+  }, siblings.map(c => /*#__PURE__*/React.createElement("li", {
+    key: c.id,
+    className: "card slim",
+    onClick: () => gotoContent(c.id)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hook"
+  }, c.title || '(ohne Titel)'), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, c.world, " · ", c.fn, " · ", c.format || '–', " · ", c.status)))), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: addCut
+  }, "+ Weiteren Cut aus diesem Master"))) : /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Verknüpfe in Schritt 3 einen Master-Dreh, um mehrere Pieces aus demselben Rohmaterial zu bündeln."))), sec(4, 'Post', /*#__PURE__*/React.createElement(React.Fragment, null, p.format === 'Kachel' && /*#__PURE__*/React.createElement(TileStudio, {
+    p: p,
+    set: set
+  }), p.format === 'Spruch' && /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    style: {
+      background: 'var(--panel2)',
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 4
+    }
+  }, "Spruch-Bild"), /*#__PURE__*/React.createElement(SpruchCard, {
+    p: p,
+    set: set,
+    edit: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: lblStyle
+  }, "Plattformen"), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, PLATFORMS.map(pl => /*#__PURE__*/React.createElement(Tag, {
+    key: pl,
+    on: p.platforms.includes(pl),
+    onClick: () => set({
+      platforms: p.platforms.includes(pl) ? p.platforms.filter(x => x !== pl) : [...p.platforms, pl]
+    })
+  }, pl))), /*#__PURE__*/React.createElement(Field, {
+    label: "Veröffentlichungsdatum"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: p.publishDate,
+    onChange: e => set({
+      publishDate: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Caption (optional)"
+  }, /*#__PURE__*/React.createElement("textarea", {
+    rows: 3,
+    value: p.caption,
+    onChange: e => set({
+      caption: e.target.value
+    }),
+    placeholder: "Max. 5 Hashtags. Hook nicht einfach wiederholen."
+  })))), sec(5, 'Ergebnis', /*#__PURE__*/React.createElement(React.Fragment, null, p.perf.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Noch keine Performance-Daten. Pro Plattform ein Eintrag."), p.perf.map(e => /*#__PURE__*/React.createElement("div", {
+    key: e.id,
+    "data-perf": true,
+    className: "sheet",
+    style: {
+      background: 'var(--panel2)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Plattform"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: e.platform,
+    onChange: ev => setPerf(e.id, {
+      platform: ev.target.value
+    })
+  }, PLATFORMS.map(x => /*#__PURE__*/React.createElement("option", {
+    key: x
+  }, x)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Datum (leer = Veröffentlichung)"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: e.date,
+    onChange: ev => setPerf(e.id, {
+      date: ev.target.value
+    })
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "grid3"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Views"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.views,
+    onChange: v => setPerf(e.id, {
+      views: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Reichweite"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.reach,
+    onChange: v => setPerf(e.id, {
+      reach: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Non-Follower %"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.nonFollower,
+    onChange: v => setPerf(e.id, {
+      nonFollower: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Ø Wiedergabe Sek."
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.avgWatch,
+    onChange: v => setPerf(e.id, {
+      avgWatch: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Completion %"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.completion,
+    onChange: v => setPerf(e.id, {
+      completion: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Likes / Reactions"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.likes,
+    onChange: v => setPerf(e.id, {
+      likes: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Kommentare"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.comments,
+    onChange: v => setPerf(e.id, {
+      comments: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Shares"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.shares,
+    onChange: v => setPerf(e.id, {
+      shares: v
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Saves"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.saves,
+    onChange: v => setPerf(e.id, {
+      saves: v
+    })
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: "Neue Follower"
+  }, /*#__PURE__*/React.createElement(NumD, {
+    value: e.newFollowers,
+    onChange: v => setPerf(e.id, {
+      newFollowers: v
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "stats",
+    style: {
+      gridTemplateColumns: 'repeat(4,1fr)'
+    },
+    "data-ratios": true
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(pct(e.newFollowers, e.views))), /*#__PURE__*/React.createElement("small", null, "Follower / Views")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(pct(e.saves, e.views))), /*#__PURE__*/React.createElement("small", null, "Saves / Views")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(pct(e.shares, e.views))), /*#__PURE__*/React.createElement("small", null, "Shares / Views")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(pct(e.comments, e.views))), /*#__PURE__*/React.createElement("small", null, "Komm. / Views"))), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => set({
+      perf: p.perf.filter(x => x.id !== e.id)
+    })
+  }, "Eintrag löschen")))), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => set({
+      perf: [...p.perf, newPerf(p.platforms[0] || 'Instagram')]
+    })
+  }, "+ Performance-Eintrag"))), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: del
+  }, "Piece löschen")));
+}
+
+/* ---------- V2.2: Ansichten (alles berechnete Ansichten auf state.content) ---------- */
+const Pill = ({
+  children
+}) => /*#__PURE__*/React.createElement("span", {
+  style: {
+    fontSize: 12,
+    padding: '2px 9px',
+    borderRadius: 999,
+    border: '1px solid var(--line)',
+    color: 'var(--text)'
+  }
+}, children);
+const WRAP = {
+  overflowWrap: 'anywhere'
+}; // lange Wortketten aus dem Plan (z. B. „Yoga/Pilates/Unterrichtsvorbereitung“) dürfen umbrechen
+const stIdx = p => C_STATUS.indexOf(p.status);
+const isDone = p => stIdx(p) >= 4; // Geschnitten oder Gepostet
+const pieceLen = p => Math.round(p.shots.reduce((a, s) => a + durSec(s.dur), 0) * 10) / 10;
+const byDate = (a, b) => (a.publishDate || '9999').localeCompare(b.publishDate || '9999');
+// Ampel: Grün = fertig/geschnitten/gepostet · Gelb = noch ≥ 48 h · Rot = < 48 h (oder überfällig) und nicht fertig
+function ampel(p, today) {
+  if (isDone(p)) return {
+    c: 'green',
+    t: p.status === 'Gepostet' ? 'gepostet' : 'fertig'
+  };
+  const left = dayDiff(p.publishDate, today);
+  if (left < 0) return {
+    c: 'red',
+    t: 'überfällig'
+  };
+  return left < 2 ? {
+    c: 'red',
+    t: left === 0 ? 'heute' : 'morgen'
+  } : {
+    c: 'yellow',
+    t: 'in ' + left + ' Tagen'
+  };
+}
+const AMPEL_COL = {
+  green: '#7fbf6a',
+  yellow: '#e0b04a',
+  red: '#d9534f'
+};
+const Dot = ({
+  c
+}) => /*#__PURE__*/React.createElement("span", {
+  "data-ampel": c,
+  style: {
+    display: 'inline-block',
+    width: 10,
+    height: 10,
+    borderRadius: '50%',
+    background: AMPEL_COL[c],
+    marginRight: 6,
+    flex: 'none'
+  }
+});
+// Vorproduktion (Urlaubsabsicherung): `preproductionRequired` ist nur die Planungsabsicht.
+// VORPRODUZIEREN = muss noch produziert werden · VORPRODUZIERT = Piece ist mindestens „Geschnitten“.
+const preState = p => !p.preproductionRequired ? '' : isDone(p) ? 'VORPRODUZIERT' : 'VORPRODUZIEREN';
+const PreBadge = ({
+  s
+}) => !s ? null : /*#__PURE__*/React.createElement("span", {
+  "data-pre": s,
+  style: {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: '.06em',
+    padding: '3px 8px',
+    borderRadius: 4,
+    whiteSpace: 'nowrap',
+    background: s === 'VORPRODUZIERT' ? '#7fbf6a' : 'var(--accent)',
+    color: '#1a1408'
+  }
+}, s);
+const preCount = list => {
+  const req = list.filter(p => p.preproductionRequired);
+  return {
+    n: req.length,
+    done: req.filter(isDone).length
+  };
+};
+const readinessLabel = p => {
+  if (p.status === 'Gepostet') return 'veröffentlicht';
+  if (isDone(p)) return 'fertig';
+  const m = readinessMissing(p);
+  return m.length ? '⚠ ' + m.length + ' fehlt' : '✓ vollständig';
+};
+const PLAN_START = '2026-10-12',
+  PLAN_END = '2026-11-29'; // 7 Wochen Mo–So = 49 Tage, keine Baseline-Woche
+const PLAN_WEEKS = Array.from({
+  length: 7
+}, (_, i) => ({
+  n: i + 1,
+  start: addDays(PLAN_START, 7 * i),
+  end: addDays(PLAN_START, 7 * i + 6)
+}));
+// Zusätzliche Serien-Slots: Di/Do/Sa je Woche = 21 Termine. Rein informativ (Zähler in PRODUKTION); es wird kein Datum automatisch vergeben.
+const SERIES_SLOTS = PLAN_WEEKS.flatMap(w => [1, 3, 5].map(o => addDays(w.start, o)));
+const WEEK_LABEL = ['Testphase', 'Testphase', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Vertiefung', 'Auswertung'];
+const weekIdxOf = iso => {
+  const d = dayDiff(iso, PLAN_START);
+  return d < 0 ? 0 : d > 48 ? 6 : Math.floor(d / 7);
+};
+const STAGES = [['ideen', 'IDEEN', 'Idee'], ['skripte', 'SKRIPTE', 'Skript fertig'], ['drehen', 'DREHEN', 'Drehbereit'], ['schneiden', 'SCHNEIDEN', 'Gedreht'], ['bereit', 'BEREIT', 'Geschnitten']];
+
+/* ---- Produktionskarte: ohne externe Notiz drehbar (Neudreh) bzw. exakter Schnittplan (Recut/Bestand) ---- */
+function ProdCard({
+  p,
+  idx,
+  gotoContent,
+  onStatus
+}) {
+  const miss = readinessMissing(p),
+    len = pieceLen(p),
+    neu = p.prodType === 'Neudreh';
+  const L = ({
+    k,
+    children
+  }) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("b", null, k, ": "), children);
+  return /*#__PURE__*/React.createElement("div", {
+    "data-prod-card": true,
+    "data-id": p.id,
+    className: "sheet",
+    style: {
+      marginBottom: 16,
+      ...WRAP
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row between"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, idx != null ? (neu ? 'DREH ' : 'SCHNITT ') + (idx + 1) + ' · ' : '', "POST ", p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : '–', p.productionDate ? ' · PRODUKTION ' + fmtD(p.productionDate) : ''), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => gotoContent(p.id)
+  }, "Öffnen")), /*#__PURE__*/React.createElement("h2", {
+    style: {
+      margin: '4px 0 8px'
+    }
+  }, p.title), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), /*#__PURE__*/React.createElement("span", {
+    className: `type type-${p.fn}`
+  }, p.fn), /*#__PURE__*/React.createElement(Pill, null, p.prodType), /*#__PURE__*/React.createElement(Pill, null, p.entry), /*#__PURE__*/React.createElement(Pill, null, AUDIO_SHORT[p.audio] || p.audio), /*#__PURE__*/React.createElement(Pill, null, "9:16"), len > 0 && /*#__PURE__*/React.createElement(Pill, null, len, " Sek."), p.preproductionRequired && /*#__PURE__*/React.createElement(PreBadge, {
+    s: preState(p)
+  })), !neu && /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    "data-schnittplan": true,
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "SCHNITTPLAN – KEIN NEUDREH."), " Material, Ausschnitte, Reihenfolge, On-Screen-Text, Audio und Länge stehen unten exakt."), miss.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "warn",
+    "data-warn": true
+  }, "NICHT DREHBEREIT: ", miss.join(' · ')), /*#__PURE__*/React.createElement("p", {
+    style: {
+      margin: '10px 0 4px'
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Hook: "), p.hook), p.goal && /*#__PURE__*/React.createElement(L, {
+    k: "Ziel / Hypothese"
+  }, p.goal), p.platforms.length > 0 && /*#__PURE__*/React.createElement(L, {
+    k: "Plattformen"
+  }, p.platforms.join(' · ')), p.material && /*#__PURE__*/React.createElement(L, {
+    k: neu ? 'Material / Setup' : 'Material (Quelle)'
+  }, p.material), p.scriptText && /*#__PURE__*/React.createElement("p", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0,
+      margin: '8px 0 10px'
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Produktionsnotiz: "), p.scriptText), p.shots.map((sh, i) => /*#__PURE__*/React.createElement("div", {
+    key: sh.id,
+    "data-shot-card": true,
+    style: {
+      borderLeft: '3px solid var(--accent)',
+      background: 'var(--panel2)',
+      borderRadius: 8,
+      padding: '8px 10px',
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row between",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement("b", null, neu ? 'SHOT' : 'AUSSCHNITT', " ", i + 1), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, fmtDur(sh.dur), " · ", AUDIO_SHORT[sh.audio] || sh.audio)), sh.camera && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginTop: 4,
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "Kamera: ", sh.camera), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, sh.action), sh.speech && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Sagen: "), "„", sh.speech, "“"), sh.onscreen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "On-Screen: "), sh.onscreen), sh.note && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginTop: 4,
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, sh.note))), /*#__PURE__*/React.createElement("div", {
+    "data-danach": true,
+    style: {
+      marginTop: 8,
+      fontSize: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginBottom: 2
+    }
+  }, "DANACH"), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Masterlänge: "), len > 0 ? len + ' Sek.' : '–'), p.variants && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Schnitt / Plattformvarianten: "), p.variants), p.caption && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Caption: "), p.caption)), onStatus && p.status === 'Drehbereit' && /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      marginTop: 12
+    }
+  }, neu ? /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => onStatus(p.id, 'Gedreht')
+  }, "Als gedreht markieren") : /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => onStatus(p.id, 'Geschnitten')
+  }, "Als geschnitten markieren")));
+}
+function PieceRow({
+  p,
+  onOpen,
+  today,
+  actions
+}) {
+  return /*#__PURE__*/React.createElement("li", {
+    "data-piece": true,
+    "data-id": p.id,
+    className: "card slim",
+    style: WRAP,
+    onClick: () => onOpen(p.id)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card-top"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), /*#__PURE__*/React.createElement("span", {
+    className: `type type-${p.fn}`
+  }, p.fn), p.format && /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, p.format)), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : 'ohne Datum')), /*#__PURE__*/React.createElement("div", {
+    className: "hook"
+  }, p.title || '(ohne Titel)'), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, p.status, " · ", p.prodType, " · ", p.entry, " · ", AUDIO_SHORT[p.audio], p.platforms.length ? ' · ' + p.platforms.join(', ') : ''), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(PipeBar, {
+    p: p,
+    compact: true
+  })), actions && /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    onClick: e => e.stopPropagation(),
+    style: {
+      marginTop: 8
+    }
+  }, actions));
+}
+
+/* ---- HEUTE: Was muss ich jetzt tun? (berechnet, kein eigener Datentopf) ---- */
+
+// Wochenvorschlag: gemischter Plan aus Videotypen, abgeleitet aus den Facebook-/Instagram-Daten (Aug–Nov 2026). Grobe Einteilung nach Wörtern in der Caption, kleine Stichprobe: Vorschlag, kein Gesetz.
+const SLOTS = {
+  funktion: {
+    label: 'Funktions-Move',
+    why: 'Funktions-Hooks (Aufstehen, Bücken, Boden, Balance): in deinen Facebook-Daten 26 % Treffer und 57 % aller Aufrufe',
+    n: 2
+  },
+  routine: {
+    label: '1 Minute JOGA / Routine',
+    why: 'Routinen und „Eine Minute“: 10 % Treffer, 24 % der Aufrufe',
+    n: 2
+  },
+  alter: {
+    label: 'Alters-Test',
+    why: 'Alters-Hooks: 12 % Treffer mit einzelnen Ausreißern (139.000), wird gegen Funktion getestet',
+    n: 1
+  },
+  frage: {
+    label: 'US-Frage',
+    why: 'Fragen holen Antworten statt Reichweite, kleine Stichprobe (14 Beiträge)',
+    n: 1
+  },
+  statement: {
+    label: 'Statement',
+    why: 'Eigene Stimme. Captions ohne Funktion oder Routine liefen schwächer (3 % Treffer bei 174 Beiträgen), daher nur eins pro Woche',
+    n: 1
+  }
+};
+const SLOT_MATCH = {
+  funktion: p => /aufstehen|hochkomm|boden|bücken|treppe|balance|gleichgewicht|hocke|einbein|ein bein/i.test([p.title, p.hook].join(' ')) || /Funktion/i.test(p.format || ''),
+  routine: p => /Routine|1 Minute|WOW|Challenge/i.test(p.format || '') || /\b(eine|1|zwei|2|drei|3|5) (minute|minuten|moves|übungen)|\b\d+ (moves|übungen)|routine/i.test([p.title, p.hook].join(' ')),
+  alter: p => ALTER_RE.test([p.title, p.hook].join(' ')),
+  frage: p => p.fn === 'US' || /US-Frage/i.test(p.format || ''),
+  statement: p => /Statement/i.test(p.format || '')
+};
+const SLOT_ORDER = ['funktion', 'routine', 'alter', 'frage', 'statement'];
+const WEEK_PATTERN = ['funktion', 'routine', 'alter', 'statement', 'funktion', 'routine', 'frage'];
+const HIT_RULES = [[/aufstehen|hochkomm|boden|bücken|treppe/i, 3, 'Alltags-Funktion (Aufstehen, Bücken, Boden) wie deine stärksten Treffer'], [/wichtigste kraft/i, 3, 'ähnelt deinem Instagram-Treffer „Die wichtigste Kraft im Alter“ (7.000 Aufrufe)'], [/geburtsdatum|ausweis/i, 2, 'Geburtsdatum-Hook lief auf Facebook (bis 139.000 Aufrufe)'], [/sixpack|waschbrett/i, 2, 'ähnelt „Kein Waschbrettbauch…“ (Instagram, 2.800 Aufrufe)'], [/mit 70/i, 2, '„Was du mit 70 noch können möchtest“ lief auf Facebook (60.000 Aufrufe)'], [/(eine|1) minute(?!n)/i, 2, '„Eine Minute“ lief bei dir bis 91.000 Aufrufe'], [/\?/, 1, 'Frage']];
+const ALTER_RE = /(^|[^a-zäöüß])(alt|alter|jung|jünger|56|70|geburtsdatum)([^a-zäöüß]|$)/i;
+const PLAT_GUIDE = [['Instagram', 'Reel. Hook als Text im ersten Bild und am Anfang der Caption.'], ['Facebook', 'Gleiches Video. Caption immer mit Hook-Text, nie leer oder „Dein Reel“. Höchstens 3–4 Beiträge pro Tag.'], ['TikTok', 'Gleiches Video ohne Instagram-Logo.'], ['YouTube', 'Als Short, gleicher Master, kein Extra-Aufwand (niedrigste Priorität).']];
+// Briefs für Lücken: Videoidee mit Hook-Richtung aus den Treffern. Reihenfolge = Rotation, damit nicht jede Woche dasselbe vorgeschlagen wird.
+const GAP_IDEAS = {
+  funktion: [{
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Aufstehen vom Boden (10–30 Sek.)',
+    hook: 'Wann bist du das letzte Mal vom Boden aufgestanden, ohne dich abzustützen?'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Bücken (10–30 Sek.)',
+    hook: 'Bücken ist keine Altersfrage. Es ist eine Benutzungsfrage.'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Einbeinstand (10–20 Sek.)',
+    hook: 'Ein Bein. Kein Festhalten. Kein Trick.'
+  }, {
+    fn: 'REACH',
+    format: 'Funktions-Move',
+    title: 'Funktions-Move: Treppe und Hocke (10–30 Sek.)',
+    hook: 'Dein späteres Ich nimmt die Treppe. Oder auch nicht.'
+  }],
+  routine: [{
+    fn: 'DO',
+    format: '1 Minute JOGA',
+    title: '1 Minute JOGA: Hüfte nach langem Sitzen',
+    hook: 'Eine Minute. Mehr will ich gar nicht von dir.'
+  }, {
+    fn: 'DO',
+    format: 'Routine / 1 Minute JOGA',
+    title: 'Zwei Minuten, zwei Moves',
+    hook: 'Zwei Minuten. Zwei Moves.'
+  }, {
+    fn: 'DO',
+    format: '1 Minute JOGA',
+    title: '1 Minute JOGA: Rücken und Schultern',
+    hook: 'Eine Minute für später.'
+  }],
+  alter: [{
+    fn: 'REACH',
+    format: 'Statement',
+    title: 'Alters-Test: Neuauflage „Dein Alter steht im Ausweis“',
+    hook: 'Dein Alter steht im Ausweis. Wie alt sich dein Körper verhält, ist eine andere Geschichte.'
+  }, {
+    fn: 'ME',
+    format: 'Statement',
+    title: 'Alters-Test: Mit 56 beweglicher als mit 36?',
+    hook: 'Mit 56 beweglicher sein als mit 36?'
+  }],
+  frage: [{
+    fn: 'US',
+    format: 'US-Frage',
+    title: 'Was willst du mit 70 noch können?',
+    hook: 'Was willst du mit 70 noch können?'
+  }],
+  statement: [{
+    fn: 'ME',
+    format: 'Statement',
+    title: 'Statement einsprechen (03, 15 oder 16)',
+    hook: ''
+  }]
+};
+const scoreForWeek = p => {
+  let s = 0;
+  const why = [];
+  const t = [p.title, p.hook].join(' ');
+  HIT_RULES.forEach(([re, w, m]) => {
+    if (re.test(t)) {
+      s += w;
+      why.push(m);
+    }
+  });
+  if ((p.speech || '').split(/\s+/).filter(Boolean).length > 55) {
+    s -= 1;
+    why.push('Text eher lang (über ca. 30 Sek.)');
+  }
+  return {
+    s,
+    why
+  };
+};
+const mulberry32 = a => () => {
+  a |= 0;
+  a = a + 0x6D2B79F5 | 0;
+  let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+};
+// Zufallsziehung für einen einzelnen Beitrag (Tageswürfel und Zufallsgenerator). Art: v = vorhanden (noch nicht gepostet), n = Neuauflage (schon gepostet, Treffer mit mehr Gewicht), i = neue Videoidee.
+function rollOne(content, today, {
+  slot = null,
+  source = 'mix',
+  exclude = []
+}, rng) {
+  const kinds = {
+    vorhanden: ['v'],
+    neuauflage: ['n'],
+    neu: ['i'],
+    mix: ['v', 'n', 'i'],
+    plan: ['v', 'i']
+  }[source] || ['v', 'n', 'i'];
+  const slots = slot ? [slot] : SLOT_ORDER;
+  const cands = [];
+  content.forEach(p => {
+    if (p.world !== 'JOGA' || p.format === 'Spruch' || exclude.includes(p.id) || /ERNSTES THEMA/.test(p.scriptText || '')) return;
+    const ready = ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today);
+    const kind = ready ? 'v' : p.status === 'Gepostet' ? 'n' : null;
+    if (!kind || !kinds.includes(kind)) return;
+    const k = SLOT_ORDER.find(x => slots.includes(x) && SLOT_MATCH[x](p));
+    if (!k) return;
+    const sc = scoreForWeek(p);
+    const views = Math.max(0, ...(p.perf || []).map(x => Number(x.views) || 0));
+    cands.push({
+      kind,
+      slot: k,
+      piece: p,
+      views,
+      why: sc.why,
+      w: 1 + Math.max(0, sc.s) + Math.min(views / 1000, 8)
+    });
+  });
+  if (kinds.includes('i')) {
+    const taken = new Set(content.map(c => c.title));
+    slots.forEach(k => {
+      const fresh = GAP_IDEAS[k].filter(g => !taken.has(g.title));
+      (fresh.length ? fresh : GAP_IDEAS[k]).forEach(g => cands.push({
+        kind: 'i',
+        slot: k,
+        gap: g,
+        why: [],
+        w: 1
+      }));
+    });
+  }
+  if (!cands.length) return null;
+  const R = rng || Math.random;
+  const avail = kinds.filter(kd => cands.some(c => c.kind === kd));
+  const kd = avail[Math.floor(R() * avail.length)];
+  const ofKind = cands.filter(c => c.kind === kd);
+  const slotsHere = [...new Set(ofKind.map(c => c.slot))];
+  let r = R() * slotsHere.reduce((a, k) => a + SLOTS[k].n, 0),
+    sl = slotsHere[0];
+  for (const k of slotsHere) {
+    r -= SLOTS[k].n;
+    if (r <= 0) {
+      sl = k;
+      break;
+    }
+  }
+  const list = ofKind.filter(c => c.slot === sl);
+  let t = R() * list.reduce((a, c) => a + c.w, 0);
+  for (const c of list) {
+    t -= c.w;
+    if (t <= 0) return c;
+  }
+  return list[0];
+}
+// seed 0 = beste zuerst. seed > 0 = Würfeln: Mix und Slots bleiben datenbasiert, Reihenfolge, Auswahl im Slot (Treffer-Nähe als Gewicht) und Videoideen sind zufällig.
+function suggestWeek(content, today, skip, seed = 0, dayRolls = {}) {
+  const rng = seed ? mulberry32(seed) : null;
+  let pattern = WEEK_PATTERN.slice();
+  if (rng) for (let t = 0; t < 30; t++) {
+    for (let i = pattern.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [pattern[i], pattern[j]] = [pattern[j], pattern[i]];
+    }
+    if (pattern.every((k, i) => i === 0 || k !== pattern[i - 1])) break;
+  }
+  const pick = list => {
+    if (!rng || list.length < 2) return list[0];
+    const w = list.map(x => 1 + Math.max(0, x.s));
+    let r = rng() * w.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < list.length; i++) {
+      r -= w[i];
+      if (r <= 0) return list[i];
+    }
+    return list[0];
+  };
+  const days = Array.from({
+    length: 7
+  }, (_, i) => addDays(today, i));
+  const pool = content.filter(p => p.world === 'JOGA' && ['Skript fertig', 'Drehbereit', 'Gedreht', 'Geschnitten'].includes(p.status) && (!p.publishDate || p.publishDate < today) && !skip.includes(p.id) && !/ERNSTES THEMA/.test(p.scriptText || '')).map(p => ({
+    p,
+    ...scoreForWeek(p)
+  })).sort((a, b) => b.s - a.s);
+  const left = {};
+  SLOT_ORDER.forEach(k => {
+    left[k] = SLOTS[k].n;
+  });
+  const gapN = {};
+  let prev = null;
+  const rows = days.map((day, i) => {
+    const fixed = content.find(c => c.publishDate === day);
+    if (fixed) {
+      const k = SLOT_ORDER.find(k => SLOT_MATCH[k](fixed));
+      if (k && left[k] > 0) left[k]--;
+      prev = k || prev;
+      return {
+        day,
+        fixed
+      };
+    }
+    let slot = pattern[i];
+    if (!(left[slot] > 0)) slot = SLOT_ORDER.filter(k => left[k] > 0 && k !== prev)[0] || SLOT_ORDER.filter(k => left[k] > 0)[0] || slot;
+    left[slot] = Math.max(0, left[slot] - 1);
+    prev = slot;
+    const hit = pick(pool.filter(x => SLOT_MATCH[slot](x.p)));
+    if (hit) {
+      pool.splice(pool.indexOf(hit), 1);
+      return {
+        day,
+        slot,
+        piece: hit.p,
+        why: hit.why
+      };
+    }
+    const ideas = GAP_IDEAS[slot];
+    const n = gapN[slot] || 0;
+    gapN[slot] = n + 1;
+    const taken = new Set(content.map(c => c.title));
+    const free = ideas.filter(g => !taken.has(g.title));
+    const idea = rng ? free.length ? free[Math.floor(rng() * free.length)] : ideas[Math.floor(rng() * ideas.length)] : ideas.slice(n).concat(ideas.slice(0, n)).find(g => !taken.has(g.title)) || ideas[n % ideas.length];
+    return {
+      day,
+      slot,
+      gap: idea
+    };
+  });
+  Object.keys(dayRolls).forEach(day => {
+    const i = rows.findIndex(r => r.day === day);
+    if (i < 0 || rows[i].fixed) return;
+    const used = rows.filter((r, j) => j !== i && r.piece).map(r => r.piece.id).concat(skip);
+    const c = rollOne(content, today, {
+      source: 'plan',
+      exclude: used
+    }, mulberry32(dayRolls[day]));
+    if (c) rows[i] = c.piece ? {
+      day,
+      slot: c.slot,
+      piece: c.piece,
+      why: c.why
+    } : {
+      day,
+      slot: c.slot,
+      gap: c.gap
+    };
+  });
+  return rows;
+}
+function SpruchDesTages({
+  state,
+  update
+}) {
+  const [pickId, setPickId] = useState(null);
+  const all = state.content.filter(p => p.format === 'Spruch');
+  const open = all.filter(p => p.status !== 'Gepostet');
+  const ready = open.filter(p => !(p.tile && p.tile.ich && !p.tile.freigabe));
+  const wait = open.length - ready.length;
+  const posted = all.filter(p => p.status === 'Gepostet').sort((a, b) => (b.updated || '').localeCompare(a.updated || ''));
+  const lastTopf = posted[0] && posted[0].tile ? posted[0].tile.topf : null;
+  const roll = skipId => {
+    let pool = ready.filter(p => p.id !== skipId);
+    const alt = pool.filter(p => (p.tile || {}).topf !== lastTopf);
+    if (alt.length) pool = alt;
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)].id : null;
+  };
+  useEffect(() => {
+    if (ready.length && (!pickId || !ready.some(p => p.id === pickId))) setPickId(roll(null));
+  }, [all.length, ready.length, pickId]);
+  const piece = ready.find(p => p.id === pickId);
+  const patch = pt => update(s => ({
+    ...s,
+    content: s.content.map(c => c.id === piece.id ? {
+      ...c,
+      ...pt,
+      updated: todayISO()
+    } : c)
+  }));
+  const done = () => {
+    patch({
+      status: 'Gepostet',
+      publishDate: todayISO(),
+      platforms: ['Instagram', 'Facebook']
+    });
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    "data-heute": "S",
+    className: "sheet",
+    style: WRAP
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 2
+    }
+  }, "Spruch des Tages"), !all.length && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-spruch-empty": true
+  }, "Noch keine Sprüche in der App. Importiere sprueche-001-100.json (Produktion, ÜBERSICHT, Import)."), all.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    style: {
+      marginTop: 0
+    }
+  }, ready.length, " von ", all.length, " Sprüchen noch offen", wait ? ', ' + wait + ' warten auf deine Freigabe (Ich-Sprüche)' : '', ". Der Zufall meidet den Topf des zuletzt geposteten Spruchs."), all.length > 0 && !piece && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-spruch-none": true
+  }, "Keine freigegebenen Sprüche mehr offen."), piece && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      margin: '4px 0'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Topf ", (piece.tile || {}).topf || '–')), /*#__PURE__*/React.createElement("div", {
+    className: "hook",
+    style: {
+      marginTop: 4
+    }
+  }, piece.title), /*#__PURE__*/React.createElement(SpruchCard, {
+    key: piece.id,
+    p: piece,
+    set: patch
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => setPickId(roll(piece.id))
+  }, "Anderen Spruch würfeln"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: "primary",
+    onClick: done
+  }, "Als gepostet markieren"))));
+}
+function HeuteView({
+  state,
+  update,
+  gotoContent,
+  gotoBriefing
+}) {
+  const [skip, setSkip] = useState([]);
+  const [seed, setSeed] = useState(0);
+  const [rolls, setRolls] = useState({});
+  const [weekOpen, setWeekOpen] = useState(false);
+  const [gen, setGen] = useState({
+    slot: '',
+    source: 'mix',
+    res: null,
+    none: false
+  });
+  const today = todayISO(),
+    horizon = addDays(today, 7);
+  const markPosted = p => {
+    if (stIdx(p) < 4 && !confirm('„' + (p.title || 'Piece') + '“ ist noch nicht geschnitten. Trotzdem als gepostet markieren?')) return;
+    update(s => ({
+      ...s,
+      content: s.content.map(c => c.id === p.id ? {
+        ...c,
+        status: 'Gepostet',
+        updated: todayISO()
+      } : c)
+    }));
+  };
+  const open = state.content.filter(p => p.status !== 'Gepostet');
+  const A = state.content.filter(p => p.publishDate === today).sort((a, b) => a.title.localeCompare(b.title));
+  const rank = p => p.productionDate === today ? 0 : p.status === 'Drehbereit' && p.prodType === 'Neudreh' ? 1 : p.status === 'Drehbereit' ? 2 : 3;
+  const B = open.filter(p => !isDone(p) && (p.productionDate && p.productionDate <= today || p.publishDate && p.publishDate <= horizon)).sort((a, b) => rank(a) - rank(b) || byDate(a, b));
+  const C = open.filter(p => p.publishDate && p.publishDate <= horizon && !isDone(p)).sort(byDate);
+  const greens = state.content.filter(p => p.publishDate >= today && p.publishDate <= horizon && isDone(p)).length;
+  const D = open.filter(p => p.publishDate > today).sort(byDate).slice(0, 3);
+  const act = p => p.status === 'Drehbereit' ? p.prodType === 'Neudreh' ? 'Dreh öffnen' : 'Schnitt öffnen' : p.status === 'Gedreht' ? 'Schnitt öffnen' : 'Öffnen';
+  const go = p => p.status === 'Drehbereit' ? gotoBriefing(p.id) : gotoContent(p.id); // Drehbereit → Drehbriefing, sonst Editor
+  const sec = (id, title, sub, children) => /*#__PURE__*/React.createElement("div", {
+    "data-heute": id,
+    className: "sheet",
+    style: WRAP
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      marginBottom: 2
+    }
+  }, title), sub && /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    style: {
+      marginTop: 0
+    }
+  }, sub), children);
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Heute"), /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-today": true
+  }, wdName(today), " ", fmtD(today), today.slice(0, 4))), sec('A', 'Heute posten', A.length ? A.length + ' Piece' + (A.length > 1 ? 's' : '') : null, A.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-empty": true
+  }, "Heute ist nichts zum Posten geplant.") : A.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    "data-card": true,
+    className: "card slim",
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), /*#__PURE__*/React.createElement("span", {
+    className: `type type-${p.fn}`
+  }, p.fn), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, p.prodType, " · ", p.status), p.series && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-series-badge": true
+  }, "· Serie ", p.series)), /*#__PURE__*/React.createElement("div", {
+    className: "hook",
+    style: {
+      marginTop: 4
+    }
+  }, p.title), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, p.platforms.join(' · ') || 'keine Plattform gewählt'), /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0,
+      marginTop: 6
+    }
+  }, PLAT_GUIDE.filter(([pl]) => p.platforms.includes(pl)).map(([pl, txt]) => /*#__PURE__*/React.createElement("div", {
+    key: pl
+  }, /*#__PURE__*/React.createElement("b", null, pl, ":"), " ", txt)), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, "Caption:"), " ", p.caption || p.hook || p.title)), /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => gotoContent(p.id)
+  }, "Öffnen"), p.status !== 'Gepostet' ? /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: "primary",
+    onClick: () => markPosted(p)
+  }, "Als gepostet markieren") : /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "✓ gepostet"))))), /*#__PURE__*/React.createElement(SpruchDesTages, {
+    state: state,
+    update: update
+  }), (() => {
+    const KIND = {
+      v: 'Vorhanden',
+      n: 'Neuauflage',
+      i: 'Neu produzieren'
+    };
+    const roll = () => {
+      const c = rollOne(state.content, today, {
+        slot: gen.slot || null,
+        source: gen.source
+      }, null);
+      setGen({
+        ...gen,
+        res: c,
+        none: !c
+      });
+    };
+    const c = gen.res;
+    const plan = piece => update(s => ({
+      ...s,
+      content: s.content.map(x => x.id === piece.id ? {
+        ...x,
+        publishDate: today,
+        platforms: PLATFORMS.slice(),
+        updated: todayISO()
+      } : x)
+    }));
+    const idea = (g, extra = {}) => update(s => ({
+      ...s,
+      content: [...s.content, newPiece({
+        fn: g.fn,
+        format: g.format,
+        title: g.title,
+        hook: g.hook,
+        status: 'Idee',
+        platforms: PLATFORMS.slice(),
+        publishDate: today,
+        ...extra
+      })]
+    }));
+    const done = c && state.content.some(x => x.publishDate === today && (c.piece ? x.id === c.piece.id || x.material === 'Neuauflage von „' + c.piece.title + '“' : x.title === c.gap.title));
+    return sec('Z', 'Zufallsgenerator', 'Für Beiträge außerhalb des Plans. Kategorie und Quelle wählen, dann würfeln. Treffer-Nähe erhöht nur die Chance, garantiert nichts.', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "row wrap"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Kategorie"), /*#__PURE__*/React.createElement(Tag, {
+      on: !gen.slot,
+      onClick: () => setGen({
+        ...gen,
+        slot: ''
+      })
+    }, "Alle"), SLOT_ORDER.map(k => /*#__PURE__*/React.createElement(Tag, {
+      key: k,
+      on: gen.slot === k,
+      onClick: () => setGen({
+        ...gen,
+        slot: k
+      })
+    }, SLOTS[k].label))), /*#__PURE__*/React.createElement("div", {
+      className: "row wrap"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Quelle"), [['mix', 'Alles'], ['vorhanden', 'Vorhanden'], ['neuauflage', 'Neuauflage'], ['neu', 'Neu produzieren']].map(([k, l]) => /*#__PURE__*/React.createElement(Tag, {
+      key: k,
+      on: gen.source === k,
+      onClick: () => setGen({
+        ...gen,
+        source: k
+      })
+    }, l))), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, "Vorhanden = Piece mit Skript, noch nicht gepostet. Neuauflage = schon gepostetes Piece (Treffer bevorzugt) als neue Version. Neu produzieren = Videoidee mit Hook-Richtung."), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      kind: "primary",
+      onClick: roll
+    }, "🎲 Würfeln")), gen.none && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      "data-empty": true
+    }, "Dazu gibt es nichts. Wähle eine andere Kategorie oder Quelle."), c && /*#__PURE__*/React.createElement("div", {
+      "data-gen-result": true,
+      className: "card slim",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      style: {
+        margin: 0
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, SLOTS[c.slot].label), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "· ", KIND[c.kind]), c.piece && /*#__PURE__*/React.createElement("span", {
+      className: `type type-${c.piece.fn}`
+    }, c.piece.fn)), /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, c.piece ? c.piece.title : c.gap.title), c.gap && c.gap.hook && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, "Hook-Richtung: „", c.gap.hook, "“"), c.kind === 'n' && c.views > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, "Beim ersten Mal: ", c.views, " Aufrufe"), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, c.why.length ? c.why.join(' · ') : SLOTS[c.slot].why), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, c.piece && /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => gotoContent(c.piece.id)
+    }, "Öffnen"), done ? /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "✓ für heute eingeplant") : c.kind === 'v' ? /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      kind: "primary",
+      onClick: () => plan(c.piece)
+    }, "Für heute einplanen") : c.kind === 'n' ? /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      kind: "primary",
+      onClick: () => idea({
+        fn: c.piece.fn,
+        format: c.piece.format,
+        title: c.piece.title,
+        hook: c.piece.hook
+      }, {
+        speech: c.piece.speech,
+        scriptText: c.piece.scriptText,
+        material: 'Neuauflage von „' + c.piece.title + '“'
+      })
+    }, "Als Neuauflage für heute anlegen") : /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      kind: "primary",
+      onClick: () => idea(c.gap)
+    }, "Als Idee für heute anlegen"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: roll
+    }, "Nochmal")))));
+  })(), (() => {
+    const plan = suggestWeek(state.content, today, skip, seed, rolls);
+    const assigns = plan.filter(r => r.piece);
+    const accept = () => update(s => ({
+      ...s,
+      content: s.content.map(c => {
+        const r = assigns.find(a => a.piece.id === c.id);
+        return r ? {
+          ...c,
+          publishDate: r.day,
+          platforms: PLATFORMS.slice(),
+          updated: todayISO()
+        } : c;
+      })
+    }));
+    const addIdea = (g, day) => update(s => ({
+      ...s,
+      content: [...s.content, newPiece({
+        fn: g.fn,
+        format: g.format,
+        title: g.title,
+        hook: g.hook,
+        status: 'Idee',
+        platforms: PLATFORMS.slice(),
+        publishDate: day
+      })]
+    }));
+    const hasIdea = (g, day) => state.content.some(c => c.title === g.title && c.status === 'Idee' && c.publishDate === day);
+    const cnt = {};
+    plan.forEach(r => {
+      if (r.slot) cnt[r.slot] = (cnt[r.slot] || 0) + 1;
+    });
+    return sec('V', 'Wochenvorschlag aus den Daten', 'Gemischter Plan: 2 Funktions-Moves, 2 Routinen, 1 Alters-Test, 1 Statement, 1 US-Frage. Aus deinen Facebook-/Instagram-Daten, kleine Stichprobe, also ein Vorschlag.', /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 6
+      }
+    }, assigns.length ? /*#__PURE__*/React.createElement(Btn, {
+      kind: "primary",
+      onClick: accept
+    }, "Vorhandene übernehmen (", assigns.length, ")") : /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Keine vorhandenen Pieces zu übernehmen."), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => {
+        setSkip([]);
+        setRolls({});
+        setSeed(Math.floor(Math.random() * 1e9) + 1);
+      }
+    }, "🎲 Ganze Woche würfeln"), (skip.length > 0 || seed > 0 || Object.keys(rolls).length > 0) && /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => {
+        setSkip([]);
+        setSeed(0);
+        setRolls({});
+      }
+    }, "Beste zuerst")), seed > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "hint"
+    }, "Gewürfelt: Mix und Slots bleiben datenbasiert, Auswahl und Reihenfolge sind zufällig. Treffer-Nähe erhöht nur die Chance, garantiert nichts."), assigns.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "hint"
+    }, "Beim Übernehmen bekommen die Pieces das Datum und alle vier Plattformen (Facebook inklusive, dort liegt deine größte Reichweite)."), (weekOpen ? plan : plan.slice(0, 3)).map(r => /*#__PURE__*/React.createElement("div", {
+      key: r.day,
+      "data-plan-row": true,
+      className: "card slim",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      style: {
+        margin: 0
+      }
+    }, /*#__PURE__*/React.createElement("b", null, wdName(r.day), " ", fmtD(r.day)), r.slot && /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, SLOTS[r.slot].label), r.fixed && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+      className: `type type-${r.fixed.fn}`
+    }, r.fixed.fn), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "✓ geplant")), r.piece && /*#__PURE__*/React.createElement("span", {
+      className: `type type-${r.piece.fn}`
+    }, r.piece.fn), r.gap && /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "· Neu produzieren")), r.fixed && /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.fixed.title), r.piece && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.piece.title), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, r.why.length ? r.why.join(' · ') : SLOTS[r.slot].why), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => gotoContent(r.piece.id)
+    }, "Öffnen"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setSkip([...skip, r.piece.id])
+    }, "Anderes"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setRolls({
+        ...rolls,
+        [r.day]: Math.floor(Math.random() * 1e9) + 1
+      })
+    }, "🎲 Tag"))), r.gap && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "hook",
+      style: {
+        marginTop: 4
+      }
+    }, r.gap.title), r.gap.hook && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, "Hook-Richtung: „", r.gap.hook, "“"), /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        textTransform: 'none',
+        letterSpacing: 0
+      }
+    }, SLOTS[r.slot].why), /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, hasIdea(r.gap, r.day) ? /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "✓ als Idee angelegt") : /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => addIdea(r.gap, r.day)
+    }, "Als Idee anlegen"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setRolls({
+        ...rolls,
+        [r.day]: Math.floor(Math.random() * 1e9) + 1
+      })
+    }, "🎲 Tag"))))), plan.length > 3 && /*#__PURE__*/React.createElement("div", {
+      className: "row",
+      style: {
+        marginTop: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setWeekOpen(!weekOpen)
+    }, weekOpen ? 'Nur 3 Tage zeigen' : 'Alle ' + plan.length + ' Tage zeigen'))));
+  })(), sec('B', 'Heute produzieren', B.length ? 'Fällig in den nächsten 7 Tagen und noch nicht geschnitten. Drehbereite Neudrehs zuerst.' : null, B.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-empty": true
+  }, "Nichts zu produzieren.") : B.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    "data-card": true,
+    "data-id": p.id,
+    className: "card slim",
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card-top"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hook"
+  }, p.title)), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, "Veröffentlichung ", wdName(p.publishDate), " ", fmtD(p.publishDate), " · ", pieceLen(p) ? pieceLen(p) + ' Sek.' : 'Länge offen', " · ", p.entry, " · ", AUDIO_SHORT[p.audio], " · ", p.prodType), p.material && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      textTransform: 'none',
+      letterSpacing: 0
+    }
+  }, "Material: ", p.material), p.preproductionRequired && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 6
+    }
+  }, /*#__PURE__*/React.createElement(PreBadge, {
+    s: preState(p)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: p.status === 'Drehbereit' ? 'primary' : undefined,
+    onClick: () => go(p)
+  }, act(p)))))), sec('C', 'Offen / gefährdet', 'Nächste 7 Tage, Status noch zu niedrig. Rot: unter 48 h. Gelb: noch mindestens 48 h.' + (greens ? ' ' + greens + ' bereits fertig (grün).' : ''), C.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-empty": true
+  }, "Nichts gefährdet.") : C.map(p => {
+    const a = ampel(p, today);
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      "data-risk": true,
+      "data-id": p.id,
+      className: "row between",
+      onClick: () => gotoContent(p.id),
+      style: {
+        cursor: 'pointer',
+        margin: '8px 0'
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement(Dot, {
+      c: a.c
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, p.title)), /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        flex: 'none'
+      }
+    }, wdName(p.publishDate), " ", fmtD(p.publishDate), " · ", p.status, " · ", a.t));
+  })), sec('D', 'Danach', 'Die nächsten drei Veröffentlichungen.', D.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    "data-empty": true
+  }, "Keine weiteren geplanten Pieces.") : D.map(p => /*#__PURE__*/React.createElement("div", {
+    key: p.id,
+    "data-next": true,
+    className: "row between",
+    onClick: () => gotoContent(p.id),
+    style: {
+      cursor: 'pointer',
+      margin: '8px 0'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), " ", p.title), /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      flex: 'none'
+    }
+  }, wdName(p.publishDate), " ", fmtD(p.publishDate))))));
+}
+
+/* ---- Serien-Sammlung: pro Serie/Format-Gruppe alle Videos gesammelt, nicht nach Tag sortiert ---- */
+const seriesNo = p => {
+  const m = /^dj-(\d+)$/.exec(p.id);
+  return p.id === 'v23-herbst-4tipps' ? 0 : m ? parseInt(m[1], 10) : 999;
+};
+// Anzeige-Gruppierung (nur Darstellung, die Pieces bleiben unverändert): uneinheitliche Formatnamen werden zu einer Reihe zusammengefasst.
+const REIHE_ALIAS = [[/^typisch mann/i, 'Typisch Mann'], [/^oli geht/i, 'Oli Geht'], [/^oli klärt/i, 'Oli Klärt'], [/^oli bewegt hamburg/i, 'Oli Bewegt Hamburg'], [/^routine|^challenge\/routine|^1 minute joga/i, 'Routine / 1 Minute JOGA'], [/^wow|^challenge/i, 'WOW / Challenge'], [/^persönlichkeit|^erklärung/i, 'Haltung & Erklärung']];
+const reiheOf = p => {
+  if (p.series) return p.series;
+  const f = (p.format || '').trim();
+  if (!f) return '(ohne Format)';
+  const a = REIHE_ALIAS.find(([re]) => re.test(f));
+  return a ? a[1] : f;
+};
+function SeriesCollection({
+  state,
+  gotoContent,
+  ui,
+  setUi
+}) {
+  const groups = {};
+  state.content.forEach(p => {
+    (groups[reiheOf(p)] = groups[reiheOf(p)] || []).push(p);
+  });
+  const isSeries = n => state.content.some(p => p.series === n);
+  const names = Object.keys(groups).sort((a, b) => isSeries(b) - isSeries(a) || groups[b].length - groups[a].length || a.localeCompare(b));
+  if (names.length === 0) return /*#__PURE__*/React.createElement("p", {
+    className: "empty",
+    "data-empty": true
+  }, "Noch keine Inhalte.");
+  const cur = names.includes(ui.reihe) || ui.reihe === '__alle' ? ui.reihe : names[0]; // Standard: erste Serie
+  const shown = cur === '__alle' ? names : [cur];
+  const idx = names.indexOf(cur); // bei „Alle“ = -1 → Pfeile ohne Wirkung
+  return /*#__PURE__*/React.createElement("div", {
+    "data-series-collection": true,
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      margin: 0,
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => idx > 0 && setUi({
+      reihe: names[idx - 1]
+    })
+  }, "‹"), /*#__PURE__*/React.createElement("select", {
+    "data-reihe-select": true,
+    value: cur,
+    onChange: e => setUi({
+      reihe: e.target.value
+    }),
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, names.map(n => /*#__PURE__*/React.createElement("option", {
+    key: n,
+    value: n
+  }, isSeries(n) ? '★ ' : '', n, " (", groups[n].length, ")")), /*#__PURE__*/React.createElement("option", {
+    value: "__alle"
+  }, "Alle Serien untereinander")), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => idx >= 0 && idx < names.length - 1 && setUi({
+      reihe: names[idx + 1]
+    })
+  }, "›")), /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    style: {
+      marginTop: 4
+    }
+  }, "Eine Serie wählen. ★ = Serie mit fester Reihenfolge, sonst nach Datum. Ähnliche Formate sind zusammengefasst."), shown.map(n => {
+    const ser = isSeries(n);
+    const ps = groups[n].slice().sort((a, b) => ser ? seriesNo(a) - seriesNo(b) || a.title.localeCompare(b.title) : (a.publishDate || '9999') < (b.publishDate || '9999') ? -1 : (a.publishDate || '9999') > (b.publishDate || '9999') ? 1 : a.title.localeCompare(b.title));
+    const dated = ps.filter(p => p.publishDate).length,
+      posted = ps.filter(p => p.status === 'Gepostet').length;
+    return /*#__PURE__*/React.createElement("div", {
+      key: n,
+      className: "sheet",
+      "data-series": n,
+      style: WRAP
+    }, /*#__PURE__*/React.createElement("h2", {
+      style: {
+        marginBottom: 2
+      }
+    }, n), /*#__PURE__*/React.createElement("div", {
+      className: "hint",
+      style: {
+        marginTop: 0
+      }
+    }, ps.length, " Videos · ", C_STATUS.map(st => [st, ps.filter(p => p.status === st).length]).filter(x => x[1]).map(x => x[1] + ' ' + x[0]).join(' · '), " · ", dated, " terminiert · ", ps.length - dated, " ohne Datum"), ps.map(p => {
+      const no = seriesNo(p);
+      return /*#__PURE__*/React.createElement("div", {
+        key: p.id,
+        "data-series-item": true,
+        "data-id": p.id,
+        className: "card slim",
+        onClick: () => gotoContent(p.id),
+        style: {
+          marginTop: 6,
+          ...WRAP
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "row between",
+        style: {
+          margin: 0
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "meta"
+      }, /*#__PURE__*/React.createElement("b", null, !ser ? p.world : no === 0 ? 'Pilot' : no === 999 ? '·' : '#' + String(no).padStart(2, '0'))), /*#__PURE__*/React.createElement("span", {
+        className: "meta"
+      }, p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : ser && no === 0 ? '08.10. gedreht' : ser ? 'Reserve · ohne Datum' : 'ohne Datum')), /*#__PURE__*/React.createElement("div", {
+        className: "hook",
+        style: {
+          marginTop: 4
+        }
+      }, p.title || '(ohne Titel)'), /*#__PURE__*/React.createElement("div", {
+        className: "meta"
+      }, p.status, " · ", readinessLabel(p)));
+    }));
+  }));
+}
+
+/* ---- 7-WOCHEN-PLAN: 12.10.–29.11.2026, ein Hauptslot pro Tag plus optionale Serien-Zusatzposts (mehrere Pieces pro Tag möglich); öffnet immer das Original ---- */
+function PlanView({
+  state,
+  gotoContent,
+  ui,
+  setUi
+}) {
+  const today = todayISO();
+  const wk = ui.planWeek,
+    view = ui.planView,
+    W = PLAN_WEEKS[wk];
+  const piecesOn = d => state.content.filter(p => p.publishDate === d);
+  const plannedDays = (() => {
+    let n = 0;
+    for (let i = 0; i < 49; i++) if (piecesOn(addDays(PLAN_START, i)).length) n++;
+    return n;
+  })();
+  const days = w => Array.from({
+    length: 7
+  }, (_, i) => addDays(w.start, i));
+  const weekPieces = w => state.content.filter(p => p.publishDate >= w.start && p.publishDate <= w.end);
+  const weekPre = preCount(weekPieces(W));
+  const allPre = preCount(state.content);
+  const Slot = ({
+    p
+  }) => /*#__PURE__*/React.createElement("div", {
+    "data-slot": true,
+    "data-id": p.id,
+    className: "card slim",
+    onClick: () => gotoContent(p.id),
+    style: {
+      marginTop: 6,
+      ...WRAP
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement(WorldBadge, {
+    w: p.world
+  }), /*#__PURE__*/React.createElement("span", {
+    className: `type type-${p.fn}`
+  }, p.fn), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, p.format), p.series && /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-series-badge": true
+  }, "· Serie")), /*#__PURE__*/React.createElement("div", {
+    className: "hook",
+    style: {
+      marginTop: 4
+    }
+  }, p.title), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, p.prodType, " · ", p.platforms.join(', ') || '–'), /*#__PURE__*/React.createElement("div", {
+    className: "row between",
+    style: {
+      margin: '2px 0 0'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-readiness": true
+  }, p.status, " · ", readinessLabel(p)), p.preproductionRequired && /*#__PURE__*/React.createElement(PreBadge, {
+    s: preState(p)
+  })));
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "7-Wochen-Plan")), /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    "data-plan-count": true,
+    style: {
+      marginTop: -4
+    }
+  }, plannedDays, " von 49 Tagen belegt", allPre.n > 0 ? ' · Vorproduktion ' + allPre.done + ' von ' + allPre.n + ' geschnitten' : ''), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-week-tabs": true
+  }, PLAN_WEEKS.map((w, i) => /*#__PURE__*/React.createElement(Tag, {
+    key: i,
+    on: wk === i,
+    onClick: () => setUi({
+      planWeek: i
+    })
+  }, "W", w.n, today >= w.start && today <= w.end ? ' •' : ''))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Tag, {
+    on: view === 'wochen',
+    onClick: () => setUi({
+      planView: 'wochen'
+    })
+  }, "Wochen"), /*#__PURE__*/React.createElement(Tag, {
+    on: view === 'kalender',
+    onClick: () => setUi({
+      planView: 'kalender'
+    })
+  }, "Kalender"), /*#__PURE__*/React.createElement(Tag, {
+    on: view === 'serien',
+    onClick: () => setUi({
+      planView: 'serien'
+    })
+  }, "Serien")), view === 'wochen' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "row between",
+    "data-week-head": true
+  }, /*#__PURE__*/React.createElement("h2", {
+    style: {
+      margin: 0
+    }
+  }, "W", W.n, " · ", fmtD(W.start), "–", fmtD(W.end)), weekPre.n > 0 && /*#__PURE__*/React.createElement("span", {
+    "data-week-pre": true,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, weekPre.done, "/", weekPre.n), /*#__PURE__*/React.createElement(PreBadge, {
+    s: weekPre.n > 0 && weekPre.done === weekPre.n ? 'VORPRODUZIERT' : 'VORPRODUZIEREN'
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "hint",
+    style: {
+      marginTop: 2
+    }
+  }, WEEK_LABEL[wk], weekPre.n > 0 ? ' · alle Pieces dieser Woche vorab drehen und schneiden. VORPRODUZIERT erst ab „Geschnitten“, keine spontane Aufnahme am Veröffentlichungstag' : ''), days(W).map(d => {
+    const ps = piecesOn(d);
+    return /*#__PURE__*/React.createElement("div", {
+      key: d,
+      "data-day": d,
+      className: "sheet",
+      style: {
+        padding: 10,
+        marginBottom: 8,
+        borderColor: d === today ? 'var(--accent)' : undefined
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "row between",
+      style: {
+        margin: 0
+      }
+    }, /*#__PURE__*/React.createElement("b", null, wdName(d), " ", fmtD(d)), d === today && /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        color: 'var(--accent)'
+      }
+    }, "HEUTE")), ps.map(p => /*#__PURE__*/React.createElement(Slot, {
+      key: p.id,
+      p: p
+    })), ps.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      "data-empty": true,
+      style: {
+        marginTop: 6
+      }
+    }, "Kein Slot geplant"));
+  })), view === 'serien' && /*#__PURE__*/React.createElement(SeriesCollection, {
+    state: state,
+    gotoContent: gotoContent,
+    ui: ui,
+    setUi: setUi
+  }), view === 'kalender' && /*#__PURE__*/React.createElement("div", {
+    "data-calendar": true,
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '30px repeat(7, 1fr)',
+      gap: 4,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", null), ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(x => /*#__PURE__*/React.createElement("span", {
+    key: x,
+    className: "meta",
+    style: {
+      textAlign: 'center'
+    }
+  }, x))), PLAN_WEEKS.map((w, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    "data-cal-week": w.n,
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '30px repeat(7, 1fr)',
+      gap: 4,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      alignSelf: 'center',
+      lineHeight: 1.1
+    }
+  }, "W", w.n, (() => {
+    const c = preCount(weekPieces(w));
+    return c.n ? /*#__PURE__*/React.createElement("small", {
+      "data-cal-pre": true,
+      style: {
+        display: 'block',
+        fontSize: 9
+      }
+    }, c.done, "/", c.n) : null;
+  })()), days(w).map(d => {
+    const ps = piecesOn(d);
+    return /*#__PURE__*/React.createElement("div", {
+      key: d,
+      "data-cal-day": d,
+      style: {
+        background: 'var(--panel)',
+        border: '1px solid ' + (d === today ? 'var(--accent)' : 'var(--line)'),
+        borderRadius: 6,
+        minHeight: 46,
+        padding: 3
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: 'var(--muted)'
+      }
+    }, d.slice(8)), ps.map(p => /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      "data-cal-piece": true,
+      onClick: () => gotoContent(p.id),
+      style: {
+        fontSize: 10,
+        fontWeight: 800,
+        textAlign: 'center',
+        borderRadius: 3,
+        marginTop: 2,
+        padding: '1px 0',
+        cursor: 'pointer',
+        background: p.world === 'OLI' ? 'var(--accent)' : 'var(--panel2)',
+        color: p.world === 'OLI' ? 'var(--accent-ink)' : 'var(--text)',
+        outline: isDone(p) ? '2px solid ' + AMPEL_COL.green : 'none'
+      }
+    }, p.series ? 'S' : p.world === 'OLI' ? 'O' : 'J')));
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "J = JOGA · O = OLI · S = Serie (zusätzlicher Post) · grüner Rahmen = geschnitten/gepostet · n/7 unter der Woche = bereits vorproduziert (mind. „Geschnitten“). Tippen öffnet das Piece.")));
+}
+
+/* ---- PRODUKTION: Übersicht (Liste | Board) · Ideen · Skripte · Drehen · Schneiden · Bereit ---- */
+function applyPf(list, pf) {
+  return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' ? p.format !== 'Spruch' : p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
+}
+function ProduktionView({
+  state,
+  update,
+  ui,
+  setUi,
+  gotoContent,
+  gotoHooks
+}) {
+  const fileRef = useRef();
+  const pf = ui.pf,
+    sec = ui.prodSec;
+  const setPf = patch => setUi({
+    pf: {
+      ...pf,
+      ...patch
+    }
+  });
+  const all = applyPf(state.content, pf);
+  const countOf = st => all.filter(p => p.status === st).length;
+  const formats = [...new Set(state.content.map(p => p.format).filter(Boolean))].sort();
+  const create = () => {
+    const n = newPiece({
+      world: pf.world === 'OLI' ? 'OLI' : 'JOGA'
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, n]
+    }));
+    gotoContent(n.id);
+  };
+  const exportJSON = () => {
+    const a = document.createElement('a');
+    a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.content, null, 1));
+    a.download = 'joga-content.json';
+    a.click();
+  };
+  const importJSON = f => {
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const arr = JSON.parse(rd.result);
+        if (!Array.isArray(arr)) throw 0;
+        update(s => {
+          const ids = new Set(s.content.map(c => c.id));
+          const add = arr.filter(m => m && m.title).map(m => {
+            const piece = !m.world ? migrateOliItem(m, uid()) : normPiece(m);
+            if (piece.status === 'Drehbereit' && readinessMissing(piece).length) piece.status = 'Skript fertig'; // kein unvollständiges Piece auf Drehbereit
+            return ids.has(piece.id) ? {
+              ...piece,
+              id: uid()
+            } : piece;
+          });
+          return {
+            ...s,
+            content: [...s.content, ...add]
+          };
+        });
+      } catch {
+        alert('Datei ist kein JSON-Array mit Content-Pieces.');
+      }
+    };
+    rd.readAsText(f);
+  };
+  const sel = (label, val, key, opts) => /*#__PURE__*/React.createElement(Field, {
+    label: label
+  }, /*#__PURE__*/React.createElement("select", {
+    value: val,
+    onChange: e => setPf({
+      [key]: e.target.value
+    })
+  }, /*#__PURE__*/React.createElement("option", null, "Alle"), opts.map(o => /*#__PURE__*/React.createElement("option", {
+    key: o
+  }, o))));
+  const stageList = st => all.filter(p => p.status === st).sort(byDate);
+  const setStatus = (id, st) => update(s => ({
+    ...s,
+    content: s.content.map(c => c.id === id ? {
+      ...c,
+      status: st,
+      updated: todayISO()
+    } : c)
+  }));
+  const focus = ui.focusId ? state.content.find(c => c.id === ui.focusId) : null;
+  const today = todayISO();
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Produktion"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: create
+  }, "+ Piece")), (() => {
+    const key = c => (c.title || '').trim().toLowerCase();
+    const todo = state.content.filter(c => c.format === 'Kachel' && TILE_DATA[key(c)] && TILE_DATA[key(c)].caption && TILE_DATA[key(c)].caption !== c.caption && (!c.caption || c.caption === OLD_TILE_CAPTIONS[key(c)]));
+    if (!todo.length) return null;
+    const apply = () => {
+      if (!confirm(todo.length + ' Kachel-Captions durch die neuen Vorlagen ersetzen? Selbst geänderte Captions bleiben unangetastet.')) return;
+      const ids = new Set(todo.map(c => c.id));
+      update(s => ({
+        ...s,
+        content: s.content.map(c => ids.has(c.id) ? {
+          ...c,
+          caption: TILE_DATA[key(c)].caption,
+          updated: todayISO()
+        } : c)
+      }));
+    };
+    return /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      "data-tile-bulk": true,
+      style: {
+        alignItems: 'center',
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: apply
+    }, "Alle ", todo.length, " neuen Kachel-Captions einsetzen"), /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, "Nur Kacheln mit altem Entwurf oder leerer Caption."));
+  })(), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-prod-nav": true
+  }, /*#__PURE__*/React.createElement(Tag, {
+    on: sec === 'uebersicht',
+    onClick: () => setUi({
+      prodSec: 'uebersicht',
+      focusId: null
+    })
+  }, "ÜBERSICHT"), STAGES.map(([k, label, st]) => /*#__PURE__*/React.createElement(Tag, {
+    key: k,
+    on: sec === k,
+    onClick: () => setUi({
+      prodSec: k,
+      focusId: null
+    })
+  }, label, " ", countOf(st)))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-world-filter": true
+  }, ['Alle', ...WORLDS].map(w => /*#__PURE__*/React.createElement(Tag, {
+    key: w,
+    on: pf.world === w,
+    onClick: () => setPf({
+      world: w
+    })
+  }, w))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, ['Alle', ...TYPES].map(t => /*#__PURE__*/React.createElement(Tag, {
+    key: t,
+    on: pf.fn === t,
+    onClick: () => setPf({
+      fn: t
+    })
+  }, t))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-series-filter": true
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Serie"), ['Alle', SERIES_DARK].map(x => /*#__PURE__*/React.createElement(Tag, {
+    key: x,
+    on: (pf.series || 'Alle') === x,
+    onClick: () => setPf({
+      series: x
+    })
+  }, x))), pf.series === SERIES_DARK && (() => {
+    const sp = state.content.filter(c => c.series === SERIES_DARK);
+    const pool = sp.filter(c => c.id !== 'v23-herbst-4tipps');
+    const slot = pool.filter(c => SERIES_SLOTS.includes(c.publishDate)).length;
+    return /*#__PURE__*/React.createElement("div", {
+      className: "hint",
+      "data-series-count": true
+    }, "Pool ", pool.length, " von 28 (ohne Pilot) · terminiert ", pool.filter(c => c.publishDate).length, " · Serien-Slots Di/Do/Sa belegt ", slot, " von ", SERIES_SLOTS.length);
+  })(), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, sel('Produktionsart', pf.prodType, 'prodType', PROD_TYPES), sel('Plattform', pf.platform, 'platform', PLATFORMS), /*#__PURE__*/React.createElement(Field, {
+    label: "Format"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: pf.format,
+    onChange: e => setPf({
+      format: e.target.value
+    })
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "Alle"
+  }, "Alle (", state.content.length, ")"), [...FORMAT_GROUPS.map(([g]) => g), 'Weitere'].map(g => {
+    const items = formats.filter(f => formatGroupOf(f) === g).map(f => [f, state.content.filter(c => c.format === f).length]).sort((x, y) => y[1] - x[1]);
+    return items.length ? /*#__PURE__*/React.createElement("optgroup", {
+      key: g,
+      label: g
+    }, items.map(([f, n]) => /*#__PURE__*/React.createElement("option", {
+      key: f,
+      value: f
+    }, f, " (", n, ")"))) : null;
+  }))), sec === 'uebersicht' && sel('Status', pf.status, 'status', C_STATUS)), sec === 'uebersicht' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, /*#__PURE__*/React.createElement(Tag, {
+    on: ui.prodView === 'liste',
+    onClick: () => setUi({
+      prodView: 'liste'
+    })
+  }, "Liste"), /*#__PURE__*/React.createElement(Tag, {
+    on: ui.prodView === 'board',
+    onClick: () => setUi({
+      prodView: 'board'
+    })
+  }, "Board")), ui.prodView === 'board' ? /*#__PURE__*/React.createElement(Board, {
+    state: state,
+    update: update
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "stats",
+    "data-stage-counts": true,
+    style: {
+      gridTemplateColumns: 'repeat(4, minmax(0, 1fr))'
+    }
+  }, STAGES.map(([k, label, st]) => /*#__PURE__*/React.createElement("div", {
+    key: k,
+    onClick: () => setUi({
+      prodSec: k,
+      focusId: null
+    }),
+    style: {
+      cursor: 'pointer'
+    }
+  }, /*#__PURE__*/React.createElement("b", null, countOf(st)), /*#__PURE__*/React.createElement("small", null, label))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, countOf('Gepostet')), /*#__PURE__*/React.createElement("small", null, "GEPOSTET"))), /*#__PURE__*/React.createElement("p", {
+    className: "hint",
+    "data-count": true
+  }, all.length, " von ", state.content.length, " Pieces"), /*#__PURE__*/React.createElement("ul", {
+    className: "list"
+  }, all.slice().sort(byDate).map(p => /*#__PURE__*/React.createElement(PieceRow, {
+    key: p.id,
+    p: p,
+    onOpen: gotoContent,
+    today: today
+  }))), all.length === 0 && /*#__PURE__*/React.createElement("p", {
+    className: "empty"
+  }, "Keine Pieces mit diesen Filtern."), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => fileRef.current.click()
+  }, "JSON importieren"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: exportJSON
+  }, "JSON exportieren"), /*#__PURE__*/React.createElement("input", {
+    ref: fileRef,
+    type: "file",
+    accept: "application/json",
+    hidden: true,
+    onChange: e => e.target.files[0] && importJSON(e.target.files[0])
+  })))), ['ideen', 'skripte', 'schneiden', 'bereit'].includes(sec) && (() => {
+    const st = STAGES.find(x => x[0] === sec)[2],
+      L = stageList(st);
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+      className: "hint",
+      "data-count": true
+    }, L.length, " Pieces im Status „", st, "“", sec === 'bereit' ? '. Gepostete Pieces findest du unter ANALYSE.' : ''), /*#__PURE__*/React.createElement("ul", {
+      className: "list"
+    }, L.map(p => /*#__PURE__*/React.createElement(PieceRow, {
+      key: p.id,
+      p: p,
+      onOpen: gotoContent,
+      today: today,
+      actions: sec === 'schneiden' ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Btn, {
+        small: true,
+        kind: "primary",
+        onClick: () => setStatus(p.id, 'Geschnitten')
+      }, "Als geschnitten markieren"), /*#__PURE__*/React.createElement(Btn, {
+        small: true,
+        onClick: () => gotoContent(p.id)
+      }, "Öffnen")) : null
+    }))), L.length === 0 && /*#__PURE__*/React.createElement("p", {
+      className: "empty"
+    }, "Nichts in dieser Phase."));
+  })(), sec === 'drehen' && focus && focus.status === 'Drehbereit' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => setUi({
+      focusId: null
+    })
+  }, "← Alle Dreh-Karten")), /*#__PURE__*/React.createElement(ProdCard, {
+    p: focus,
+    gotoContent: gotoContent,
+    onStatus: setStatus
+  })), sec === 'drehen' && focus && focus.status !== 'Drehbereit' && (() => {
+    const nx = STAGES.find(x => x[2] === focus.status);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "sheet",
+      "data-focus-done": true
+    }, /*#__PURE__*/React.createElement("h2", null, focus.title), /*#__PURE__*/React.createElement("p", null, "Status jetzt: ", /*#__PURE__*/React.createElement("b", null, focus.status), "."), /*#__PURE__*/React.createElement("div", {
+      className: "row wrap"
+    }, nx && /*#__PURE__*/React.createElement(Btn, {
+      kind: "primary",
+      onClick: () => setUi({
+        prodSec: nx[0],
+        focusId: null
+      })
+    }, "Weiter zu ", nx[1]), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => gotoContent(focus.id)
+    }, "Piece öffnen"), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => setUi({
+        focusId: null
+      })
+    }, "Alle Dreh-Karten")));
+  })(), sec === 'drehen' && !focus && (() => {
+    const L = all.filter(p => p.status === 'Drehbereit').sort((a, b) => (a.prodType === 'Neudreh' ? 0 : 1) - (b.prodType === 'Neudreh' ? 0 : 1) || byDate(a, b));
+    const neu = L.filter(p => p.prodType === 'Neudreh').length;
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+      className: "hint",
+      "data-count": true
+    }, neu, " Neudrehs · ", L.length - neu, " Recut/Bestand. „Drehbereit“ ist die Qualitätsfreigabe: Nur vollständige Pieces landen hier."), L.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "sheet",
+      "data-empty": true
+    }, "Keine drehbereiten Pieces. Ein Piece wird im Editor auf „Drehbereit“ gesetzt, sobald Hook, Shotlist und Sprechtext vollständig sind."), /*#__PURE__*/React.createElement("details", {
+      className: "sheet",
+      "data-rules": true
+    }, /*#__PURE__*/React.createElement("summary", null, "Produktionsregeln für alle neuen Pieces"), /*#__PURE__*/React.createElement("ol", {
+      style: {
+        margin: '8px 0 0',
+        paddingLeft: 20,
+        lineHeight: 1.5
+      }
+    }, /*#__PURE__*/React.createElement("li", null, "Kein gesprochenes „Heute zeige ich …“."), /*#__PURE__*/React.createElement("li", null, "Starker Bewegungscontent startet mit Bewegung in Frame 1."), /*#__PURE__*/React.createElement("li", null, "Humor braucht keine unkontrollierbaren Personen, Tiere oder Ereignisse."), /*#__PURE__*/React.createElement("li", null, "Kein künstliches Scheitern und kein künstliches „alt spielen“."), /*#__PURE__*/React.createElement("li", null, "OLI-Haltung kurz, konkret, trocken. Kein Motivationscoach-Ton."), /*#__PURE__*/React.createElement("li", null, "On-Screen-Hooks ab Frame 1, wenn sie die Idee tragen."), /*#__PURE__*/React.createElement("li", null, "Jeder Neudreh erhält 3–5 Sekunden sauberen Start und Ende ohne gesprochenen Text als Rohmaterial für spätere Recuts."), /*#__PURE__*/React.createElement("li", null, "Maximal 5 Hashtags in Captions; den Hook nicht einfach in der Caption wiederholen."), /*#__PURE__*/React.createElement("li", null, "Für Pieces mit Vorproduktionspflicht alle Dateien vorab fertig exportieren und im Piece auf mindestens „Geschnitten“ setzen."))), L.map((p, i) => /*#__PURE__*/React.createElement(ProdCard, {
+      key: p.id,
+      p: p,
+      idx: i,
+      gotoContent: gotoContent,
+      onStatus: setStatus
+    })), /*#__PURE__*/React.createElement("details", {
+      className: "sheet",
+      "data-drehplan": true,
+      open: !!ui.dpOpen,
+      onToggle: e => {
+        if (e.target.open !== !!ui.dpOpen) setUi({
+          dpOpen: e.target.open
+        });
+      }
+    }, /*#__PURE__*/React.createElement("summary", null, "Master-Drehs (Drehplan) und Cuts"), ui.dpOpen && /*#__PURE__*/React.createElement("div", {
+      style: {
+        overflowX: 'auto'
+      }
+    }, /*#__PURE__*/React.createElement(ShootPlanner, {
+      state: state,
+      update: update,
+      gotoContent: gotoContent,
+      gotoHooks: gotoHooks
+    }))));
+  })());
+}
+
+/* ---- ANALYSE: Übersicht · Posts · Muster (nur real eingetragene Daten, rein deskriptiv) ---- */
+function perfRows(state, from, to, serOk = () => true) {
+  const rows = [];
+  let undated = 0;
+  state.content.filter(serOk).forEach(p => p.perf.forEach(e => {
+    if (!(Number(e.views) > 0)) return;
+    const d = e.date || p.publishDate || '';
+    if (!d) {
+      undated++;
+      return;
+    }
+    if (d < from || d > to) return;
+    rows.push({
+      p,
+      e,
+      d,
+      world: p.world,
+      fn: p.fn,
+      entry: p.entry,
+      audio: p.audio,
+      prodType: p.prodType,
+      format: p.format || '(ohne Format)',
+      series: p.series || '(ohne Serie)',
+      platform: e.platform,
+      combo: [p.world, p.fn, p.entry, p.audio].join(' · ')
+    });
+  }));
+  return {
+    rows,
+    undated
+  };
+}
+// Gewichtete Quote: Σ Zähler / Σ Views, nur über Einträge mit erfasstem Zähler.
+const ratioOf = (rows, key) => {
+  const rs = rows.filter(r => r.e[key] !== '' && r.e[key] != null);
+  const v = rs.reduce((a, r) => a + Number(r.e.views), 0);
+  return v > 0 ? rs.reduce((a, r) => a + Number(r.e[key]), 0) / v : null;
+};
+const avgOf = (rows, key) => {
+  const vs = rows.map(r => r.e[key]).filter(x => x !== '' && x != null).map(Number);
+  return vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+};
+const medianOf = (rows, key) => {
+  const vs = rows.map(r => Number(r.e[key])).filter(x => !isNaN(x)).sort((a, b) => a - b);
+  if (!vs.length) return null;
+  const m = Math.floor(vs.length / 2);
+  return vs.length % 2 ? vs[m] : (vs[m - 1] + vs[m]) / 2;
+};
+const fmtF = (x, d = 0) => x == null ? '–' : x.toFixed(d).replace('.', ',');
+const COLS = [['n', 'Posts', r => r.length], ['avgv', 'Ø Views', r => avgOf(r, 'views')], ['medv', 'Median Views', r => medianOf(r, 'views')], ['fol', 'Follower', r => ratioOf(r, 'newFollowers')], ['sav', 'Saves', r => ratioOf(r, 'saves')], ['sha', 'Shares', r => ratioOf(r, 'shares')], ['com', 'Komm.', r => ratioOf(r, 'comments')], ['watch', 'Ø Sek.', r => avgOf(r, 'avgWatch')], ['comp', 'Compl. %', r => avgOf(r, 'completion')]];
+const showCol = (k, v) => v == null ? '–' : k === 'n' ? fmtN(v) : k === 'avgv' || k === 'medv' ? fmtN(Math.round(v)) : k === 'watch' ? fmtF(v, 1) : k === 'comp' ? fmtF(v, 0) : fmtP(v);
+const DIMS = [['JOGA vs. OLI', 'world'], ['Funktion (REACH / DO / ME / US)', 'fn'], ['Einstieg', 'entry'], ['Audio', 'audio'], ['Produktionsart', 'prodType'], ['Format', 'format'], ['Serie', 'series'], ['Plattform', 'platform'], ['Kombination (Welt · Funktion · Einstieg · Audio)', 'combo']];
+function GroupTable({
+  title,
+  rows,
+  dim
+}) {
+  const [sortKey, setSortKey] = useState('n');
+  const groups = {};
+  rows.forEach(r => {
+    (groups[r[dim]] = groups[r[dim]] || []).push(r);
+  });
+  const data = Object.keys(groups).map(g => ({
+    g,
+    vals: Object.fromEntries(COLS.map(([k,, f]) => [k, f(groups[g])]))
+  }));
+  data.sort((a, b) => (b.vals[sortKey] ?? -1) - (a.vals[sortKey] ?? -1));
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    "data-dim": dim
+  }, /*#__PURE__*/React.createElement("h2", null, title), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "tbl"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Gruppe"), COLS.map(([k, l]) => /*#__PURE__*/React.createElement("th", {
+    key: k,
+    onClick: () => setSortKey(k),
+    style: {
+      cursor: 'pointer',
+      color: sortKey === k ? 'var(--accent)' : undefined
+    }
+  }, l)))), /*#__PURE__*/React.createElement("tbody", null, data.map(d => /*#__PURE__*/React.createElement("tr", {
+    key: d.g
+  }, /*#__PURE__*/React.createElement("td", null, d.g, d.vals.n < 3 && /*#__PURE__*/React.createElement("small", null, " *")), COLS.map(([k]) => /*#__PURE__*/React.createElement("td", {
+    key: k
+  }, showCol(k, d.vals[k])))))))));
+}
+function AnalyseView({
+  state,
+  update,
+  ui,
+  setUi,
+  gotoContent
+}) {
+  const ar = ui.ar,
+    tab = ui.ana;
+  const presets = [{
+    key: 'plan',
+    label: '7-Wochen-Test',
+    from: PLAN_START,
+    to: PLAN_END
+  }];
+  const setRange = patch => setUi({
+    ar: {
+      ...ar,
+      ...patch
+    }
+  });
+  const sf = ui.anaSeries || 'Alle'; // Serienfilter: Alle (wie bisher) | Dunkle Jahreszeit | Ohne Serie
+  const serOk = p => sf === 'Alle' || (sf === 'Ohne Serie' ? !p.series : p.series === sf);
+  const {
+    rows,
+    undated
+  } = perfRows(state, ar.from, ar.to, serOk);
+  const inRange = state.content.filter(p => p.publishDate >= ar.from && p.publishDate <= ar.to && serOk(p));
+  const posted = inRange.filter(p => p.status === 'Gepostet').length;
+  const views = rows.reduce((a, r) => a + Number(r.e.views), 0);
+  const weekRows = PLAN_WEEKS.map(w => ({
+    w,
+    rs: rows.filter(r => r.d >= w.start && r.d <= w.end),
+    planned: state.content.filter(p => p.publishDate >= w.start && p.publishDate <= w.end).length
+  })).filter(x => x.w.end >= ar.from && x.w.start <= ar.to);
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Analyse"), /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-window": true
+  }, fmtD(ar.from), "–", fmtD(ar.to))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-ana-nav": true
+  }, [['uebersicht', 'ÜBERSICHT'], ['posts', 'POSTS'], ['muster', 'MUSTER']].map(([k, l]) => /*#__PURE__*/React.createElement(Tag, {
+    key: k,
+    on: tab === k,
+    onClick: () => setUi({
+      ana: k
+    })
+  }, l))), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-ana-series": true
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Serie"), ['Alle', SERIES_DARK, 'Ohne Serie'].map(x => /*#__PURE__*/React.createElement(Tag, {
+    key: x,
+    on: sf === x,
+    onClick: () => setUi({
+      anaSeries: x
+    })
+  }, x))), /*#__PURE__*/React.createElement("div", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-presets": true
+  }, presets.map(pr => /*#__PURE__*/React.createElement(Tag, {
+    key: pr.key,
+    on: ar.key === pr.key,
+    onClick: () => setRange({
+      key: pr.key,
+      from: pr.from,
+      to: pr.to
+    })
+  }, pr.label)), /*#__PURE__*/React.createElement(Tag, {
+    on: ar.key === 'custom',
+    onClick: () => setRange({
+      key: 'custom'
+    })
+  }, "Eigener Zeitraum")), /*#__PURE__*/React.createElement("div", {
+    className: "grid2",
+    style: {
+      gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)'
+    }
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Von"
+  }, /*#__PURE__*/React.createElement("input", {
+    style: {
+      minWidth: 0
+    },
+    type: "date",
+    value: ar.from,
+    onChange: e => setRange({
+      key: 'custom',
+      from: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: "Bis"
+  }, /*#__PURE__*/React.createElement("input", {
+    style: {
+      minWidth: 0
+    },
+    type: "date",
+    value: ar.to,
+    onChange: e => setRange({
+      key: 'custom',
+      to: e.target.value
+    })
+  })))), /*#__PURE__*/React.createElement("p", {
+    className: "hint",
+    "data-summary": true
+  }, new Set(rows.map(r => r.p.id)).size, " Pieces mit Daten · ", rows.length, " Messwerte · Σ ", fmtN(views), " Views", undated ? ' · ' + undated + ' Messwert(e) ohne Datum nicht eingerechnet' : ''), tab === 'uebersicht' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "stats",
+    "data-kpis": true,
+    style: {
+      gridTemplateColumns: 'repeat(4,1fr)'
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, posted, "/", inRange.length), /*#__PURE__*/React.createElement("small", null, "gepostet / geplant")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(ratioOf(rows, 'newFollowers'))), /*#__PURE__*/React.createElement("small", null, "Follower / Views")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(ratioOf(rows, 'saves'))), /*#__PURE__*/React.createElement("small", null, "Saves / Views")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("b", null, fmtP(ratioOf(rows, 'shares'))), /*#__PURE__*/React.createElement("small", null, "Shares / Views"))), /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    "data-weeks": true
+  }, /*#__PURE__*/React.createElement("h2", null, "Wochen"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "tbl"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Woche"), /*#__PURE__*/React.createElement("th", null, "Geplant"), /*#__PURE__*/React.createElement("th", null, "Messwerte"), /*#__PURE__*/React.createElement("th", null, "Σ Views"), /*#__PURE__*/React.createElement("th", null, "Follower"), /*#__PURE__*/React.createElement("th", null, "Saves"), /*#__PURE__*/React.createElement("th", null, "Shares"), /*#__PURE__*/React.createElement("th", null, "Komm."))), /*#__PURE__*/React.createElement("tbody", null, weekRows.map(({
+    w,
+    rs,
+    planned
+  }) => /*#__PURE__*/React.createElement("tr", {
+    key: w.n,
+    "data-week": w.n
+  }, /*#__PURE__*/React.createElement("td", null, "W", w.n), /*#__PURE__*/React.createElement("td", null, planned), /*#__PURE__*/React.createElement("td", null, rs.length), /*#__PURE__*/React.createElement("td", null, rs.length ? fmtN(rs.reduce((a, r) => a + Number(r.e.views), 0)) : '–'), /*#__PURE__*/React.createElement("td", null, fmtP(ratioOf(rs, 'newFollowers'))), /*#__PURE__*/React.createElement("td", null, fmtP(ratioOf(rs, 'saves'))), /*#__PURE__*/React.createElement("td", null, fmtP(ratioOf(rs, 'shares'))), /*#__PURE__*/React.createElement("td", null, fmtP(ratioOf(rs, 'comments'))))))))), /*#__PURE__*/React.createElement("details", {
+    className: "sheet",
+    "data-review": true
+  }, /*#__PURE__*/React.createElement("summary", null, "Wochenreview (bisheriges Review, alle Daten erhalten)"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement(Review, {
+    state: state,
+    update: update
+  })))), tab === 'posts' && (() => {
+    // Gepostet, aber noch ohne Messwerte: hier beginnt die Kette Veröffentlichung → Analyse (sonst gäbe es keinen Weg zu den ersten Daten).
+    const missing = state.content.filter(p => p.status === 'Gepostet' && !p.perf.some(e => Number(e.views) > 0) && (!p.publishDate || p.publishDate >= ar.from && p.publishDate <= ar.to)).sort(byDate);
+    return missing.length ? /*#__PURE__*/React.createElement("div", {
+      className: "sheet",
+      "data-missing-data": true
+    }, /*#__PURE__*/React.createElement("h2", null, "Gepostet, noch ohne Daten (", missing.length, ")"), missing.map(p => /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      "data-missing-row": true,
+      className: "row between",
+      onClick: () => gotoContent(p.id),
+      style: {
+        cursor: 'pointer',
+        margin: '8px 0',
+        ...WRAP
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        minWidth: 0
+      }
+    }, /*#__PURE__*/React.createElement(WorldBadge, {
+      w: p.world
+    }), " ", p.title), /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        flex: 'none'
+      }
+    }, p.publishDate ? wdName(p.publishDate) + ' ' + fmtD(p.publishDate) : '', " · Daten eintragen ›")))) : null;
+  })(), tab === 'posts' && (rows.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "empty",
+    "data-empty": true
+  }, "Noch keine Messwerte im Zeitraum. Trag Performance im Content-Piece ein (Schritt 6 · Ergebnis).") : /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    "data-posts": true
+  }, /*#__PURE__*/React.createElement("h2", null, "Einzelperformance"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: 'auto'
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "tbl"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Datum"), /*#__PURE__*/React.createElement("th", null, "Piece"), /*#__PURE__*/React.createElement("th", null, "Plattform"), /*#__PURE__*/React.createElement("th", null, "Views"), /*#__PURE__*/React.createElement("th", null, "Follower"), /*#__PURE__*/React.createElement("th", null, "Saves"), /*#__PURE__*/React.createElement("th", null, "Shares"), /*#__PURE__*/React.createElement("th", null, "Komm."))), /*#__PURE__*/React.createElement("tbody", null, rows.slice().sort((a, b) => a.d.localeCompare(b.d)).map(r => /*#__PURE__*/React.createElement("tr", {
+    key: r.e.id,
+    "data-post": true,
+    onClick: () => gotoContent(r.p.id),
+    style: {
+      cursor: 'pointer'
+    }
+  }, /*#__PURE__*/React.createElement("td", null, fmtD(r.d)), /*#__PURE__*/React.createElement("td", null, r.p.title || '(ohne Titel)'), /*#__PURE__*/React.createElement("td", null, r.e.platform), /*#__PURE__*/React.createElement("td", null, fmtN(r.e.views)), /*#__PURE__*/React.createElement("td", null, fmtP(pct(r.e.newFollowers, r.e.views))), /*#__PURE__*/React.createElement("td", null, fmtP(pct(r.e.saves, r.e.views))), /*#__PURE__*/React.createElement("td", null, fmtP(pct(r.e.shares, r.e.views))), /*#__PURE__*/React.createElement("td", null, fmtP(pct(r.e.comments, r.e.views)))))))))), tab === 'muster' && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Quoten = Σ Zähler / Σ Views, nur über Einträge mit erfasstem Zähler. * = weniger als 3 Posts: Unterschiede können Zufall sein. Die App benennt bewusst keinen Gewinner."), rows.length === 0 ? /*#__PURE__*/React.createElement("p", {
+    className: "empty",
+    "data-empty": true
+  }, "Noch keine Messwerte im Zeitraum.") : DIMS.map(([t, d]) => /*#__PURE__*/React.createElement(GroupTable, {
+    key: d,
+    title: t,
+    rows: rows,
+    dim: d
+  }))));
+}
+
+/* ---- Bibliothek (Utility, kein Haupttab): Hooks und Moves ---- */
+function BibliothekView({
+  state,
+  update,
+  sub,
+  setSub,
+  hookCtx,
+  setHookCtx,
+  onClose
+}) {
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Bibliothek"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: onClose
+  }, "Schließen")), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap",
+    "data-lib-nav": true
+  }, /*#__PURE__*/React.createElement(Tag, {
+    on: sub === 'hooks',
+    onClick: () => setSub('hooks')
+  }, "Hooks"), /*#__PURE__*/React.createElement(Tag, {
+    on: sub === 'moves',
+    onClick: () => setSub('moves')
+  }, "Moves")), sub === 'hooks' ? /*#__PURE__*/React.createElement(Hooks, {
+    state: state,
+    update: update,
+    ctx: hookCtx,
+    setCtx: setHookCtx
+  }) : /*#__PURE__*/React.createElement(Library, {
+    state: state,
+    update: update
+  }));
+}
+
+/* ---------- Drehplan ---------- */
+const CUT_STATUS = ['geplant', 'gedreht', 'gepostet'];
+// Vorschläge für Schnitte. Vorausgewählt: 1 Routine, 1 JOGA-Minute, 1 REACH-Version. Der Rest ist Angebot.
+function proposeCuts(shoot, date) {
+  const ms = shoot.moves,
+    T = shoot.theme;
+  const cuts = [{
+    id: uid(),
+    kind: 'Routine',
+    type: 'DO',
+    title: `Routine – ${T}`,
+    moves: ms,
+    date,
+    on: true,
+    why: 'Das Format mit der höchsten Save-Rate.'
+  }, {
+    id: uid(),
+    kind: 'REACH-Version',
+    type: 'REACH',
+    title: `${ms.length} Moves, damit du mit 70 noch ${SKILLS.includes(T) ? T : '…'}`,
+    moves: ms,
+    date: addDays(date, 1),
+    on: true,
+    why: 'Gleicher Dreh, Versprechens-Hook. Holt neue Leute.'
+  }];
+  const pairs = [];
+  for (let i = 0; i < ms.length; i += 2) pairs.push(ms.slice(i, i + 2));
+  pairs.slice(0, 3).forEach((p, i) => cuts.push({
+    id: uid(),
+    kind: '1 Minute JOGA',
+    type: 'DO',
+    title: `1 MINUTE JOGA – ${T.toUpperCase()}`,
+    moves: p,
+    date: addDays(date, i + 2),
+    on: i === 0,
+    why: i === 0 ? 'Die stärksten 1–2 Moves. Nur wenn sie allein tragen.' : 'Nur, wenn diese Moves eine eigene Minute wert sind.'
+  }));
+  if (shoot.goal === 'US') cuts.push({
+    id: uid(),
+    kind: 'US-Frage',
+    type: 'US',
+    title: shoot.usQ || US_QUESTIONS[0],
+    moves: ms.slice(0, 2),
+    date: addDays(date, 3),
+    on: true,
+    why: 'Bewegung im Hintergrund, Frage im Vordergrund.'
+  });
+  cuts.push({
+    id: uid(),
+    kind: 'Recut',
+    type: 'REACH',
+    title: 'Recut – andere Hook',
+    moves: ms,
+    date: addDays(date, 7),
+    on: false,
+    why: 'Eine Woche später, neue Hook, gleicher Schnitt. Reposts haben bei dir funktioniert.'
+  });
+  return cuts;
+}
+function ShootPlanner({
+  state,
+  update,
+  gotoHooks,
+  gotoContent
+}) {
+  const [draft, setDraft] = useState(null);
+  const startDraft = () => setDraft({
+    id: uid(),
+    theme: SKILLS[0],
+    goal: 'DO',
+    usQ: US_QUESTIONS[0],
+    date: addDays(todayISO(), 1),
+    moves: [],
+    cuts: null
+  });
+  const fits = (m, theme) => m.skill === theme || m.area === theme || (m.benefit || '').toLowerCase().includes(theme.toLowerCase());
+  const suggest = (theme, n = 5) => {
+    const pool = state.moves.filter(m => m.src !== '22 Flows');
+    const prim = pool.filter(m => fits(m, theme));
+    const rest = pool.filter(m => !prim.includes(m));
+    const pick = (arr, k) => arr.slice().sort(() => Math.random() - 0.5).slice(0, k);
+    return [...pick(prim, Math.min(n, prim.length)), ...pick(rest, n - Math.min(n, prim.length))].map(m => m.id);
+  };
+  const toggle = id => setDraft(d => ({
+    ...d,
+    moves: d.moves.includes(id) ? d.moves.filter(x => x !== id) : d.moves.length < 5 ? [...d.moves, id] : d.moves
+  }));
+  const propose = () => setDraft(d => ({
+    ...d,
+    cuts: proposeCuts(d, d.date)
+  }));
+  const commit = () => {
+    const cuts = draft.cuts.filter(c => c.on).map(({
+      on,
+      why,
+      ...c
+    }) => ({
+      ...c,
+      status: 'geplant',
+      reelId: ''
+    }));
+    const {
+      cuts: _c,
+      ...rest
+    } = draft;
+    update(s => ({
+      ...s,
+      shoots: [...s.shoots, {
+        ...rest,
+        cuts,
+        created: todayISO()
+      }]
+    }));
+    setDraft(null);
+  };
+  const setCut = (sid, cid, patch) => update(s => ({
+    ...s,
+    shoots: s.shoots.map(sh => sh.id !== sid ? sh : {
+      ...sh,
+      cuts: sh.cuts.map(c => c.id === cid ? {
+        ...c,
+        ...patch
+      } : c)
+    })
+  }));
+  const delShoot = sid => {
+    if (confirm('Dreh und alle Schnitte löschen?')) update(s => ({
+      ...s,
+      shoots: s.shoots.filter(x => x.id !== sid),
+      content: s.content.map(p => p.shootId === sid ? {
+        ...p,
+        shootId: '',
+        cutId: ''
+      } : p)
+    }));
+  };
+  const contentOf = id => id ? state.content.find(p => p.id === id) : null;
+  const effStatus = c => {
+    const p = contentOf(c.contentId);
+    if (!p) return c.status;
+    return p.status === 'Gepostet' ? 'gepostet' : p.status === 'Gedreht' || p.status === 'Geschnitten' ? 'gedreht' : 'geplant';
+  };
+  const CUT_FORMAT = {
+    'Routine': 'Routine / 1 Minute JOGA',
+    '1 Minute JOGA': 'Routine / 1 Minute JOGA'
+  };
+  const toContent = (sh, c) => {
+    const fmt = CUT_FORMAT[c.kind] || c.kind,
+      r = ruleFor(fmt);
+    const piece = newPiece({
+      world: 'JOGA',
+      fn: c.type,
+      format: fmt,
+      title: c.title,
+      hook: c.hook || c.title,
+      status: c.status === 'gepostet' ? 'Gepostet' : c.status === 'gedreht' ? 'Gedreht' : 'Idee',
+      prodType: c.kind === 'Recut' ? 'Recut' : 'Neudreh',
+      entry: r ? r.entry : c.kind === 'US-Frage' ? 'Text first' : 'Move first',
+      audio: r ? r.audio : 'Silent/Musik',
+      moveIds: c.moves,
+      shootId: sh.id,
+      cutId: c.id,
+      publishDate: c.date
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, piece],
+      shoots: s.shoots.map(x => x.id !== sh.id ? x : {
+        ...x,
+        cuts: x.cuts.map(k => k.id === c.id ? {
+          ...k,
+          contentId: piece.id
+        } : k)
+      })
+    }));
+  };
+  const newFromShoot = sh => {
+    const piece = newPiece({
+      world: 'JOGA',
+      fn: sh.goal || 'DO',
+      shootId: sh.id,
+      moveIds: sh.moves,
+      prodType: 'Bestand',
+      status: 'Idee',
+      publishDate: ''
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, piece]
+    }));
+    gotoContent(piece.id);
+  };
+  const toBoard = (sh, c) => {
+    const rid = uid();
+    const orig = c.kind === 'Recut' ? sh.cuts.find(x => x.kind === 'Routine')?.reelId || '' : '';
+    update(s => ({
+      ...s,
+      reels: [...s.reels, {
+        id: rid,
+        date: c.date,
+        type: c.type,
+        hook: c.hook || c.title,
+        len: '',
+        recutOf: orig,
+        views: '',
+        v3: '',
+        saves: '',
+        reacts: '',
+        shares: '',
+        comments: '',
+        followers: '',
+        notes: ''
+      }],
+      shoots: s.shoots.map(x => x.id !== sh.id ? x : {
+        ...x,
+        cuts: x.cuts.map(y => y.id === c.id ? {
+          ...y,
+          status: 'gepostet',
+          reelId: rid
+        } : y)
+      })
+    }));
+  };
+  const mv = id => state.moves.find(m => m.id === id);
+  const shoots = state.shoots.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const week = useMemo(() => {
+    const days = Array.from({
+      length: 7
+    }, (_, i) => addDays(todayISO(), i));
+    return days.map(d => ({
+      d,
+      cuts: state.shoots.flatMap(sh => sh.cuts.filter(c => c.date === d).map(c => ({
+        ...c,
+        status: effStatus(c),
+        sh
+      })))
+    }));
+  }, [state.shoots, state.content]);
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Drehplan"), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: startDraft
+  }, "+ Dreh")), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Ein Dreh = Thema + Hauptziel + bis zu 5 Moves. Die App schlägt Schnitte vor, du wählst aus. Richtwert: 1 Routine, 1 JOGA-Minute, 1 REACH-Version."), draft && /*#__PURE__*/React.createElement("div", {
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Thema (Fähigkeit zuerst)"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: draft.theme,
+    onChange: e => setDraft(d => ({
+      ...d,
+      theme: e.target.value,
+      moves: [],
+      cuts: null
+    }))
+  }, /*#__PURE__*/React.createElement("optgroup", {
+    label: "Fähigkeit / Alltagsziel"
+  }, SKILLS.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a))), /*#__PURE__*/React.createElement("optgroup", {
+    label: "Situation"
+  }, SITUATIONS.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a))), /*#__PURE__*/React.createElement("optgroup", {
+    label: "Körperbereich"
+  }, AREAS.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a))))), /*#__PURE__*/React.createElement(Field, {
+    label: "Hauptziel des Drehs"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: draft.goal,
+    onChange: e => setDraft(d => ({
+      ...d,
+      goal: e.target.value,
+      cuts: null
+    }))
+  }, TYPES.map(t => /*#__PURE__*/React.createElement("option", {
+    key: t,
+    value: t
+  }, t, " – ", TYPE_INFO[t]))))), /*#__PURE__*/React.createElement(Field, {
+    label: "Erstes Reel am"
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    value: draft.date,
+    onChange: e => setDraft(d => ({
+      ...d,
+      date: e.target.value,
+      cuts: null
+    }))
+  })), draft.goal === 'US' && /*#__PURE__*/React.createElement(Field, {
+    label: "US-Frage"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: draft.usQ,
+    onChange: e => setDraft(d => ({
+      ...d,
+      usQ: e.target.value,
+      cuts: null
+    }))
+  }, US_QUESTIONS.map(q => /*#__PURE__*/React.createElement("option", {
+    key: q
+  }, q)))), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => setDraft(d => ({
+      ...d,
+      moves: suggest(d.theme)
+    }))
+  }, "5 Moves vorschlagen"), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, draft.moves.length, "/5 gewählt")), /*#__PURE__*/React.createElement("ul", {
+    className: "picklist"
+  }, [...draft.moves.map(mv).filter(Boolean), ...state.moves.filter(m => m.src !== '22 Flows' && !draft.moves.includes(m.id) && fits(m, draft.theme)), ...state.moves.filter(m => m.src !== '22 Flows' && !draft.moves.includes(m.id) && !fits(m, draft.theme))].map(m => /*#__PURE__*/React.createElement("li", {
+    key: m.id,
+    className: draft.moves.includes(m.id) ? 'on' : '',
+    onClick: () => toggle(m.id)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "order"
+  }, draft.moves.includes(m.id) ? draft.moves.indexOf(m.id) + 1 : ''), /*#__PURE__*/React.createElement("span", null, m.title, /*#__PURE__*/React.createElement("small", null, " ", m.area, m.len ? ' · ' + m.len : ''))))), draft.cuts && /*#__PURE__*/React.createElement("div", {
+    className: "proposals"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, "Vorschläge. Du entscheidest, was stark genug ist – lieber drei gute als fünf."), draft.cuts.map(c => /*#__PURE__*/React.createElement("label", {
+    key: c.id,
+    className: `proposal ${c.on ? 'on' : ''}`
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: c.on,
+    onChange: () => setDraft(d => ({
+      ...d,
+      cuts: d.cuts.map(x => x.id === c.id ? {
+        ...x,
+        on: !x.on
+      } : x)
+    }))
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: `type type-${c.type}`
+  }, c.type), " ", /*#__PURE__*/React.createElement("b", null, c.kind), " ", /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, fmtD(c.date))), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, c.moves.map(mv).filter(Boolean).map(m => m.title).join(' + ')), /*#__PURE__*/React.createElement("div", {
+    className: "why"
+  }, c.why))))), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    onClick: () => setDraft(null)
+  }, "Abbrechen"), !draft.cuts ? /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    disabled: draft.moves.length < 2,
+    onClick: propose
+  }, "Schnitte vorschlagen") : /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    disabled: !draft.cuts.some(c => c.on),
+    onClick: commit
+  }, draft.cuts.filter(c => c.on).length, " Schnitte anlegen"))), /*#__PURE__*/React.createElement("div", {
+    className: "week"
+  }, week.map(({
+    d,
+    cuts
+  }) => /*#__PURE__*/React.createElement("div", {
+    key: d,
+    className: `day ${cuts.length ? '' : 'free'}`
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "dlabel"
+  }, ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][new Date(d + 'T00:00:00').getDay()], " ", fmtD(d)), cuts.length ? cuts.map(c => /*#__PURE__*/React.createElement("div", {
+    key: c.id,
+    className: `chip ${c.status}`
+  }, c.kind)) : /*#__PURE__*/React.createElement("div", {
+    className: "chip none"
+  }, "frei")))), shoots.length === 0 && !draft && /*#__PURE__*/React.createElement("p", {
+    className: "empty"
+  }, "Noch kein Dreh geplant. Leg den ersten an – Test 1 startet am ", fmtD(state.goals.start), "."), shoots.map(sh => /*#__PURE__*/React.createElement("div", {
+    key: sh.id,
+    className: "sheet"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row between"
+  }, /*#__PURE__*/React.createElement("h2", null, sh.theme, " ", /*#__PURE__*/React.createElement("small", null, "ab ", fmtD(sh.date), sh.goal ? ' · Ziel ' + sh.goal : '')), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => delShoot(sh.id)
+  }, "Löschen")), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, "Moves: ", sh.moves.map(mv).filter(Boolean).map(m => m.title).join(' · ')), /*#__PURE__*/React.createElement("ul", {
+    className: "cuts"
+  }, sh.cuts.map(c => /*#__PURE__*/React.createElement("li", {
+    key: c.id,
+    className: c.status
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row between"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("span", {
+    className: `type type-${c.type}`
+  }, c.type), " ", /*#__PURE__*/React.createElement("b", null, c.kind), " ", /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, fmtD(c.date))), contentOf(c.contentId) ? /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    "data-linked": true
+  }, "Content: ", contentOf(c.contentId).status) : /*#__PURE__*/React.createElement("select", {
+    value: c.status,
+    onChange: e => setCut(sh.id, c.id, {
+      status: e.target.value
+    })
+  }, CUT_STATUS.map(s => /*#__PURE__*/React.createElement("option", {
+    key: s
+  }, s)))), /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, c.moves.map(mv).filter(Boolean).map(m => m.title).join(' + ')), /*#__PURE__*/React.createElement("input", {
+    value: c.hook || '',
+    placeholder: c.title,
+    onChange: e => setCut(sh.id, c.id, {
+      hook: e.target.value
+    })
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "row end"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => gotoHooks({
+      typ: c.type,
+      thema: sh.theme,
+      moves: c.moves.map(mv).filter(Boolean).map(m => m.title).join(', '),
+      cutRef: {
+        sid: sh.id,
+        cid: c.id
+      }
+    })
+  }, "Hook-Impulse"), contentOf(c.contentId) ? /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => gotoContent(c.contentId)
+  }, "Content öffnen") : /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => toContent(sh, c)
+  }, "→ Content"), c.reelId ? /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "im Board") : /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: "primary",
+    onClick: () => toBoard(sh, c)
+  }, "Ins Board"))))), (() => {
+    const extra = state.content.filter(p => p.shootId === sh.id && !sh.cuts.some(c => c.contentId === p.id));
+    return /*#__PURE__*/React.createElement("div", {
+      "data-master-pieces": true
+    }, extra.length > 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        marginTop: 8
+      }
+    }, "Weitere Pieces aus diesem Master"), extra.map(p => /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      className: "row between"
+    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(WorldBadge, {
+      w: p.world
+    }), " ", /*#__PURE__*/React.createElement("b", null, p.title || '(ohne Titel)'), " ", /*#__PURE__*/React.createElement("span", {
+      className: "meta"
+    }, p.format || p.fn, " · ", p.status)), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => gotoContent(p.id)
+    }, "Öffnen"))), /*#__PURE__*/React.createElement("div", {
+      className: "row"
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => newFromShoot(sh)
+    }, "+ Piece aus diesem Dreh")));
+  })())));
+}
+
+/* ---------- Hooks ---------- */
+function Hooks({
+  state,
+  update,
+  ctx,
+  setCtx
+}) {
+  const [typ, setTyp] = useState(ctx?.typ || 'DO');
+  const [thema, setThema] = useState(ctx?.thema || AREAS[0]);
+  const [moves, setMoves] = useState(ctx?.moves || '');
+  const [notiz, setNotiz] = useState('');
+  const [roll, setRoll] = useState(0);
+  const [ki, setKi] = useState({
+    lines: [],
+    loading: false,
+    err: ''
+  });
+  useEffect(() => {
+    if (ctx) {
+      setTyp(ctx.typ);
+      setThema(ctx.thema);
+      setMoves(ctx.moves || '');
+    }
+  }, [ctx]);
+  const pats = PATTERNS[typ];
+  const pat = pats[roll % pats.length];
+  const ask = async type => {
+    setKi({
+      lines: [],
+      loading: true,
+      err: ''
+    });
+    try {
+      const lines = await api.ki(type, {
+        typ,
+        thema,
+        moves,
+        notiz
+      });
+      setKi({
+        lines,
+        loading: false,
+        err: ''
+      });
+    } catch (e) {
+      setKi({
+        lines: [],
+        loading: false,
+        err: e.message
+      });
+    }
+  };
+  const keep = line => update(s => ({
+    ...s,
+    hookNotes: [{
+      id: uid(),
+      line,
+      typ,
+      thema,
+      date: todayISO()
+    }, ...s.hookNotes].slice(0, 200)
+  }));
+  const useForCut = line => {
+    if (!ctx?.cutRef) return;
+    update(s => ({
+      ...s,
+      shoots: s.shoots.map(sh => sh.id !== ctx.cutRef.sid ? sh : {
+        ...sh,
+        cuts: sh.cuts.map(c => c.id === ctx.cutRef.cid ? {
+          ...c,
+          hook: line
+        } : c)
+      })
+    }));
+    setCtx(null);
+  };
+  return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("h1", null, "Hooks"), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, "Rohmaterial. Die Zeile schreibst du.")), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, TYPES.map(t => /*#__PURE__*/React.createElement(Tag, {
+    key: t,
+    on: typ === t,
+    onClick: () => {
+      setTyp(t);
+      setRoll(0);
+    }
+  }, t))), /*#__PURE__*/React.createElement("p", {
+    className: "hint"
+  }, TYPE_INFO[typ], ". Gemessen an: ", TYPE_METRIC[typ] === 'saves' ? 'Saves' : TYPE_METRIC[typ] === 'followers' ? 'Follower' : 'Kommentare', "."), /*#__PURE__*/React.createElement("div", {
+    className: "grid2"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: "Thema"
+  }, /*#__PURE__*/React.createElement("select", {
+    value: thema,
+    onChange: e => setThema(e.target.value)
+  }, [...SKILLS, ...SITUATIONS, ...AREAS].map(a => /*#__PURE__*/React.createElement("option", {
+    key: a
+  }, a)))), /*#__PURE__*/React.createElement(Field, {
+    label: "Moves im Video"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: moves,
+    onChange: e => setMoves(e.target.value),
+    placeholder: "optional"
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "pattern"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "meta"
+  }, "Muster ", roll % pats.length + 1, "/", pats.length, " · ", pat.name), /*#__PURE__*/React.createElement("div", {
+    className: "form"
+  }, pat.form), /*#__PURE__*/React.createElement("div", {
+    className: "ex"
+  }, "Belegt: ", pat.ex), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => setRoll(r => r + 1)
+  }, "Nächstes Muster"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => keep(pat.form.replace('[NUTZEN]', thema.toUpperCase()).replace('[SITUATION]', thema.toUpperCase()))
+  }, "Als Notiz merken"))), /*#__PURE__*/React.createElement(Field, {
+    label: "Notiz für die KI (optional)"
+  }, /*#__PURE__*/React.createElement("input", {
+    value: notiz,
+    onChange: e => setNotiz(e.target.value),
+    placeholder: "z. B. heute steif, Wohnzimmer, Regen"
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => ask('hookImpuls'),
+    disabled: ki.loading
+  }, ki.loading ? 'Denkt …' : 'KI-Impulse'), typ === 'DO' && /*#__PURE__*/React.createElement(Btn, {
+    onClick: () => ask('minuteTitel'),
+    disabled: ki.loading
+  }, "Minuten-Titel")), ki.err && /*#__PURE__*/React.createElement("div", {
+    className: "warn"
+  }, ki.err), ki.lines.length > 0 && /*#__PURE__*/React.createElement("ul", {
+    className: "impulses"
+  }, ki.lines.map((l, i) => /*#__PURE__*/React.createElement("li", {
+    key: i
+  }, /*#__PURE__*/React.createElement("span", null, l), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, ctx?.cutRef && /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    kind: "primary",
+    onClick: () => useForCut(l)
+  }, "Für Schnitt"), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => keep(l)
+  }, "Merken"))))), state.hookNotes.length > 0 && /*#__PURE__*/React.createElement("details", {
+    className: "sheet",
+    open: true
+  }, /*#__PURE__*/React.createElement("summary", null, "Gemerkt (", state.hookNotes.length, ")"), /*#__PURE__*/React.createElement("ul", {
+    className: "notes-list"
+  }, state.hookNotes.map(n => /*#__PURE__*/React.createElement("li", {
+    key: n.id
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `type type-${n.typ}`
+  }, n.typ), " ", n.line, " ", /*#__PURE__*/React.createElement("small", null, n.thema), /*#__PURE__*/React.createElement("button", {
+    className: "x",
+    onClick: () => update(s => ({
+      ...s,
+      hookNotes: s.hookNotes.filter(x => x.id !== n.id)
+    }))
+  }, "×"))))));
+}
+
+/* ---------- App ---------- */
+function PinGate({
+  onDone
+}) {
+  const [pin, setPin] = useState('');
+  return /*#__PURE__*/React.createElement("div", {
+    className: "gate"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo"
+  }, "JOGA"), /*#__PURE__*/React.createElement("p", null, "Content-Board. PIN eingeben."), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    inputMode: "numeric",
+    value: pin,
+    onChange: e => setPin(e.target.value),
+    onKeyDown: e => e.key === 'Enter' && onDone(pin),
+    autoFocus: true
+  }), /*#__PURE__*/React.createElement(Btn, {
+    kind: "primary",
+    onClick: () => onDone(pin)
+  }, "Öffnen"));
+}
+function App() {
+  const [tab, setTabRaw] = useState('heute');
+  const [openContent, setOpenContent] = useState(null);
+  const [lib, setLib] = useState(null); // null | 'hooks' | 'moves'
+  const [ui, setUiRaw] = useState(() => ({
+    planWeek: weekIdxOf(todayISO()),
+    planView: 'wochen',
+    prodSec: 'uebersicht',
+    prodView: 'liste',
+    pf: {
+      world: 'Alle',
+      fn: 'Alle',
+      prodType: 'Alle',
+      platform: 'Alle',
+      format: 'Alle',
+      status: 'Alle',
+      series: 'Alle'
+    },
+    anaSeries: 'Alle',
+    ana: 'uebersicht',
+    ar: {
+      key: 'plan',
+      from: PLAN_START,
+      to: PLAN_END
+    }
+  }));
+  const setUi = patch => setUiRaw(u => ({
+    ...u,
+    ...patch
+  }));
+  const setTab = t => {
+    setOpenContent(null);
+    setLib(null);
+    setTabRaw(t);
+    window.scrollTo(0, 0);
+  };
+  const gotoContent = id => {
+    setLib(null);
+    setOpenContent(id);
+    window.scrollTo(0, 0);
+  };
+  // Direkt ins Drehbriefing (PRODUKTION → DREHEN, genau diese Karte)
+  const gotoBriefing = id => {
+    setLib(null);
+    setOpenContent(null);
+    setTabRaw('produktion');
+    setUiRaw(u => ({
+      ...u,
+      prodSec: 'drehen',
+      focusId: id
+    }));
+    window.scrollTo(0, 0);
+  };
+  const [state, setState] = useState(null);
+  const [sync, setSync] = useState('lädt');
+  const [needPin, setNeedPin] = useState(false);
+  const [hookCtx, setHookCtx] = useState(null);
+  const dirty = useRef(false);
+  const timer = useRef(null);
+  const load = async () => {
+    setSync('lädt');
+    try {
+      const remote = await api.load();
+      setState(migrateState(remote && remote.reels ? {
+        ...emptyState(),
+        ...remote
+      } : emptyState()));
+      setSync('gespeichert');
+      setNeedPin(false);
+    } catch (e) {
+      if (e.message === 'PIN') {
+        setNeedPin(true);
+        setSync('PIN');
+      } else {
+        const local = localStorage.getItem('joga_state');
+        setState(migrateState(local ? {
+          ...emptyState(),
+          ...JSON.parse(local)
+        } : emptyState()));
+        setSync('offline');
+      }
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+  const update = fn => setState(s => {
+    const n = typeof fn === 'function' ? fn(s) : fn;
+    dirty.current = true;
+    localStorage.setItem('joga_state', JSON.stringify(n));
+    return n;
+  });
+  useEffect(() => {
+    if (!state || !dirty.current) return;
+    setSync('ungespeichert');
+    clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      try {
+        await api.save(state);
+        dirty.current = false;
+        setSync('gespeichert');
+      } catch (e) {
+        setSync(e.message === 'PIN' ? 'PIN' : 'offline');
+      }
+    }, 1200);
+  }, [state]);
+  if (needPin) return /*#__PURE__*/React.createElement(PinGate, {
+    onDone: p => {
+      localStorage.setItem(PIN_KEY, p);
+      load();
+    }
+  });
+  if (!state) return /*#__PURE__*/React.createElement("div", {
+    className: "gate"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "logo"
+  }, "JOGA"), /*#__PURE__*/React.createElement("p", null, sync));
+
+  // Vier Hauptpunkte. Board, Review, Drehplan, Hooks, Moves und Oli sind eingeordnet, nicht gelöscht.
+  const tabs = [['heute', 'HEUTE'], ['plan', '7-WOCHEN-PLAN'], ['produktion', 'PRODUKTION'], ['analyse', 'ANALYSE']];
+  const detailOpen = openContent && state.content.some(c => c.id === openContent);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "app"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "topbar"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "logo small"
+  }, "JOGA"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: `sync ${sync}`
+  }, sync, sync === 'offline' ? ' – lokal gespeichert' : ''), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-sm",
+    "data-lib-btn": true,
+    onClick: () => {
+      setOpenContent(null);
+      setLib(lib ? null : 'hooks');
+    },
+    style: {
+      borderColor: lib ? 'var(--accent)' : undefined,
+      color: lib ? 'var(--accent)' : undefined
+    }
+  }, "Bibliothek"))), /*#__PURE__*/React.createElement("main", null, lib ? /*#__PURE__*/React.createElement(BibliothekView, {
+    state: state,
+    update: update,
+    sub: lib,
+    setSub: setLib,
+    hookCtx: hookCtx,
+    setHookCtx: setHookCtx,
+    onClose: () => setLib(null)
+  }) : detailOpen ? /*#__PURE__*/React.createElement(ContentDetail, {
+    key: openContent,
+    id: openContent,
+    state: state,
+    update: update,
+    onClose: () => setOpenContent(null),
+    gotoContent: gotoContent
+  }) : /*#__PURE__*/React.createElement(React.Fragment, null, tab === 'heute' && /*#__PURE__*/React.createElement(HeuteView, {
+    state: state,
+    update: update,
+    gotoContent: gotoContent,
+    gotoBriefing: gotoBriefing
+  }), tab === 'plan' && /*#__PURE__*/React.createElement(PlanView, {
+    state: state,
+    gotoContent: gotoContent,
+    ui: ui,
+    setUi: setUi
+  }), tab === 'produktion' && /*#__PURE__*/React.createElement(ProduktionView, {
+    state: state,
+    update: update,
+    ui: ui,
+    setUi: setUi,
+    gotoContent: gotoContent,
+    gotoHooks: c => {
+      setHookCtx(c);
+      setLib('hooks');
+    }
+  }), tab === 'analyse' && /*#__PURE__*/React.createElement(AnalyseView, {
+    state: state,
+    update: update,
+    ui: ui,
+    setUi: setUi,
+    gotoContent: gotoContent
+  }))), /*#__PURE__*/React.createElement("nav", {
+    className: "tabs",
+    "data-main-nav": true
+  }, tabs.map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    "data-nav": k,
+    className: tab === k ? 'on' : '',
+    style: {
+      fontSize: 10.5,
+      padding: '12px 2px 10px',
+      letterSpacing: '.02em'
+    },
+    onClick: () => setTab(k)
+  }, l))));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
