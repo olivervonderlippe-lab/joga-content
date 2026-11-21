@@ -5870,6 +5870,1127 @@ const extraSeed = () => EXTRA_SEED.map(p => normPiece({
   created: '2026-11-21',
   updated: '2026-11-21'
 }));
+// Zyklus 1: vollständige Pieces (Briefing, Shots, Hooks, Caption) für Serie 1, Platzhalter Serie 2/3, Oli geht 56-Themen, Opa-Folgen 1–6. Öffnen aus CONTENT → Tage.
+const CZ1_SEED = [{
+  "id": "cz1-s1-1",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 1: OHNE HÄNDE VOM BODEN HOCHKOMMEN",
+  "hook": "Wenn du mit 70 noch ohne Hände vom Boden hochkommen willst. Teil 1 von 7.",
+  "variants": "FB: Wenn du mit 70 noch ohne Hände vom Boden hochkommen willst. Teil 1 von 7. | IG: Kommst du noch ohne Hände vom Boden hoch? Mit 56 trainiere ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 1 von 7: Vom Boden hochkommen.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 1 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du mit 70 noch ohne Hände vom Boden hochkommen willst. Teil 1 von 7.\n• Instagram: Kommst du noch ohne Hände vom Boden hoch? Mit 56 trainiere ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 1 von 7: Vom Boden hochkommen.\n\n",
+  "shots": [{
+    "id": "cz1-s1-1-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Fähigkeit zeigen: aus dem Schneidersitz aufstehen",
+    "speech": "",
+    "onscreen": "TEIL 1 VON 7",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-1-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Tiefe Hocke",
+    "speech": "",
+    "onscreen": "1. TIEFE HOCKE · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-1-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Aus dem Kniestand aufstehen",
+    "speech": "",
+    "onscreen": "2. AUS DEM KNIESTAND AUFSTEHEN · 5X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-1-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Becken heben",
+    "speech": "",
+    "onscreen": "3. BECKEN HEBEN · 10X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-1-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 2: BÜCKEN · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 1 von 7: Ohne Hände vom Boden hochkommen. Jede Übung mit Dosis im Video. Morgen Teil 2: Bücken. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-2",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 2: DICH BÜCKEN",
+  "hook": "Wenn du dich mit 70 noch gut bücken können willst. Teil 2 von 7.",
+  "variants": "FB: Wenn du dich mit 70 noch gut bücken können willst. Teil 2 von 7. | IG: Mit 56 mache ich das, damit ich mich mit 70 noch bücken kann. Schaffst du alle 4? | TT: Mit 70 noch können. Teil 2 von 7: Bücken.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 2 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du dich mit 70 noch gut bücken können willst. Teil 2 von 7.\n• Instagram: Mit 56 mache ich das, damit ich mich mit 70 noch bücken kann. Schaffst du alle 4?\n• TikTok: Mit 70 noch können. Teil 2 von 7: Bücken.\n\n",
+  "shots": [{
+    "id": "cz1-s1-2-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Hüftbeuge, Hände an der Hüfte",
+    "speech": "",
+    "onscreen": "1. HÜFTBEUGE, HÄNDE AN DER HÜFTE · 10X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-2-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Rumpfbeuge mit gebeugten Knien",
+    "speech": "",
+    "onscreen": "2. RUMPFBEUGE MIT GEBEUGTEN KNIEN · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-2-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Windmühle",
+    "speech": "",
+    "onscreen": "3. WINDMÜHLE · 5X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-2-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Tiefe Hocke",
+    "speech": "",
+    "onscreen": "4. TIEFE HOCKE · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-2-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 3: SCHUHE IM STEHEN · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 2 von 7: Dich bücken. Jede Übung mit Dosis im Video. Morgen Teil 3: Schuhe im Stehen. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-3",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 3: SCHUHE IM STEHEN ZUBINDEN",
+  "hook": "Wenn du dir mit 70 noch die Schuhe im Stehen zubinden willst. Teil 3 von 7.",
+  "variants": "FB: Wenn du dir mit 70 noch die Schuhe im Stehen zubinden willst. Teil 3 von 7. | IG: Schuhe im Stehen zubinden: Mit 56 übe ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 3 von 7: Schuhe im Stehen.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 3 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du dir mit 70 noch die Schuhe im Stehen zubinden willst. Teil 3 von 7.\n• Instagram: Schuhe im Stehen zubinden: Mit 56 übe ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 3 von 7: Schuhe im Stehen.\n\nSICHERHEIT: Wand oder Stuhl in Reichweite zeigen.",
+  "shots": [{
+    "id": "cz1-s1-3-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Einbeinstand",
+    "speech": "",
+    "onscreen": "1. EINBEINSTAND · 30 SEK. JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-3-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Knie zur Brust im Stand",
+    "speech": "",
+    "onscreen": "2. KNIE ZUR BRUST IM STAND · 5X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-3-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Figur 4 im Stand",
+    "speech": "",
+    "onscreen": "3. FIGUR 4 IM STAND · 20 SEK. JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-3-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 4: TREPPE OHNE GELÄNDER · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 3 von 7: Schuhe im Stehen zubinden. Jede Übung mit Dosis im Video. Morgen Teil 4: Treppe ohne Geländer. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-4",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 4: TREPPE OHNE GELÄNDER",
+  "hook": "Wenn du mit 70 noch ohne Geländer die Treppe hochwillst. Teil 4 von 7.",
+  "variants": "FB: Wenn du mit 70 noch ohne Geländer die Treppe hochwillst. Teil 4 von 7. | IG: Treppe ohne Geländer: Mit 56 trainiere ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 4 von 7: Treppe.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 4 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du mit 70 noch ohne Geländer die Treppe hochwillst. Teil 4 von 7.\n• Instagram: Treppe ohne Geländer: Mit 56 trainiere ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 4 von 7: Treppe.\n\nSICHERHEIT: Stabile Stufe, Geländer in Reichweite zeigen.",
+  "shots": [{
+    "id": "cz1-s1-4-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Aufsteigen auf eine Stufe",
+    "speech": "",
+    "onscreen": "1. AUFSTEIGEN AUF EINE STUFE · 10X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-4-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Wadenheben",
+    "speech": "",
+    "onscreen": "2. WADENHEBEN · 15X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-4-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Ausfallschritt am Platz",
+    "speech": "",
+    "onscreen": "3. AUSFALLSCHRITT AM PLATZ · 8X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-4-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 5: KOFFER INS GEPÄCKFACH · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 4 von 7: Treppe ohne Geländer. Jede Übung mit Dosis im Video. Morgen Teil 5: Koffer ins Gepäckfach. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-5",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 5: DEN KOFFER INS GEPÄCKFACH HEBEN",
+  "hook": "Wenn du mit 70 noch selbst deinen Koffer ins Gepäckfach heben willst. Teil 5 von 7.",
+  "variants": "FB: Wenn du mit 70 noch selbst deinen Koffer ins Gepäckfach heben willst. Teil 5 von 7. | IG: Koffer hoch ins Gepäckfach: Mit 56 trainiere ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 5 von 7: Koffer heben.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 5 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du mit 70 noch selbst deinen Koffer ins Gepäckfach heben willst. Teil 5 von 7.\n• Instagram: Koffer hoch ins Gepäckfach: Mit 56 trainiere ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 5 von 7: Koffer heben.\n\n",
+  "shots": [{
+    "id": "cz1-s1-5-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Wasserflasche über Kopf drücken",
+    "speech": "",
+    "onscreen": "1. WASSERFLASCHE ÜBER KOPF DRÜCKEN · 10X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-5-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Liegestütz an der Wand",
+    "speech": "",
+    "onscreen": "2. LIEGESTÜTZ AN DER WAND · 10X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-5-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Rotation mit gestreckten Armen",
+    "speech": "",
+    "onscreen": "3. ROTATION MIT GESTRECKTEN ARMEN · 8X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-5-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 6: SCHULTERBLICK · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 5 von 7: Den Koffer ins Gepäckfach heben. Jede Übung mit Dosis im Video. Morgen Teil 6: Schulterblick. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-6",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 6: SCHULTERBLICK BEIM EINPARKEN",
+  "hook": "Wenn du dich mit 70 beim Einparken noch umdrehen können willst. Teil 6 von 7.",
+  "variants": "FB: Wenn du dich mit 70 beim Einparken noch umdrehen können willst. Teil 6 von 7. | IG: Schulterblick beim Einparken: Mit 56 übe ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 6 von 7: Schulterblick.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 6 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du dich mit 70 beim Einparken noch umdrehen können willst. Teil 6 von 7.\n• Instagram: Schulterblick beim Einparken: Mit 56 übe ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 6 von 7: Schulterblick.\n\n",
+  "shots": [{
+    "id": "cz1-s1-6-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Kopfdrehung im Sitzen",
+    "speech": "",
+    "onscreen": "1. KOPFDREHUNG IM SITZEN · 5X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-6-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Brustwirbel-Rotation im Vierfüßler",
+    "speech": "",
+    "onscreen": "2. BRUSTWIRBEL-ROTATION IM VIERFÜSSLER · 6X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-6-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Arm-Twist vor der Brust",
+    "speech": "",
+    "onscreen": "3. ARM-TWIST VOR DER BRUST · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-6-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "MORGEN TEIL 7: AUF EINEM BEIN STEHEN · SPEICHERN",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 6 von 7: Schulterblick beim Einparken. Jede Übung mit Dosis im Video. Morgen Teil 7: Auf einem Bein stehen. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s1-7",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie: Mit 70 noch können",
+  "series": "Mit 70 noch können",
+  "title": "MIT 70 NOCH KÖNNEN · TEIL 7: SICHER AUF EINEM BEIN STEHEN",
+  "hook": "Wenn du mit 70 noch sicher auf einem Bein stehen willst. Teil 7 von 7.",
+  "variants": "FB: Wenn du mit 70 noch sicher auf einem Bein stehen willst. Teil 7 von 7. | IG: Auf einem Bein, Augen zu: Mit 56 übe ich das so. Schaffst du alle 3? | TT: Mit 70 noch können. Teil 7 von 7: Balance.",
+  "scriptText": "DREH: Wohnzimmer, Matte, gleiches Outfit für alle 7 Teile, eine Einstellung. Nur Musik, keine Sprache. Alle 7 Teile vorab drehen und schneiden, bevor Teil 1 online geht.\n\nAUFBAU (30–45 Sek.): 0–3 Sek. Hook im Bild + „Teil 7 von 7“. Dann die Übungen, jede mit Nummer und Dosis im Bild. Endbild: Ankündigung des nächsten Teils + „Speichern“.\n\nHOOK PRO PLATTFORM (gleicher Schnitt, nur der Text oben wechselt):\n• Facebook: Wenn du mit 70 noch sicher auf einem Bein stehen willst. Teil 7 von 7.\n• Instagram: Auf einem Bein, Augen zu: Mit 56 übe ich das so. Schaffst du alle 3?\n• TikTok: Mit 70 noch können. Teil 7 von 7: Balance.\n\nSICHERHEIT: Wand oder Stuhl in Reichweite zeigen.",
+  "shots": [{
+    "id": "cz1-s1-7-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Einbeinstand, Augen zu",
+    "speech": "",
+    "onscreen": "1. EINBEINSTAND, AUGEN ZU · 20 SEK. JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-7-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Tandemstand",
+    "speech": "",
+    "onscreen": "2. TANDEMSTAND · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-7-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "10 Schritte auf einer Linie",
+    "speech": "",
+    "onscreen": "3. 10 SCHRITTE AUF EINER LINIE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "5–7 s",
+    "note": ""
+  }, {
+    "id": "cz1-s1-7-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, du stehst, Blick in die Kamera",
+    "speech": "",
+    "onscreen": "SPEICHERN · SERIE KOMPLETT",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Mit 70 noch können, Teil 7 von 7: Sicher auf einem Bein stehen. Jede Übung mit Dosis im Video. Das war die Serie. Speichern und mitmachen. #joga #mit70 #beweglichkeit #einfachmachen",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-1",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 1",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 1 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-2",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 2",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 2 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-3",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 3",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 3 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-4",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 4",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 4 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-5",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 5",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 5 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-6",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 6",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 6 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s2-7",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 2 · TEIL 7",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 7 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 7 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-1",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 1",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 1 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-2",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 2",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 2 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-3",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 3",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 3 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-4",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 4",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 4 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-5",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 5",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 5 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-6",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 6",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 6 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-s3-7",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Serie",
+  "title": "SERIE 3 · TEIL 7",
+  "hook": "",
+  "scriptText": "Thema wird am Tag 14 nach den Zahlen festgelegt (Optionen: zweite Staffel „Mit 70 noch können“ mit neuen Fähigkeiten oder „Neuro JOGA“ neu gedreht). Gleicher Aufbau wie Serie 1: Hook + „Teil 7 von 7“, nummerierte Übungen mit Dosis, Endbild mit nächstem Teil.",
+  "status": "Idee",
+  "entry": "Move first",
+  "audio": "Silent/Musik",
+  "platforms": ["Instagram", "TikTok", "Facebook", "YouTube"],
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-d",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND DER MORGEN",
+  "hook": "56 und der morgen",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Kaffee läuft durch, du bewegst dich in der Küche.\nLEITFRAGE AN DICH: Wie sieht dein echter Morgen aus, und was machst du, während der Kaffee läuft?\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Küche, Kaffeemaschine läuft, du gehst durch die Wohnung.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-b",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND YOGALEHRER, DER KEIN YOGA VERKAUFT",
+  "hook": "56 und yogalehrer, der kein yoga verkauft",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Du liebst Yoga, machst aber JOGA für die, die nie Yoga wollten.\nLEITFRAGE AN DICH: Wem willst du damit helfen, und wen kennst du, der nie auf eine Matte gehen würde?\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Draußen gehen, Matte unterm Arm.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-c",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND DIE ZAHLEN",
+  "hook": "56 und die zahlen",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Du kämpfst seit März um Follower und sagst es offen.\nLEITFRAGE AN DICH: Was frustriert dich, und warum machst du trotzdem weiter?\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Draußen gehen, Handy in der Hand.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-e",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND DAS ERSTE MAL",
+  "hook": "56 und das erste mal",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Etwas, das du mit 56 zum ersten Mal versucht oder geschafft hast.\nLEITFRAGE AN DICH: Was war es, und wie oft bist du vorher gescheitert?\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Gehen, am Ende kurz zeigen, worum es geht.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-f",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND MIT 70",
+  "hook": "56 und mit 70",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Warum dich 70 beschäftigt.\nLEITFRAGE AN DICH: Kennst du einen Menschen um die 70, der dir zeigt, wie du mit 70 sein willst oder nicht? (Ohne Namen, nur wenn du willst.)\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Gehen, ruhiger Ort.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-og-x",
+  "world": "OLI",
+  "fn": "ME",
+  "format": "Oli Geht",
+  "title": "56 UND … FORTSETZUNG",
+  "hook": "56 und … fortsetzung",
+  "scriptText": "OLI GEHT: im Gehen in die Kamera sprechen, 20–25 Sek., ein Take, ein Gedanke. Erste Sekunde ist ein Satz, kein „Moin, Leute“. Schluss mit einer Handlung.\n\nLINIE: Das stärkste Oli-geht-Thema aus Woche 1 und 2 vertiefen.\nLEITFRAGE AN DICH: Welches Thema hatte die meisten Kommentare? Was wolltest du dort noch sagen?\n\nSPRECHTEXT: [HIER FEHLT: deine Antwort in deinen Worten, 3–5 Sätze]\n\nORT: Wie beim Original.",
+  "caption": "[HIER FEHLT: 1–2 Sätze aus deinem Sprechtext] #joga #56 #einfachmachen",
+  "entry": "Face first",
+  "audio": "On-Cam",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Idee",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-1",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 1: KOMMT NICHT AUS DEM SESSEL",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-1-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-1-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa stützt sich auf, kommt nicht hoch, fällt zurück. Dann reißt er die Maske runter.",
+    "speech": "Dreißig Jahre Sitzen.",
+    "onscreen": "DREISSIG JAHRE SITZEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-1-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Tiefe Hocke",
+    "speech": "",
+    "onscreen": "1. TIEFE HOCKE · 1 MIN.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-1-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Ausfallschritt",
+    "speech": "",
+    "onscreen": "2. AUSFALLSCHRITT · 1 MIN.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-1-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Kommt nicht aus dem sessel. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-2",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 2: SCHLÜSSEL FÄLLT RUNTER",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-2-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-2-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Schlüssel fällt runter, Opa beugt sich, kommt nicht ran, gibt auf. Dann reißt er die Maske runter.",
+    "speech": "Bücken? Hab ich 2026 aufgehört.",
+    "onscreen": "BÜCKEN? HAB ICH 2026 AUFGEHÖRT.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-2-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Hüftbeuge",
+    "speech": "",
+    "onscreen": "1. HÜFTBEUGE · 10X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-2-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Tiefe Hocke",
+    "speech": "",
+    "onscreen": "2. TIEFE HOCKE · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-2-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Schlüssel fällt runter. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-3",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 3: SCHUHE NUR NOCH IM SITZEN",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-3-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-3-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa sitzt, zieht mühsam mit dem Schuhlöffel den Schuh an. Dann reißt er die Maske runter.",
+    "speech": "Im Stehen? Seit Jahren nicht mehr.",
+    "onscreen": "IM STEHEN? SEIT JAHREN NICHT MEHR.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-3-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Einbeinstand",
+    "speech": "",
+    "onscreen": "1. EINBEINSTAND · 30 SEK. JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-3-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Knie zur Brust im Stand",
+    "speech": "",
+    "onscreen": "2. KNIE ZUR BRUST IM STAND · 5X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-3-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Schuhe nur noch im sitzen. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-4",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 4: AUSSER ATEM NACH DER TREPPE",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-4-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-4-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa am Treppenabsatz, schnauft, hält sich am Geländer. Dann reißt er die Maske runter.",
+    "speech": "Eine Treppe. Eine.",
+    "onscreen": "EINE TREPPE. EINE.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-4-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Aufsteigen auf eine Stufe",
+    "speech": "",
+    "onscreen": "1. AUFSTEIGEN AUF EINE STUFE · 10X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-4-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Wadenheben",
+    "speech": "",
+    "onscreen": "2. WADENHEBEN · 15X",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-4-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Ausser atem nach der treppe. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-5",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 5: EINPARKEN MIT DEM GANZEN KÖRPER",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-5-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-5-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa im Sessel als Autositz, dreht sich mit dem ganzen Körper statt mit dem Kopf. Dann reißt er die Maske runter.",
+    "speech": "Schulterblick? Ich hab ’nen Rückspiegel.",
+    "onscreen": "SCHULTERBLICK? ICH HAB ’NEN RÜCKSPIEGEL.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-5-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Brustwirbel-Rotation im Vierfüßler",
+    "speech": "",
+    "onscreen": "1. BRUSTWIRBEL-ROTATION IM VIERFÜSSLER · 6X JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-5-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Arm-Twist vor der Brust",
+    "speech": "",
+    "onscreen": "2. ARM-TWIST VOR DER BRUST · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-5-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Einparken mit dem ganzen körper. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}, {
+  "id": "cz1-opa-6",
+  "world": "JOGA",
+  "fn": "REACH",
+  "format": "Opa-Oliver",
+  "series": "Opa-Oliver",
+  "title": "OPA-OLIVER · FOLGE 6: WACKELT BEIM SOCKENANZIEHEN",
+  "hook": "Ich bin du. 2051.",
+  "scriptText": "OPA-OLIVER: Maske, Strickjacke, Sessel, Decke. Text danach als Voice-over einsprechen (Maske dämpft). Einstieg max. 5 Sek., dann Maske runter, zwei Übungen, Endbild. Ca. 20–22 Sek.\n\nHALTUNG: Opa ist nicht lächerlich, weil er alt ist, sondern sauer auf dich, weil du jetzt sitzt. Die Pointe trifft das Sitzen, nicht das Alter.",
+  "shots": [{
+    "id": "cz1-opa-6-s1",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa (Maske, Strickjacke) im Sessel unter der Decke, Blick in die Kamera",
+    "speech": "(heiser) Ich bin du. 2051.",
+    "onscreen": "ICH BIN DU. 2051.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "0–2 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-6-s2",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Opa versucht im Stehen eine Socke anzuziehen, wackelt, setzt sich hin. Dann reißt er die Maske runter.",
+    "speech": "Hinsetzen. Immer hinsetzen.",
+    "onscreen": "HINSETZEN. IMMER HINSETZEN.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "2–5 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-6-s3",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Einbeinstand, Augen zu",
+    "speech": "",
+    "onscreen": "1. EINBEINSTAND, AUGEN ZU · 20 SEK. JE SEITE",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-6-s4",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Du zu Hause ohne Maske: Tandemstand",
+    "speech": "",
+    "onscreen": "2. TANDEMSTAND · 30 SEK.",
+    "onscreenRequired": true,
+    "audio": "Musik",
+    "dur": "7 s",
+    "note": ""
+  }, {
+    "id": "cz1-opa-6-s5",
+    "camera": "Handy auf Stativ, hochkant, Ganzkörper",
+    "action": "Endbild, Maske in der Hand, du grinst",
+    "speech": "Damit du nie so endest. Schick das dem, der mit 85 noch fit sein will.",
+    "onscreen": "SPEICHERN. UND SCHICK DAS WEITER.",
+    "onscreenRequired": true,
+    "audio": "On-Cam",
+    "dur": "3 s",
+    "note": ""
+  }],
+  "caption": "Opa-Oliver aus 2051 hat ein Problem: Wackelt beim sockenanziehen. Damit es nicht so weit kommt: zwei Übungen. Speichern und weiterschicken. #joga #mit70 #einfachmachen",
+  "entry": "Situation first",
+  "audio": "Voice-over",
+  "platforms": ["Instagram", "TikTok", "Facebook"],
+  "status": "Skript fertig",
+  "prodType": "Neudreh",
+  "publishDate": ""
+}];
+const cz1Seed = () => CZ1_SEED.map(p => normPiece({
+  ...p,
+  created: '2026-11-21',
+  updated: '2026-11-21'
+}));
 const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({
   ...p,
   created: '2026-10-08',
@@ -6024,6 +7145,11 @@ function migrateState(s) {
   }
   // Statement-Bibliothek: einmalig, nur fehlende IDs (st-01…st-28). Bestehende oder von dir geänderte Pieces werden nie überschrieben,
   // gelöschte kommen nicht wieder.
+  if (!out.cz1SeedV1) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...cz1Seed().filter(c => !have.has(c.id))];
+    out.cz1SeedV1 = true;
+  }
   if (!out.extrasSeedV1) {
     const have = new Set(out.content.map(c => c.id));
     out.content = [...out.content, ...extraSeed().filter(c => !have.has(c.id))];
@@ -9700,7 +10826,100 @@ const CYCLE = {
     unterwegs: '16:00 · Extra nach Bedarf',
     serie: '19:30 · alle Plattformen'
   },
-  days: [['Oli geht: „Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen …“ (Skript im Board)', '', 'Serie 1, Teil 1: Vom Boden hochkommen'], ['Oli klärt: Knie nie über die Zehen? (Skript im Board)', '', 'Serie 1, Teil 2: Bücken'], ['Oli geht: 56 und der Morgen', '', 'Serie 1, Teil 3: Schuhe im Stehen'], ['Oli klärt: Steif? Dann musst du mehr dehnen. (Skript im Board)', '', 'Serie 1, Teil 4: Treppe ohne Geländer'], ['Oli geht: 56 und Yogalehrer, der kein Yoga verkauft', '', 'Serie 1, Teil 5: Koffer ins Gepäckfach'], ['Oli klärt: Balance hat man. Oder eben nicht. (Skript im Board)', '', 'Serie 1, Teil 6: Schulterblick'], ['Oli geht: 56 und die Zahlen', '', 'Serie 1, Teil 7: Auf einem Bein stehen'], ['Opa, Folge 1: kommt nicht aus dem Sessel', '', 'Serie 2, Teil 1'], ['Oli klärt: Zu alt für Muskelaufbau?', '', 'Serie 2, Teil 2'], ['Opa, Folge 2: Schlüssel fällt runter, er kommt nicht ran', '', 'Serie 2, Teil 3'], ['Oli geht: Warum ich Bewegung Körperpflege nenne (Skript im Board)', '', 'Serie 2, Teil 4'], ['Opa, Folge 3: zieht die Schuhe nur noch im Sitzen an', '', 'Serie 2, Teil 5'], ['Oli klärt: Vor dem Sport erst mal lange dehnen?', '', 'Serie 2, Teil 6'], ['Oli geht: 56 und das erste Mal', '', 'Serie 2, Teil 7'], ['Opa, Folge 4: nach einer Treppe außer Atem', '', 'Serie 3, Teil 1'], ['Oli klärt: Unter 10.000 Schritten zählt’s nicht?', '', 'Serie 3, Teil 2'], ['Opa, Folge 5: dreht beim Einparken den ganzen Körper', '', 'Serie 3, Teil 3'], ['Oli geht: 56 und mit 70', '', 'Serie 3, Teil 4'], ['Opa, Folge 6: wackelt beim Sockenanziehen', '', 'Serie 3, Teil 5'], ['Oli klärt: Ist Pilates Krafttraining?', '', 'Serie 3, Teil 6'], ['Oli geht: stärkstes Thema fortsetzen', '', 'Serie 3, Teil 7']],
+  days: [[{
+    match: 'AUFMERKSAMKEIT ZU ERZEUGEN',
+    label: 'Oli geht: Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen …'
+  }, {
+    ref: 'cz1-s1-1'
+  }], [{
+    match: 'KNIE NIE ÜBER DIE ZEHEN',
+    label: 'Oli klärt: Knie nie über die Zehen?'
+  }, {
+    ref: 'cz1-s1-2'
+  }], [{
+    ref: 'cz1-og-d'
+  }, {
+    ref: 'cz1-s1-3'
+  }], [{
+    match: 'STEIF? DANN MUSST DU MEHR DEHNEN',
+    label: 'Oli klärt: Steif? Dann musst du mehr dehnen.'
+  }, {
+    ref: 'cz1-s1-4'
+  }], [{
+    ref: 'cz1-og-b'
+  }, {
+    ref: 'cz1-s1-5'
+  }], [{
+    match: 'BALANCE HAT MAN',
+    label: 'Oli klärt: Balance hat man. Oder eben nicht.'
+  }, {
+    ref: 'cz1-s1-6'
+  }], [{
+    ref: 'cz1-og-c'
+  }, {
+    ref: 'cz1-s1-7'
+  }], [{
+    ref: 'cz1-opa-1'
+  }, {
+    ref: 'cz1-s2-1'
+  }], [{
+    match: 'ZU ALT FÜR MUSKELAUFBAU',
+    label: 'Oli klärt: Zu alt für Muskelaufbau?'
+  }, {
+    ref: 'cz1-s2-2'
+  }], [{
+    ref: 'cz1-opa-2'
+  }, {
+    ref: 'cz1-s2-3'
+  }], [{
+    match: 'KÖRPERPFLEGE NENNE',
+    label: 'Oli geht: Warum ich Bewegung Körperpflege nenne'
+  }, {
+    ref: 'cz1-s2-4'
+  }], [{
+    ref: 'cz1-opa-3'
+  }, {
+    ref: 'cz1-s2-5'
+  }], [{
+    match: 'ERST MAL LANGE DEHNEN',
+    label: 'Oli klärt: Vor dem Sport erst mal lange dehnen?'
+  }, {
+    ref: 'cz1-s2-6'
+  }], [{
+    ref: 'cz1-og-e'
+  }, {
+    ref: 'cz1-s2-7'
+  }], [{
+    ref: 'cz1-opa-4'
+  }, {
+    ref: 'cz1-s3-1'
+  }], [{
+    match: '10.000 SCHRITTEN',
+    label: 'Oli klärt: Unter 10.000 Schritten zählt’s nicht?'
+  }, {
+    ref: 'cz1-s3-2'
+  }], [{
+    ref: 'cz1-opa-5'
+  }, {
+    ref: 'cz1-s3-3'
+  }], [{
+    ref: 'cz1-og-f'
+  }, {
+    ref: 'cz1-s3-4'
+  }], [{
+    ref: 'cz1-opa-6'
+  }, {
+    ref: 'cz1-s3-5'
+  }], [{
+    match: 'IST PILATES KRAFTTRAINING',
+    label: 'Oli klärt: Ist Pilates Krafttraining?'
+  }, {
+    ref: 'cz1-s3-6'
+  }], [{
+    ref: 'cz1-og-x'
+  }, {
+    ref: 'cz1-s3-7'
+  }]],
   serie: {
     name: 'Mit 70 noch können',
     aufbau: '30–45 Sek., nur Musik. 0–3 Sek. Hook im Bild + „Teil X von 7“. Dann 3–4 nummerierte Übungen mit Dosis im Bild. Endbild: „Morgen Teil X+1“ + „Speichern“.',
@@ -9780,35 +10999,65 @@ function ContentView({
       cursor: 'pointer'
     }
   });
+  const resolve = slot => {
+    if (!slot) return null;
+    if (slot.ref) return byId(slot.ref) || null;
+    const hits = state.content.filter(c => (c.title || '').toUpperCase().includes(slot.match));
+    hits.sort((x, y) => /Oli/.test(y.format) - /Oli/.test(x.format) || (y.scriptText || '').length + (y.shots || []).length * 50 - ((x.scriptText || '').length + (x.shots || []).length * 50));
+    return hits[0] || null;
+  };
   const Row = ({
     k,
     time,
-    text,
-    onOpen
-  }) => !text ? null : /*#__PURE__*/React.createElement("div", {
-    "data-cp-slot": k,
-    className: "row",
-    style: {
-      margin: '6px 0 0',
-      alignItems: 'flex-start',
-      gap: 8
-    },
-    onClick: () => onOpen ? onOpen() : toggle(k)
-  }, /*#__PURE__*/React.createElement(Check, {
-    k: k
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      flex: 1,
-      opacity: done[k] ? 0.5 : 1
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "meta",
-    style: {
-      display: 'block'
-    }
-  }, time), text, onOpen && /*#__PURE__*/React.createElement("span", {
-    className: "meta"
-  }, " ›")));
+    slot,
+    piece,
+    text
+  }) => {
+    const p = piece || resolve(slot);
+    const label = p ? p.title || '(ohne Titel)' : text || slot && slot.label;
+    if (!label) return null;
+    return /*#__PURE__*/React.createElement("div", {
+      "data-cp-slot": k,
+      className: "row",
+      style: {
+        margin: '8px 0 0',
+        alignItems: 'flex-start',
+        gap: 8,
+        cursor: p ? 'pointer' : 'default'
+      },
+      onClick: () => p && gotoContent(p.id)
+    }, /*#__PURE__*/React.createElement(Check, {
+      k: k
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: 1,
+        opacity: done[k] ? 0.5 : 1
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        display: 'block'
+      }
+    }, time, p ? ' · ' + (p.format || '') : ''), slot && slot.label && p && slot.label.split(':')[0].toLowerCase() !== (p.format || '').toLowerCase() ? /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        display: 'block'
+      }
+    }, slot.label.split(':')[0]) : null, /*#__PURE__*/React.createElement("b", {
+      style: {
+        fontWeight: 700
+      }
+    }, label), p && /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: 'var(--accent)'
+      }
+    }, " ›"), p && /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        display: 'block'
+      }
+    }, p.status, p.hook ? ' · ' + p.hook : '')));
+  };
   const groupPieces = fmts => state.content.filter(c => fmts.includes(c.format)).sort((x, y) => (x.status === 'Gepostet') - (y.status === 'Gepostet'));
   return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
     className: "head"
@@ -9859,24 +11108,23 @@ function ContentView({
     }, "HEUTE")), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-m',
       time: CYCLE.slots.mittag,
-      text: d[0]
+      slot: d[0]
     }), (extras[iso] || []).map(id => {
       const p = byId(id);
       return p ? /*#__PURE__*/React.createElement(Row, {
         key: id,
         k: iso + '-x-' + id,
-        time: '16:00 · Extra · ' + (EXTRA_GROUPS.find(([, f]) => f.includes(p.format)) || [p.format])[0],
-        text: p.title || '(ohne Titel)',
-        onOpen: () => gotoContent(id)
+        time: '16:00 · Extra',
+        piece: p
       }) : null;
     }), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-s',
       time: CYCLE.slots.serie,
-      text: d[2]
+      slot: d[1]
     }));
   }))), sec === 'tage' && /*#__PURE__*/React.createElement("div", {
     className: "hint"
-  }, "Kästchen antippen hakt ab. Extras planst du im Bereich „Extras“ ein. ", CYCLE.messung), sec === 'extras' && /*#__PURE__*/React.createElement("div", {
+  }, "Kästchen antippen hakt ab. Titel antippen öffnet das komplette Briefing: Drehanleitung, Shots, Hook pro Plattform, Caption. Extras planst du im Bereich „Extras“ ein. ", CYCLE.messung), sec === 'extras' && /*#__PURE__*/React.createElement("div", {
     "data-cp-extras": true
   }, /*#__PURE__*/React.createElement("div", {
     className: "hint"
