@@ -9979,7 +9979,21 @@ function HeuteView({
   }, /*#__PURE__*/React.createElement("h1", null, "Heute"), /*#__PURE__*/React.createElement("span", {
     className: "meta",
     "data-today": true
-  }, wdName(today), " ", fmtD(today), today.slice(0, 4))), sec('A', 'Heute posten', A.length ? A.length + ' Piece' + (A.length > 1 ? 's' : '') : null, A.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, wdName(today), " ", fmtD(today), today.slice(0, 4))), /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    "data-heute-prod": true,
+    style: {
+      padding: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("b", null, "Produktion heute"), /*#__PURE__*/React.createElement(ProdDay, {
+    state: state,
+    update: update,
+    gotoContent: gotoContent,
+    d: today,
+    items: cycleItems(state),
+    compact: true
+  })), sec('A', 'Heute posten', A.length ? A.length + ' Piece' + (A.length > 1 ? 's' : '') : null, A.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "meta",
     "data-empty": true
   }, "Heute ist nichts zum Posten geplant.") : A.map(p => /*#__PURE__*/React.createElement("div", {
@@ -10968,13 +10982,302 @@ const applyCycleDates = st => {
   };
 };
 const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
+
+// ---- Produktion aus dem Content-Zyklus: Indoor (So drehen, Mo schneiden) und Outdoor (Mi drehen, Do schneiden). Serie: ganze Woche am Indoor-Drehtag davor.
+const PROD_DAYS = {
+  indoor: {
+    dreh: 0,
+    schnitt: 1,
+    label: 'Indoor'
+  },
+  outdoor: {
+    dreh: 3,
+    schnitt: 4,
+    label: 'Outdoor'
+  }
+};
+const isOutdoorP = p => /Oli Geht|Unterwegs/i.test(p && p.format || '');
+const wdNum = iso => new Date(iso + 'T00:00:00Z').getUTCDay();
+const lastWeekdayBefore = (iso, wd) => {
+  let d = addDays(iso, -1);
+  for (let i = 0; i < 7; i++) {
+    if (wdNum(d) === wd) return d;
+    d = addDays(d, -1);
+  }
+  return d;
+};
+const cycleDates = () => CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+function cycleItems(st) {
+  const dates = cycleDates(),
+    ov = st.cpOverride || {},
+    ex = st.cpExtras || {};
+  const byId = id => st.content.find(c => c.id === id);
+  const out = [];
+  dates.forEach((iso, i) => {
+    [['m', 0, '12:00'], ['x', -1, '16:00'], ['s', 1, '19:30']].forEach(([kind, idx, time]) => {
+      if (kind === 'x') {
+        (ex[iso] || []).forEach(id => {
+          const p = byId(id);
+          if (p) out.push({
+            iso,
+            kind,
+            time,
+            p,
+            week: Math.floor(i / 7)
+          });
+        });
+        return;
+      }
+      const p = ov[iso + '-' + kind] && byId(ov[iso + '-' + kind]) || cycleResolve(st.content, CYCLE.days[i][idx]);
+      if (p) out.push({
+        iso,
+        kind,
+        time,
+        p,
+        week: Math.floor(i / 7)
+      });
+    });
+  });
+  return out.map(it => {
+    const t = isOutdoorP(it.p) ? 'outdoor' : 'indoor',
+      P = PROD_DAYS[t];
+    const ref = it.kind === 's' ? dates[it.week * 7] : it.iso;
+    const dreh = lastWeekdayBefore(ref, P.dreh);
+    let schnitt = addDays(dreh, (P.schnitt - P.dreh + 7) % 7);
+    if (schnitt > it.iso) schnitt = it.iso;
+    return {
+      ...it,
+      t,
+      dreh,
+      schnitt
+    };
+  });
+}
+const gedreht = p => stIdx(p) >= C_STATUS.indexOf('Gedreht');
+const geschnitten = p => stIdx(p) >= C_STATUS.indexOf('Geschnitten');
+// Was ist an Tag d zu tun? Überfälliges landet auf heute.
+function prodTasks(items, d, today) {
+  items = items.filter(it => it.iso >= today); // Vergangene Posttage sind keine Aufgabe mehr
+  const dreh = items.filter(it => !gedreht(it.p) && (it.dreh === d || d === today && it.dreh < today));
+  const schnitt = items.filter(it => !geschnitten(it.p) && (it.schnitt === d || d === today && it.schnitt < today));
+  const uniq = l => l.filter((x, i) => l.findIndex(y => y.p.id === x.p.id) === i);
+  return {
+    dreh: uniq(dreh),
+    schnitt: uniq(schnitt)
+  };
+}
+function prodIcs(items) {
+  const days = {};
+  items.forEach(it => {
+    if (!gedreht(it.p)) (days[it.dreh + 'D' + it.t] = days[it.dreh + 'D' + it.t] || {
+      d: it.dreh,
+      what: 'Dreh',
+      t: it.t,
+      l: []
+    }).l.push(it.p.title);
+    if (!geschnitten(it.p)) (days[it.schnitt + 'S'] = days[it.schnitt + 'S'] || {
+      d: it.schnitt,
+      what: 'Schnitt',
+      t: '',
+      l: []
+    }).l.push(it.p.title);
+  });
+  const esc = x => String(x).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const ev = Object.values(days).map((e, i) => {
+    const ymd = e.d.replace(/-/g, ''),
+      [h1, h2] = e.what === 'Dreh' ? ['100000', '130000'] : ['140000', '160000'];
+    const titles = [...new Set(e.l)];
+    return ['BEGIN:VEVENT', 'UID:joga-' + ymd + '-' + e.what + e.t + '-' + i + '@joga-content', 'DTSTAMP:' + ymd + 'T080000', 'DTSTART:' + ymd + 'T' + h1, 'DTEND:' + ymd + 'T' + h2, 'SUMMARY:' + esc('JOGA ' + (e.what === 'Dreh' ? PROD_DAYS[e.t].label + '-Dreh' : 'Schnitt') + ': ' + titles.length + ' Beiträge'), 'DESCRIPTION:' + esc(titles.join('\n')), 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc('JOGA ' + e.what), 'TRIGGER:-PT60M', 'END:VALARM', 'END:VEVENT'].join('\r\n');
+  });
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//JOGA Content//DE', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n');
+}
+const downloadIcs = items => {
+  const a = document.createElement('a');
+  a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(prodIcs(items));
+  a.download = 'joga-produktion.ics';
+  a.click();
+};
+const EXTRA_FORMATS_ALL = ['Statement', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Ehrlich-Freitag', 'Unterwegs'];
+function scheduleExtra(update, id, d) {
+  update(s => {
+    const ex = {
+      ...(s.cpExtras || {})
+    };
+    Object.keys(ex).forEach(k => {
+      ex[k] = (ex[k] || []).filter(x => x !== id);
+    });
+    if (d) ex[d] = [...(ex[d] || []), id];
+    return {
+      ...s,
+      cpExtras: ex,
+      content: s.content.map(c => c.id === id ? {
+        ...c,
+        publishDate: d || c.publishDate
+      } : c)
+    };
+  });
+}
+// Kompakter Block: Was heute (bzw. an Tag d) zu drehen, schneiden und zu posten ist, plus Extra hinzufügen.
+function ProdDay({
+  state,
+  update,
+  gotoContent,
+  d,
+  items,
+  compact
+}) {
+  const today = todayISO();
+  const t = prodTasks(items, d, today);
+  const posts = items.filter(it => it.iso === d);
+  const extraOptions = state.content.filter(c => EXTRA_FORMATS_ALL.includes(c.format) && c.status !== 'Gepostet' && !posts.some(it => it.p.id === c.id));
+  const setStatus = (p, st) => update(s => ({
+    ...s,
+    content: s.content.map(c => c.id === p.id ? {
+      ...c,
+      status: st,
+      updated: todayISO()
+    } : c)
+  }));
+  const Line = ({
+    it,
+    act
+  }) => /*#__PURE__*/React.createElement("div", {
+    className: "row",
+    style: {
+      margin: '5px 0 0',
+      gap: 8,
+      alignItems: 'flex-start'
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      cursor: 'pointer'
+    },
+    onClick: () => gotoContent(it.p.id)
+  }, /*#__PURE__*/React.createElement("b", {
+    style: {
+      fontWeight: 700
+    }
+  }, it.p.title || '(ohne Titel)'), " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: 'var(--accent)'
+    }
+  }, "›"), /*#__PURE__*/React.createElement("span", {
+    className: "meta",
+    style: {
+      display: 'block'
+    }
+  }, it.p.format, " · Post ", wdName(it.iso), " ", fmtD(it.iso), " ", it.time, act && (act === 'Gedreht' ? it.dreh : it.schnitt) < today ? ' · überfällig' : '')), act && /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-sm",
+    onClick: () => setStatus(it.p, act)
+  }, act, " ✓"));
+  const head = txt => /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginTop: 8,
+      fontWeight: 800,
+      letterSpacing: '.03em'
+    }
+  }, txt);
+  const drehIn = t.dreh.filter(x => x.t === 'indoor'),
+    drehOut = t.dreh.filter(x => x.t === 'outdoor');
+  return /*#__PURE__*/React.createElement("div", {
+    "data-prod-day": d
+  }, drehIn.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, head('INDOOR DREHEN (' + drehIn.length + ')'), drehIn.map(it => /*#__PURE__*/React.createElement(Line, {
+    key: 'd' + it.p.id,
+    it: it,
+    act: "Gedreht"
+  }))), drehOut.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, head('OUTDOOR DREHEN (' + drehOut.length + ')'), drehOut.map(it => /*#__PURE__*/React.createElement(Line, {
+    key: 'o' + it.p.id,
+    it: it,
+    act: "Gedreht"
+  }))), t.schnitt.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, head('SCHNEIDEN (' + t.schnitt.length + ')'), t.schnitt.map(it => /*#__PURE__*/React.createElement(Line, {
+    key: 's' + it.p.id,
+    it: it,
+    act: "Geschnitten"
+  }))), !compact && posts.length > 0 && /*#__PURE__*/React.createElement(React.Fragment, null, head('POSTEN'), posts.map(it => /*#__PURE__*/React.createElement(Line, {
+    key: 'p' + it.p.id + it.kind,
+    it: it
+  }))), t.dreh.length + t.schnitt.length === 0 && compact && /*#__PURE__*/React.createElement("div", {
+    className: "meta",
+    style: {
+      marginTop: 6
+    }
+  }, "Heute nichts zu drehen oder zu schneiden."), /*#__PURE__*/React.createElement("select", {
+    value: "",
+    onChange: e => e.target.value && scheduleExtra(update, e.target.value, d),
+    style: {
+      marginTop: 8,
+      width: '100%',
+      background: 'var(--panel2)',
+      color: 'var(--text)',
+      border: '1px solid var(--line)',
+      borderRadius: 6,
+      fontSize: 12,
+      padding: '5px'
+    }
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "+ Extra für ", d === today ? 'heute' : wdName(d) + ' ' + fmtD(d), " einplanen …"), EXTRA_GROUPS.map(([g, f]) => /*#__PURE__*/React.createElement("optgroup", {
+    key: g,
+    label: g
+  }, extraOptions.filter(c => f.includes(c.format)).map(c => /*#__PURE__*/React.createElement("option", {
+    key: c.id,
+    value: c.id
+  }, c.title || '(ohne Titel)'))))));
+}
+function ProdWeek({
+  state,
+  update,
+  gotoContent
+}) {
+  const today = todayISO();
+  const items = cycleItems(state);
+  const dates = cycleDates();
+  const start = today;
+  const days = Array.from({
+    length: 8
+  }, (_, i) => addDays(start, i)).filter(d => d <= dates[dates.length - 1]);
+  return /*#__PURE__*/React.createElement("div", {
+    "data-prod-week": true
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Produktion: Indoor So drehen, Mo schneiden · Outdoor (Oli geht, Unterwegs) Mi drehen, Do schneiden · Serie: ganze Woche am Indoor-Drehtag davor. Überfälliges steht auf heute."), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-sm",
+    style: {
+      marginTop: 6
+    },
+    onClick: () => downloadIcs(items)
+  }, "Dreh- und Schnitttermine in den Kalender"), days.map(d => /*#__PURE__*/React.createElement("div", {
+    key: d,
+    className: "sheet",
+    style: {
+      padding: 10,
+      marginTop: 8,
+      borderColor: d === today ? 'var(--accent)' : undefined
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row between",
+    style: {
+      margin: 0
+    }
+  }, /*#__PURE__*/React.createElement("b", null, d === today ? 'Heute' : d === addDays(today, 1) ? 'Morgen' : wdName(d), " · ", fmtD(d)), /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, wdNum(d) === 0 ? 'Indoor-Drehtag' : wdNum(d) === 1 ? 'Indoor-Schnitt' : wdNum(d) === 3 ? 'Outdoor-Drehtag' : wdNum(d) === 4 ? 'Outdoor-Schnitt' : '')), /*#__PURE__*/React.createElement(ProdDay, {
+    state: state,
+    update: update,
+    gotoContent: gotoContent,
+    d: d,
+    items: items
+  }))));
+}
 function ContentView({
   state,
   update,
   gotoContent
 }) {
   const today = todayISO();
-  const [sec, setSec] = useState('tage');
+  const [sec, setSec] = useState('woche');
   const [grp, setGrp] = useState('Statement');
   const done = state.cpDone || {};
   const extras = state.cpExtras || {};
@@ -11258,6 +11561,9 @@ function ContentView({
   }, CYCLE.name, " · ", fmtD(CYCLE.start), "–", fmtD(end))), /*#__PURE__*/React.createElement("div", {
     className: "row wrap"
   }, /*#__PURE__*/React.createElement(Tag, {
+    on: sec === 'woche',
+    onClick: () => setSec('woche')
+  }, "Woche"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'tage',
     onClick: () => setSec('tage')
   }, "Tage"), /*#__PURE__*/React.createElement(Tag, {
@@ -11269,7 +11575,11 @@ function ContentView({
   }, "Serie"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'formate',
     onClick: () => setSec('formate')
-  }, "Formate")), sec === 'tage' && [0, 1, 2].map(w => /*#__PURE__*/React.createElement("div", {
+  }, "Formate")), sec === 'woche' && /*#__PURE__*/React.createElement(ProdWeek, {
+    state: state,
+    update: update,
+    gotoContent: gotoContent
+  }), sec === 'tage' && [0, 1, 2].map(w => /*#__PURE__*/React.createElement("div", {
     key: w
   }, /*#__PURE__*/React.createElement("h2", {
     style: {
