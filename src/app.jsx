@@ -4967,6 +4967,10 @@ function migrateState(s) {
     out.content = [...out.content, ...cz1Seed().filter(c => !have.has(c.id))];
     out.cz1SeedV1 = true;
   }
+  if (!out.cycle1DatesV1) {
+    Object.assign(out, applyCycleDates(out));
+    out.cycle1DatesV1 = true;
+  }
   if (!out.extrasSeedV1) {
     const have = new Set(out.content.map(c => c.id));
     out.content = [...out.content, ...extraSeed().filter(c => !have.has(c.id))];
@@ -5910,6 +5914,25 @@ const CYCLE = {
   ],
   messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.',
 };
+
+// Zyklus-Slots einem Piece zuordnen (ref = feste ID, match = Titelteil eines vorhandenen Skripts).
+const cycleResolve = (content, slot) => {
+  if (!slot) return null;
+  if (slot.ref) return content.find(c => c.id === slot.ref) || null;
+  const hits = content.filter(c => (c.title || '').toUpperCase().includes(slot.match));
+  hits.sort((x, y) => (/Oli/.test(y.format) - /Oli/.test(x.format)) || ((y.scriptText || '').length + (y.shots || []).length * 50) - ((x.scriptText || '').length + (x.shots || []).length * 50));
+  return hits[0] || null;
+};
+// Einmalig: Datum der Zyklus-Pieces setzen, damit sie in HEUTE erscheinen. Alte, nicht gepostete Pieces aus dem 7-Wochen-Plan im Zyklus-Zeitraum verlieren ihr Datum.
+const applyCycleDates = (st) => {
+  const dates = CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+  const assign = {};
+  CYCLE.days.forEach((d, i) => d.forEach(slot => { const p = cycleResolve(st.content, slot); if (p) assign[p.id] = dates[i]; }));
+  const ex = st.cpExtras || {};
+  Object.keys(ex).forEach(d => (ex[d] || []).forEach(id => { assign[id] = d; }));
+  const end = dates[dates.length - 1];
+  return { ...st, content: st.content.map(c => assign[c.id] ? { ...c, publishDate: assign[c.id] } : (c.publishDate >= CYCLE.start && c.publishDate <= end && c.status !== 'Gepostet') ? { ...c, publishDate: '' } : c) };
+};
 const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
 function ContentView({ state, update, gotoContent }) {
   const today = todayISO();
@@ -5930,13 +5953,7 @@ function ContentView({ state, update, gotoContent }) {
   });
   const createExtra = (format) => { const n = newPiece({ world: 'JOGA', format, title: format.toUpperCase() + ': ' }); update(s => ({ ...s, content: [...s.content, n] })); gotoContent(n.id); };
   const Check = ({ k }) => <span onClick={(e) => { e.stopPropagation(); toggle(k); }} style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent', cursor: 'pointer' }} />;
-  const resolve = (slot) => {
-    if (!slot) return null;
-    if (slot.ref) return byId(slot.ref) || null;
-    const hits = state.content.filter(c => (c.title || '').toUpperCase().includes(slot.match));
-    hits.sort((x, y) => (/Oli/.test(y.format) - /Oli/.test(x.format)) || ((y.scriptText || '').length + (y.shots || []).length * 50) - ((x.scriptText || '').length + (x.shots || []).length * 50));
-    return hits[0] || null;
-  };
+  const resolve = (slot) => cycleResolve(state.content, slot);
   const Row = ({ k, time, slot, piece, text }) => {
     const p = piece || resolve(slot);
     const label = p ? (p.title || '(ohne Titel)') : (text || (slot && slot.label));
