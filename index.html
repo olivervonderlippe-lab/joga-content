@@ -7042,6 +7042,114 @@ const statementSeed = () => STATEMENT_SEED.map(p => normPiece({
   created: '2026-11-13',
   updated: '2026-11-13'
 }));
+
+/* ---- Extras-Ideen (Nov 2026): Ehrlich-Freitag (nur echte Zahlen/Erlebnisse, Gefühl ergänzt Oli selbst) und Unterwegs (immer dieselben 5 Moves, der Ort trägt einen Dreh) ---- */
+const UW_MOVES = 'Immer dieselben 5 Moves: 1. Hopps 2. Bodywave 3. Arm-Twist vor der Brust 4. Rotation 5. Qi-Squats. Jeder Move an einem anderen Ort, 3–4 Sek. pro Ort, Text im Bild: Move + Ort + laufende Ortsnummer. Keine erkennbaren Gesichter von Fremden, Abstand zu Bahnsteigkanten und Straßen.';
+const EXTRA_SEED = [{
+  id: 'xf-01',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'ICH SCHAFFE ES NICHT OHNE HAND.',
+  hook: '9 von 10 Punkten. Mehr geht bei mir nicht.',
+  scriptText: 'Echte Grundlage: Aufstehtest vom Boden, eine Hand gebraucht (Reel 19.11.).\n\n0–3 Sek.: Du sitzt im Schneidersitz. Text: „Ich schaffe es nicht ohne Hand.“\n3–12 Sek.: Versuch, Hand geht runter. „Neun Punkte. Seit Wochen.“\n12–25 Sek.: Was du dagegen übst (2 Moves zeigen) und [HIER FEHLT: wie es sich anfühlt, es nicht zu schaffen].\nSchluss: „Nächsten Freitag sag ich dir, ob es geklappt hat.“'
+}, {
+  id: 'xf-02',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: '20.000 VIEWS. 4 FOLLOWER.',
+  hook: '20.000 Leute haben es gesehen. Vier sind geblieben.',
+  scriptText: 'Echte Grundlage: TikTok „Longevity Flow“ (11.07.), 3:38 Min. lang, Ø 4,9 Sek. angeschaut, 0,1 % bis zum Ende, 4 neue Follower.\n\n0–3 Sek.: Zahl im Bild „20.000 Views. 4 Follower.“\n3–15 Sek.: „Dreieinhalb Minuten auf der Wiese. Die meisten waren nach fünf Sekunden weg.“\n15–25 Sek.: [HIER FEHLT: was du daraus gelernt hast, in deinen Worten]\nSchluss: „Deshalb sind meine Videos jetzt kurz. Wie dieses.“'
+}, {
+  id: 'xf-03',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: '272.000 VIEWS. DANN 55.',
+  hook: 'Dasselbe Video. Zweimal gepostet.',
+  scriptText: 'Echte Grundlage: „Die geilste Bewegungsroutine der Welt“, Facebook 27.08.: 271.966 Views. Im November erneut gepostet: 55 bis 515 Views.\n\n0–3 Sek.: Text „272.000 Views.“ Schnitt: „55.“\n3–15 Sek.: „Ich dachte, was einmal läuft, läuft wieder. Falsch.“\n15–25 Sek.: [HIER FEHLT: wie du dich gefühlt hast]\nSchluss: „Seitdem gibt’s nur noch Neues.“'
+}, {
+  id: 'xf-04',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'DIE APP HAT DOPPELT GEPOSTET.',
+  hook: 'Ich hab mir Hilfe geholt. Die Hilfe hat alles zweimal gepostet.',
+  scriptText: 'Echte Grundlage: Eine Posting-App hat ein Reel auf Instagram und YouTube doppelt veröffentlicht (18.11.), du hast den Doppelpost gelöscht und die App abgestellt.\n\n0–3 Sek.: Handy in der Hand, ungläubiger Blick. Text „Zweimal gepostet.“\n3–20 Sek.: Kurz erzählen, was passiert ist. [HIER FEHLT: deine Reaktion in einem Satz]\nSchluss: „Manche Sachen macht man besser selbst. Bewegung zum Beispiel.“'
+}, {
+  id: 'xf-05',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'KOPFSTAND? NUR AN DER WAND.',
+  hook: 'Freihändig schaffe ich ihn nicht.',
+  scriptText: 'Echte Grundlage: Dein Kopfstand klappt nur an der Wand.\n\n0–3 Sek.: Du stehst vor der Wand. Text „Freihändig? Keine Chance.“\n3–15 Sek.: Kopfstand an der Wand, dann Versuch weg von der Wand, Abbruch.\n15–25 Sek.: [HIER FEHLT: seit wann du übst und was dich trotzdem dranbleiben lässt]\nSchluss: „Die Wand bleibt. Vorerst.“'
+}, {
+  id: 'xf-06',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'SEIT MÄRZ. 1.500 FOLLOWER.',
+  hook: 'Andere haben 30.000. Ich hab 1.500.',
+  scriptText: 'Echte Grundlage: Du postest seit März, Instagram ca. 1.500 Follower, vergleichbare Accounts 30–40k.\n\n0–3 Sek.: Text „Seit März. 1.500 Follower.“\n3–20 Sek.: [HIER FEHLT: was dich frustriert und warum du trotzdem weitermachst, in deinen Worten]\nSchluss: „Wenn du einer von den 1.500 bist: danke. Wenn nicht: Folgen kostet nichts.“'
+}, {
+  id: 'xf-07',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'EIN KARUSSELL. 81 LEUTE.',
+  hook: 'Auf Facebook 543.000 Views. Auf Instagram 81.',
+  scriptText: 'Echte Grundlage: Aus dem Facebook-Hit (543.180 Views) ein Instagram-Karussell gemacht (18.11.): 81 erreichte Konten, 0 Shares.\n\n0–3 Sek.: Text „543.000“ – Schnitt – „81“.\n3–20 Sek.: „Gleicher Satz, andere Plattform. Instagram wollte es nicht.“ [HIER FEHLT: dein Kommentar]\nSchluss: „Ich probier’s weiter. Hier.“'
+}, {
+  id: 'uw-01',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: HAFEN',
+  hook: '5 Moves. 5 Orte. Hafen.',
+  scriptText: UW_MOVES + '\n\nOrte: Landungsbrücken · Fähranleger · Treppe zur Elbe · Geländer am Wasser · Bank.\nDreh: Schiffe oder Wasser im Hintergrund, Ortsnummern 1–5.'
+}, {
+  id: 'uw-02',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: EINKAUF',
+  hook: 'Einkauf dauert 20 Minuten. Das hier 20 Sekunden.',
+  scriptText: UW_MOVES + '\n\nOrte: Supermarkt-Parkplatz · neben dem Einkaufswagen · am offenen Kofferraum · Fahrradständer · Ampel auf dem Heimweg.\nDreh: Einkaufstüten im Bild, die Pointe ist der Alltag.'
+}, {
+  id: 'uw-03',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: WARTEN',
+  hook: 'Du wartest sowieso.',
+  scriptText: UW_MOVES + '\n\nOrte: Bahnsteig (mit Abstand zur Kante) · Bushaltestelle · U-Bahn-Treppe · Bahnhofsvorplatz · vor der Arztpraxis oder dem Amt (ohne Schild im Bild).\nDreh: eingeblendete Wartezeit pro Ort („Bus kommt in 4 Min.“).'
+}, {
+  id: 'uw-04',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: AUTO',
+  hook: 'Wer fährt, sitzt. Deshalb das.',
+  scriptText: UW_MOVES + '\n\nOrte: Tankstelle beim Tanken · Raststätte · Parkhaus · Parkplatz vor dem Büro · Garageneinfahrt.\nDreh: Autotür offen, Schlüssel in der Hand, dann Moves.'
+}, {
+  id: 'uw-05',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: SCHIETWETTER',
+  hook: 'Hamburg. Regen. Keine Ausrede.',
+  scriptText: UW_MOVES + '\n\nOrte: im Regen auf dem Gehweg · unter einer Brücke · mit Schirm · im Hauseingang · Wind am Wasser.\nDreh: nur bei echtem Regen; rutschige Flächen meiden, Hopps kleiner machen.'
+}, {
+  id: 'uw-06',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: FRÜH UM 7',
+  hook: 'Bevor der Kaffee fertig ist.',
+  scriptText: UW_MOVES + '\n\nOrte: Haustür · leere Straße · vor dem Bäcker · Park · Treppe zurück nach Hause.\nDreh: Morgenlicht, Uhrzeit im Bild (7:02, 7:05 …).'
+}];
+const extraSeed = () => EXTRA_SEED.map(p => normPiece({
+  fn: p.format === 'Unterwegs' ? 'REACH' : 'ME',
+  prodType: 'Neudreh',
+  status: 'Idee',
+  entry: p.format === 'Unterwegs' ? 'Move first' : 'Face first',
+  audio: p.format === 'Unterwegs' ? 'Silent/Musik' : 'On-Cam',
+  platforms: ['Instagram', 'TikTok', 'Facebook'],
+  publishDate: '',
+  src: 'Content-Zyklus 1',
+  ...p,
+  created: '2026-11-21',
+  updated: '2026-11-21'
+}));
 const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({
   ...p,
   created: '2026-10-08',
@@ -7196,6 +7304,11 @@ function migrateState(s) {
   }
   // Statement-Bibliothek: einmalig, nur fehlende IDs (st-01…st-28). Bestehende oder von dir geänderte Pieces werden nie überschrieben,
   // gelöschte kommen nicht wieder.
+  if (!out.extrasSeedV1) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...extraSeed().filter(c => !have.has(c.id))];
+    out.extrasSeedV1 = true;
+  }
   if (!out.statementLibV1) {
     const have = new Set(out.content.map(c => c.id));
     out.content = [...out.content, ...statementSeed().filter(c => !have.has(c.id))];
