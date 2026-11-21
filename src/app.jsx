@@ -5954,7 +5954,53 @@ function ContentView({ state, update, gotoContent }) {
   const createExtra = (format) => { const n = newPiece({ world: 'JOGA', format, title: format.toUpperCase() + ': ' }); update(s => ({ ...s, content: [...s.content, n] })); gotoContent(n.id); };
   const Check = ({ k }) => <span onClick={(e) => { e.stopPropagation(); toggle(k); }} style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent', cursor: 'pointer' }} />;
   const resolve = (slot) => cycleResolve(state.content, slot);
-  const Row = ({ k, time, slot, piece, text }) => {
+  const ov = state.cpOverride || {};
+  const [edit, setEdit] = useState(null);
+  const [q, setQ] = useState('');
+  const slotOf = (iso, kind) => { const i = dates.indexOf(iso); return i < 0 ? null : CYCLE.days[i][kind === 'm' ? 0 : 1]; };
+  const slotPiece = (iso, kind) => (ov[iso + '-' + kind] && byId(ov[iso + '-' + kind])) || resolve(slotOf(iso, kind));
+  const setSlots = (pairs, dateFix) => update(s => {
+    const o = { ...(s.cpOverride || {}) };
+    pairs.forEach(([k, id]) => { o[k] = id; });
+    return { ...s, cpOverride: o, content: s.content.map(c => (c.id in dateFix) ? { ...c, publishDate: dateFix[c.id] } : c) };
+  });
+  const chooseFor = (iso, kind, id) => {
+    const old = slotPiece(iso, kind), fix = { [id]: iso };
+    if (old && old.id !== id && old.status !== 'Gepostet') fix[old.id] = '';
+    setSlots([[iso + '-' + kind, id]], fix); setEdit(null); setQ('');
+  };
+  const swapWith = (iso, kind, other) => {
+    const a = slotPiece(iso, kind), b = slotPiece(other, kind);
+    const fix = {}; if (a) fix[a.id] = other; if (b) fix[b.id] = iso;
+    setSlots([[iso + '-' + kind, b ? b.id : ''], [other + '-' + kind, a ? a.id : '']], fix); setEdit(null);
+  };
+  const createFor = (iso, kind) => {
+    const n = newPiece({ world: kind === 'm' ? 'OLI' : 'JOGA', fn: kind === 'm' ? 'ME' : 'REACH', format: kind === 'm' ? 'Oli Geht' : 'Serie', title: 'NEU · ' + wdName(iso) + ' ' + fmtD(iso), platforms: ['Instagram', 'TikTok', 'Facebook'], publishDate: iso, created: todayISO(), updated: todayISO() });
+    update(s => ({ ...s, content: [...s.content, n] }));
+    chooseFor(iso, kind, n.id); gotoContent(n.id);
+  };
+  const SlotEdit = ({ iso, kind }) => {
+    const cur = slotPiece(iso, kind);
+    const ql = q.trim().toUpperCase();
+    const list = ql.length < 2 ? [] : state.content.filter(c => c.id !== (cur && cur.id) && c.status !== 'Gepostet' && (((c.title || '') + ' ' + (c.format || '')).toUpperCase().includes(ql))).slice(0, 12);
+    return (
+      <div data-cp-edit className="card slim" style={{ marginTop: 6, borderColor: 'var(--accent)' }} onClick={e => e.stopPropagation()}>
+        <div className="meta" style={{ marginBottom: 4 }}>{kind === 'm' ? '12-Uhr-Slot' : '19:30-Slot'} ändern</div>
+        <div className="row wrap" style={{ gap: 6, margin: 0 }}>
+          <select defaultValue="" onChange={e => e.target.value && swapWith(iso, kind, e.target.value)} style={{ background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12, padding: '4px' }}>
+            <option value="">Mit anderem Tag tauschen …</option>
+            {dates.filter(d => d !== iso).map(d => <option key={d} value={d}>Tag {dates.indexOf(d) + 1} · {wdName(d)} {fmtD(d)}</option>)}
+          </select>
+          <button className="btn btn-sm" onClick={() => createFor(iso, kind)}>+ Neu erstellen</button>
+          <button className="btn btn-sm" onClick={() => { setEdit(null); setQ(''); }}>Abbrechen</button>
+        </div>
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Anderen Beitrag suchen (Titel oder Format) …" style={{ width: '100%', marginTop: 6, background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 13, padding: '6px' }} />
+        {list.map(c => <div key={c.id} className="row" style={{ margin: '4px 0 0', cursor: 'pointer' }} onClick={() => chooseFor(iso, kind, c.id)}><span className="meta" style={{ flex: 1 }}><b style={{ color: 'var(--text)' }}>{c.title || '(ohne Titel)'}</b> · {c.format} · {c.status}</span></div>)}
+        {ql.length >= 2 && list.length === 0 && <div className="meta" style={{ marginTop: 4 }}>Nichts gefunden.</div>}
+      </div>
+    );
+  };
+  const Row = ({ k, time, slot, piece, text, onEdit }) => {
     const p = piece || resolve(slot);
     const label = p ? (p.title || '(ohne Titel)') : (text || (slot && slot.label));
     if (!label) return null;
@@ -5967,6 +6013,7 @@ function ContentView({ state, update, gotoContent }) {
           <b style={{ fontWeight: 700 }}>{label}</b>{p && <span style={{ color: 'var(--accent)' }}> ›</span>}
           {p && <span className="meta" style={{ display: 'block' }}>{p.status}{p.hook ? ' · ' + p.hook : ''}</span>}
         </span>
+        {onEdit && <button className="btn btn-sm" data-cp-change onClick={(e) => { e.stopPropagation(); onEdit(); }} style={{ flex: '0 0 auto' }}>Ändern</button>}
       </div>
     );
   };
@@ -5981,9 +6028,11 @@ function ContentView({ state, update, gotoContent }) {
           {CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => { const i = w * 7 + j, iso = dates[i]; return (
             <div key={iso} data-cp-day={iso} className="sheet" style={{ padding: 10, marginBottom: 8, borderColor: iso === today ? 'var(--accent)' : undefined }}>
               <div className="row between" style={{ margin: 0 }}><b>Tag {i + 1} · {wdName(iso)} {fmtD(iso)}</b>{iso === today && <span className="meta" style={{ color: 'var(--accent)' }}>HEUTE</span>}</div>
-              <Row k={iso + '-m'} time={CYCLE.slots.mittag} slot={d[0]} />
+              <Row k={iso + '-m'} time={CYCLE.slots.mittag} piece={slotPiece(iso, 'm')} slot={ov[iso + '-m'] ? null : d[0]} onEdit={() => setEdit(iso + '-m')} />
+              {edit === iso + '-m' && SlotEdit({ iso, kind: 'm' })}
               {(extras[iso] || []).map(id => { const p = byId(id); return p ? <Row key={id} k={iso + '-x-' + id} time={'16:00 · Extra'} piece={p} /> : null; })}
-              <Row k={iso + '-s'} time={CYCLE.slots.serie} slot={d[1]} />
+              <Row k={iso + '-s'} time={CYCLE.slots.serie} piece={slotPiece(iso, 's')} slot={ov[iso + '-s'] ? null : d[1]} onEdit={() => setEdit(iso + '-s')} />
+              {edit === iso + '-s' && SlotEdit({ iso, kind: 's' })}
             </div>); })}
         </div>))}
       {sec === 'tage' && <div className="hint">Kästchen antippen hakt ab. Titel antippen öffnet das komplette Briefing: Drehanleitung, Shots, Hook pro Plattform, Caption. Extras planst du im Bereich „Extras“ ein. {CYCLE.messung}</div>}

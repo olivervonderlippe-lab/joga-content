@@ -12317,12 +12317,163 @@ function ContentView({
     }
   });
   const resolve = slot => cycleResolve(state.content, slot);
+  const ov = state.cpOverride || {};
+  const [edit, setEdit] = useState(null);
+  const [q, setQ] = useState('');
+  const slotOf = (iso, kind) => {
+    const i = dates.indexOf(iso);
+    return i < 0 ? null : CYCLE.days[i][kind === 'm' ? 0 : 1];
+  };
+  const slotPiece = (iso, kind) => ov[iso + '-' + kind] && byId(ov[iso + '-' + kind]) || resolve(slotOf(iso, kind));
+  const setSlots = (pairs, dateFix) => update(s => {
+    const o = {
+      ...(s.cpOverride || {})
+    };
+    pairs.forEach(([k, id]) => {
+      o[k] = id;
+    });
+    return {
+      ...s,
+      cpOverride: o,
+      content: s.content.map(c => c.id in dateFix ? {
+        ...c,
+        publishDate: dateFix[c.id]
+      } : c)
+    };
+  });
+  const chooseFor = (iso, kind, id) => {
+    const old = slotPiece(iso, kind),
+      fix = {
+        [id]: iso
+      };
+    if (old && old.id !== id && old.status !== 'Gepostet') fix[old.id] = '';
+    setSlots([[iso + '-' + kind, id]], fix);
+    setEdit(null);
+    setQ('');
+  };
+  const swapWith = (iso, kind, other) => {
+    const a = slotPiece(iso, kind),
+      b = slotPiece(other, kind);
+    const fix = {};
+    if (a) fix[a.id] = other;
+    if (b) fix[b.id] = iso;
+    setSlots([[iso + '-' + kind, b ? b.id : ''], [other + '-' + kind, a ? a.id : '']], fix);
+    setEdit(null);
+  };
+  const createFor = (iso, kind) => {
+    const n = newPiece({
+      world: kind === 'm' ? 'OLI' : 'JOGA',
+      fn: kind === 'm' ? 'ME' : 'REACH',
+      format: kind === 'm' ? 'Oli Geht' : 'Serie',
+      title: 'NEU · ' + wdName(iso) + ' ' + fmtD(iso),
+      platforms: ['Instagram', 'TikTok', 'Facebook'],
+      publishDate: iso,
+      created: todayISO(),
+      updated: todayISO()
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, n]
+    }));
+    chooseFor(iso, kind, n.id);
+    gotoContent(n.id);
+  };
+  const SlotEdit = ({
+    iso,
+    kind
+  }) => {
+    const cur = slotPiece(iso, kind);
+    const ql = q.trim().toUpperCase();
+    const list = ql.length < 2 ? [] : state.content.filter(c => c.id !== (cur && cur.id) && c.status !== 'Gepostet' && ((c.title || '') + ' ' + (c.format || '')).toUpperCase().includes(ql)).slice(0, 12);
+    return /*#__PURE__*/React.createElement("div", {
+      "data-cp-edit": true,
+      className: "card slim",
+      style: {
+        marginTop: 6,
+        borderColor: 'var(--accent)'
+      },
+      onClick: e => e.stopPropagation()
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        marginBottom: 4
+      }
+    }, kind === 'm' ? '12-Uhr-Slot' : '19:30-Slot', " ändern"), /*#__PURE__*/React.createElement("div", {
+      className: "row wrap",
+      style: {
+        gap: 6,
+        margin: 0
+      }
+    }, /*#__PURE__*/React.createElement("select", {
+      defaultValue: "",
+      onChange: e => e.target.value && swapWith(iso, kind, e.target.value),
+      style: {
+        background: 'var(--panel2)',
+        color: 'var(--text)',
+        border: '1px solid var(--line)',
+        borderRadius: 6,
+        fontSize: 12,
+        padding: '4px'
+      }
+    }, /*#__PURE__*/React.createElement("option", {
+      value: ""
+    }, "Mit anderem Tag tauschen …"), dates.filter(d => d !== iso).map(d => /*#__PURE__*/React.createElement("option", {
+      key: d,
+      value: d
+    }, "Tag ", dates.indexOf(d) + 1, " · ", wdName(d), " ", fmtD(d)))), /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-sm",
+      onClick: () => createFor(iso, kind)
+    }, "+ Neu erstellen"), /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-sm",
+      onClick: () => {
+        setEdit(null);
+        setQ('');
+      }
+    }, "Abbrechen")), /*#__PURE__*/React.createElement("input", {
+      value: q,
+      onChange: e => setQ(e.target.value),
+      placeholder: "Anderen Beitrag suchen (Titel oder Format) …",
+      style: {
+        width: '100%',
+        marginTop: 6,
+        background: 'var(--panel2)',
+        color: 'var(--text)',
+        border: '1px solid var(--line)',
+        borderRadius: 6,
+        fontSize: 13,
+        padding: '6px'
+      }
+    }), list.map(c => /*#__PURE__*/React.createElement("div", {
+      key: c.id,
+      className: "row",
+      style: {
+        margin: '4px 0 0',
+        cursor: 'pointer'
+      },
+      onClick: () => chooseFor(iso, kind, c.id)
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "meta",
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement("b", {
+      style: {
+        color: 'var(--text)'
+      }
+    }, c.title || '(ohne Titel)'), " · ", c.format, " · ", c.status))), ql.length >= 2 && list.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        marginTop: 4
+      }
+    }, "Nichts gefunden."));
+  };
   const Row = ({
     k,
     time,
     slot,
     piece,
-    text
+    text,
+    onEdit
   }) => {
     const p = piece || resolve(slot);
     const label = p ? p.title || '(ohne Titel)' : text || slot && slot.label;
@@ -12367,7 +12518,17 @@ function ContentView({
       style: {
         display: 'block'
       }
-    }, p.status, p.hook ? ' · ' + p.hook : '')));
+    }, p.status, p.hook ? ' · ' + p.hook : '')), onEdit && /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-sm",
+      "data-cp-change": true,
+      onClick: e => {
+        e.stopPropagation();
+        onEdit();
+      },
+      style: {
+        flex: '0 0 auto'
+      }
+    }, "Ändern"));
   };
   const groupPieces = fmts => state.content.filter(c => fmts.includes(c.format)).sort((x, y) => (x.status === 'Gepostet') - (y.status === 'Gepostet'));
   return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
@@ -12419,7 +12580,12 @@ function ContentView({
     }, "HEUTE")), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-m',
       time: CYCLE.slots.mittag,
-      slot: d[0]
+      piece: slotPiece(iso, 'm'),
+      slot: ov[iso + '-m'] ? null : d[0],
+      onEdit: () => setEdit(iso + '-m')
+    }), edit === iso + '-m' && SlotEdit({
+      iso,
+      kind: 'm'
     }), (extras[iso] || []).map(id => {
       const p = byId(id);
       return p ? /*#__PURE__*/React.createElement(Row, {
@@ -12431,7 +12597,12 @@ function ContentView({
     }), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-s',
       time: CYCLE.slots.serie,
-      slot: d[1]
+      piece: slotPiece(iso, 's'),
+      slot: ov[iso + '-s'] ? null : d[1],
+      onEdit: () => setEdit(iso + '-s')
+    }), edit === iso + '-s' && SlotEdit({
+      iso,
+      kind: 's'
     }));
   }))), sec === 'tage' && /*#__PURE__*/React.createElement("div", {
     className: "hint"
