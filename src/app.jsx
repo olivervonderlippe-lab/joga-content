@@ -5823,6 +5823,102 @@ function PlanView({ state, gotoContent, ui, setUi }) {
   );
 }
 
+/* ---- CONTENT: aktueller 3-Wochen-Zyklus (ersetzt den 7-Wochen-Plan im Menü). Alle 2 Wochen wird der nächste Zyklus hier eingetragen. ---- */
+const CYCLE = {
+  name: 'Zyklus 1', start: '2026-11-23',
+  slots: { mittag: '12:00 · IG, TikTok, FB', unterwegs: '16:00 · Unterwegs', serie: '19:30 · alle Plattformen' },
+  days: [
+    ['Oli geht: „Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen …“ (Skript im Board)', '', 'Serie 1, Teil 1: Bücken'],
+    ['Statement st-01: Du bist nicht zu alt. Du hast nur aufgehört.', '', 'Serie 1, Teil 2: Vom Boden hochkommen'],
+    ['Oli klärt: Knie nie über die Zehen? (Skript im Board)', '', 'Serie 1, Teil 3: Schuhe im Stehen'],
+    ['Oli geht: 56 und der Morgen', '', 'Serie 1, Teil 4: Treppe ohne Geländer'],
+    ['Ehrlich-Freitag', '', 'Serie 1, Teil 5: Koffer ins Gepäckfach'],
+    ['Challenge: Balance-Check, Wackeln erlaubt', '', 'Serie 1, Teil 6: Schulterblick'],
+    ['Freeshot: Herbst-Tipp aus der Reserve', '', 'Serie 1, Teil 7: Auf einem Bein stehen'],
+    ['Opa-Oliver, Folge 1', '', 'Serie 2, Teil 1'],
+    ['Statement st-14: Die wichtigste Kraft siehst du nicht im Spiegel.', 'Unterwegs, Orte 1–5', 'Serie 2, Teil 2'],
+    ['Oli klärt: Zu alt für Muskelaufbau?', '', 'Serie 2, Teil 3'],
+    ['Oli geht: 56 und Yogalehrer, der kein Yoga verkauft', 'Unterwegs, Orte 6–10', 'Serie 2, Teil 4'],
+    ['Challenge: Tornado-Opener', '', 'Serie 2, Teil 5'],
+    ['Opa-Oliver, Folge 2', 'Unterwegs, Orte 11–15', 'Serie 2, Teil 6'],
+    ['Freeshot: Herbst-Tipp aus der Reserve', '', 'Serie 2, Teil 7'],
+    ['Oli geht: Warum ich Bewegung Körperpflege nenne (Skript im Board)', '', 'Serie 3, Teil 1'],
+    ['Statement st-21: Die beste Bewegung ist die, die du wirklich machst.', 'Unterwegs, Orte 16–20', 'Serie 3, Teil 2'],
+    ['Opa-Oliver, Folge 3', '', 'Serie 3, Teil 3'],
+    ['Oli klärt: Unter 10.000 Schritten zählt’s nicht?', 'Unterwegs, Orte 21–25', 'Serie 3, Teil 4'],
+    ['Ehrlich-Freitag', '', 'Serie 3, Teil 5'],
+    ['Opa-Oliver, Folge 4', 'Unterwegs, Orte 26–30', 'Serie 3, Teil 6'],
+    ['Challenge: Try it', '', 'Serie 3, Teil 7'],
+  ],
+  serie: {
+    name: 'Mit 70 noch können',
+    aufbau: '30–45 Sek., nur Musik. 0–3 Sek. Hook im Bild + „Teil X von 7“. Dann 3–4 nummerierte Übungen mit Dosis im Bild. Endbild: „Morgen Teil X+1“ + „Speichern“.',
+    hooks: [['Facebook', 'Wenn du dich mit 70 noch gut bücken können willst. Teil 1 von 7.'], ['Instagram', 'Mit 56 mache ich das, damit ich mich mit 70 noch bücken kann. Schaffst du alle 4?'], ['TikTok', 'Mit 70 noch können. Teil 1 von 7: Bücken. Endbild: Folg mir für Teil 2.']],
+    teile: [
+      ['Bücken', 'Hüftbeuge 10x · Rumpfbeuge mit gebeugten Knien 30 Sek. · Windmühle 5x je Seite · Tiefe Hocke 30 Sek.'],
+      ['Ohne Hände vom Boden hochkommen', 'Tiefe Hocke 30 Sek. · Aus dem Kniestand aufstehen 5x je Seite · Becken heben 10x · Aus dem Schneidersitz aufstehen 5x'],
+      ['Schuhe im Stehen zubinden', 'Einbeinstand 30 Sek. je Seite · Knie zur Brust im Stand 5x je Seite · Figur 4 im Stand 20 Sek. je Seite'],
+      ['Treppe ohne Geländer', 'Aufsteigen auf eine Stufe 10x je Seite · Wadenheben 15x · Ausfallschritt am Platz 8x je Seite'],
+      ['Koffer ins Gepäckfach heben', 'Flasche über Kopf drücken 10x · Liegestütz an der Wand 10x · Rotation mit gestreckten Armen 8x je Seite'],
+      ['Schulterblick beim Einparken', 'Kopfdrehung im Sitzen 5x je Seite · Brustwirbel-Rotation im Vierfüßler 6x je Seite · Arm-Twist vor der Brust 30 Sek.'],
+      ['Sicher auf einem Bein stehen', 'Einbeinstand Augen zu 20 Sek. je Seite · Tandemstand 30 Sek. · 10 Schritte auf einer Linie'],
+    ],
+    hinweis: 'Serie 2 wird am Tag 7 festgelegt, Serie 3 am Tag 14. Übungen sind Vorschläge, austauschbar.',
+  },
+  formate: [
+    ['Oli geht', 'Im Gehen in die Kamera sprechen, 20–25 Sek., ein Gedanke, gern privat. Schluss mit einer Handlung.'],
+    ['Oli klärt', 'Ein Mythos, sofort mit Demonstration. Voice-over oder Hybrid.'],
+    ['Statement', 'Ein Satz aus der Statement-Bibliothek, von dir gesprochen, plus ein Satz aus deinem Leben. 10–20 Sek.'],
+    ['Challenge', 'Mitmachen ohne Sprache, Move in Frame 1.'],
+    ['Freeshot', 'Ein Tipp in einem durchgehenden Take, Originalton.'],
+    ['Ehrlich-Freitag', 'Was diese Woche nicht geklappt hat: ein Flop, eine Zahl, ein Fehlversuch. 20–30 Sek.'],
+    ['Opa-Oliver', 'Opa im Sessel (0–5 Sek.): „Ich bin du. 2051.“ – kommt nicht hoch – „Dreißig Jahre Sitzen.“ – Maske runter. Dann 2 Übungen: Tiefe Hocke 1 Min., Ausfallschritt 1 Min. Endbild: Speichern und weiterschicken.'],
+    ['Unterwegs', 'Immer dieselben 5 Moves, jeder an einem anderen Ort, Orte werden weitergezählt: Hopps, Bodywave, Arm-Twist vor der Brust, Rotation, Qi-Squats.'],
+  ],
+  messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.',
+};
+function ContentView({ state, update }) {
+  const today = todayISO();
+  const [sec, setSec] = useState('tage');
+  const done = state.cpDone || {};
+  const toggle = (k) => update(s => ({ ...s, cpDone: { ...(s.cpDone || {}), [k]: !(s.cpDone || {})[k] } }));
+  const end = addDays(CYCLE.start, CYCLE.days.length - 1);
+  const Row = ({ k, time, text }) => !text ? null : (
+    <div data-cp-slot={k} className="row" style={{ margin: '6px 0 0', alignItems: 'flex-start', gap: 8 }} onClick={() => toggle(k)}>
+      <span style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent' }} />
+      <span style={{ flex: 1, opacity: done[k] ? 0.5 : 1 }}><span className="meta" style={{ display: 'block' }}>{time}</span>{text}</span>
+    </div>
+  );
+  const weeks = [0, 1, 2];
+  return (
+    <section>
+      <header className="head"><h1>Content</h1><span className="meta">{CYCLE.name} · {fmtD(CYCLE.start)}–{fmtD(end)}</span></header>
+      <div className="row wrap"><Tag on={sec === 'tage'} onClick={() => setSec('tage')}>Tage</Tag><Tag on={sec === 'serie'} onClick={() => setSec('serie')}>Serie</Tag><Tag on={sec === 'formate'} onClick={() => setSec('formate')}>Formate</Tag></div>
+      {sec === 'tage' && weeks.map(w => (
+        <div key={w}>
+          <h2 style={{ margin: '12px 0 4px' }}>Woche {w + 1}</h2>
+          {CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => { const i = w * 7 + j, iso = addDays(CYCLE.start, i); return (
+            <div key={iso} data-cp-day={iso} className="sheet" style={{ padding: 10, marginBottom: 8, borderColor: iso === today ? 'var(--accent)' : undefined }}>
+              <div className="row between" style={{ margin: 0 }}><b>Tag {i + 1} · {wdName(iso)} {fmtD(iso)}</b>{iso === today && <span className="meta" style={{ color: 'var(--accent)' }}>HEUTE</span>}</div>
+              <Row k={iso + '-m'} time={CYCLE.slots.mittag} text={d[0]} />
+              <Row k={iso + '-u'} time={CYCLE.slots.unterwegs} text={d[1]} />
+              <Row k={iso + '-s'} time={CYCLE.slots.serie} text={d[2]} />
+            </div>); })}
+        </div>))}
+      {sec === 'tage' && <div className="hint">Antippen hakt ab. {CYCLE.messung}</div>}
+      {sec === 'serie' && <div>
+        <h2 style={{ margin: '12px 0 4px' }}>Serie 1: {CYCLE.serie.name}</h2>
+        <div className="hint">{CYCLE.serie.aufbau}</div>
+        {CYCLE.serie.teile.map(([t, u], i) => <div key={i} className="card slim" style={{ marginTop: 6 }}><div className="hook">Teil {i + 1}: {t}</div><div className="meta">{u}</div></div>)}
+        <h2 style={{ margin: '12px 0 4px' }}>Hook pro Plattform (Beispiel Teil 1)</h2>
+        {CYCLE.serie.hooks.map(([p, h]) => <div key={p} className="card slim" style={{ marginTop: 6 }}><div className="meta">{p}</div><div>{h}</div></div>)}
+        <div className="hint">{CYCLE.serie.hinweis}</div>
+      </div>}
+      {sec === 'formate' && <div>{CYCLE.formate.map(([f, t]) => <div key={f} className="card slim" style={{ marginTop: 6 }}><div className="hook">{f}</div><div className="meta">{t}</div></div>)}</div>}
+    </section>
+  );
+}
+
 /* ---- PRODUKTION: Übersicht (Liste | Board) · Ideen · Skripte · Drehen · Schneiden · Bereit ---- */
 function applyPf(list, pf) {
   return list.filter(p => (pf.world === 'Alle' || p.world === pf.world) && (pf.fn === 'Alle' || p.fn === pf.fn) && (pf.prodType === 'Alle' || p.prodType === pf.prodType) && (pf.platform === 'Alle' || p.platforms.includes(pf.platform)) && (pf.format === 'Alle' ? p.format !== 'Spruch' : p.format === pf.format) && (pf.status === 'Alle' || p.status === pf.status) && (!pf.series || pf.series === 'Alle' || p.series === pf.series));
@@ -6316,7 +6412,7 @@ function App() {
   if (!state) return <div className="gate"><div className="logo">JOGA</div><p>{sync}</p></div>;
 
   // Vier Hauptpunkte. Board, Review, Drehplan, Hooks, Moves und Oli sind eingeordnet, nicht gelöscht.
-  const tabs = [['heute', 'HEUTE'], ['plan', '7-WOCHEN-PLAN'], ['produktion', 'PRODUKTION'], ['analyse', 'ANALYSE']];
+  const tabs = [['heute', 'HEUTE'], ['content', 'CONTENT'], ['produktion', 'PRODUKTION'], ['analyse', 'ANALYSE']];
   const detailOpen = openContent && state.content.some(c => c.id === openContent);
   return (
     <div className="app">
@@ -6332,6 +6428,7 @@ function App() {
           : detailOpen ? <ContentDetail key={openContent} id={openContent} state={state} update={update} onClose={() => setOpenContent(null)} gotoContent={gotoContent} />
           : <>
             {tab === 'heute' && <HeuteView state={state} update={update} gotoContent={gotoContent} gotoBriefing={gotoBriefing} />}
+            {tab === 'content' && <ContentView state={state} update={update} />}
             {tab === 'plan' && <PlanView state={state} gotoContent={gotoContent} ui={ui} setUi={setUi} />}
             {tab === 'produktion' && <ProduktionView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} gotoHooks={(c) => { setHookCtx(c); setLib('hooks'); }} />}
             {tab === 'analyse' && <AnalyseView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} />}
