@@ -7042,6 +7042,114 @@ const statementSeed = () => STATEMENT_SEED.map(p => normPiece({
   created: '2026-11-13',
   updated: '2026-11-13'
 }));
+
+/* ---- Extras-Ideen (Nov 2026): Ehrlich-Freitag (nur echte Zahlen/Erlebnisse, Gefühl ergänzt Oli selbst) und Unterwegs (immer dieselben 5 Moves, der Ort trägt einen Dreh) ---- */
+const UW_MOVES = 'Immer dieselben 5 Moves: 1. Hopps 2. Bodywave 3. Arm-Twist vor der Brust 4. Rotation 5. Qi-Squats. Jeder Move an einem anderen Ort, 3–4 Sek. pro Ort, Text im Bild: Move + Ort + laufende Ortsnummer. Keine erkennbaren Gesichter von Fremden, Abstand zu Bahnsteigkanten und Straßen.';
+const EXTRA_SEED = [{
+  id: 'xf-01',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'ICH SCHAFFE ES NICHT OHNE HAND.',
+  hook: '9 von 10 Punkten. Mehr geht bei mir nicht.',
+  scriptText: 'Echte Grundlage: Aufstehtest vom Boden, eine Hand gebraucht (Reel 19.11.).\n\n0–3 Sek.: Du sitzt im Schneidersitz. Text: „Ich schaffe es nicht ohne Hand.“\n3–12 Sek.: Versuch, Hand geht runter. „Neun Punkte. Seit Wochen.“\n12–25 Sek.: Was du dagegen übst (2 Moves zeigen) und [HIER FEHLT: wie es sich anfühlt, es nicht zu schaffen].\nSchluss: „Nächsten Freitag sag ich dir, ob es geklappt hat.“'
+}, {
+  id: 'xf-02',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: '20.000 VIEWS. 4 FOLLOWER.',
+  hook: '20.000 Leute haben es gesehen. Vier sind geblieben.',
+  scriptText: 'Echte Grundlage: TikTok „Longevity Flow“ (11.07.), 3:38 Min. lang, Ø 4,9 Sek. angeschaut, 0,1 % bis zum Ende, 4 neue Follower.\n\n0–3 Sek.: Zahl im Bild „20.000 Views. 4 Follower.“\n3–15 Sek.: „Dreieinhalb Minuten auf der Wiese. Die meisten waren nach fünf Sekunden weg.“\n15–25 Sek.: [HIER FEHLT: was du daraus gelernt hast, in deinen Worten]\nSchluss: „Deshalb sind meine Videos jetzt kurz. Wie dieses.“'
+}, {
+  id: 'xf-03',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: '272.000 VIEWS. DANN 55.',
+  hook: 'Dasselbe Video. Zweimal gepostet.',
+  scriptText: 'Echte Grundlage: „Die geilste Bewegungsroutine der Welt“, Facebook 27.08.: 271.966 Views. Im November erneut gepostet: 55 bis 515 Views.\n\n0–3 Sek.: Text „272.000 Views.“ Schnitt: „55.“\n3–15 Sek.: „Ich dachte, was einmal läuft, läuft wieder. Falsch.“\n15–25 Sek.: [HIER FEHLT: wie du dich gefühlt hast]\nSchluss: „Seitdem gibt’s nur noch Neues.“'
+}, {
+  id: 'xf-04',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'DIE APP HAT DOPPELT GEPOSTET.',
+  hook: 'Ich hab mir Hilfe geholt. Die Hilfe hat alles zweimal gepostet.',
+  scriptText: 'Echte Grundlage: Eine Posting-App hat ein Reel auf Instagram und YouTube doppelt veröffentlicht (18.11.), du hast den Doppelpost gelöscht und die App abgestellt.\n\n0–3 Sek.: Handy in der Hand, ungläubiger Blick. Text „Zweimal gepostet.“\n3–20 Sek.: Kurz erzählen, was passiert ist. [HIER FEHLT: deine Reaktion in einem Satz]\nSchluss: „Manche Sachen macht man besser selbst. Bewegung zum Beispiel.“'
+}, {
+  id: 'xf-05',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'KOPFSTAND? NUR AN DER WAND.',
+  hook: 'Freihändig schaffe ich ihn nicht.',
+  scriptText: 'Echte Grundlage: Dein Kopfstand klappt nur an der Wand.\n\n0–3 Sek.: Du stehst vor der Wand. Text „Freihändig? Keine Chance.“\n3–15 Sek.: Kopfstand an der Wand, dann Versuch weg von der Wand, Abbruch.\n15–25 Sek.: [HIER FEHLT: seit wann du übst und was dich trotzdem dranbleiben lässt]\nSchluss: „Die Wand bleibt. Vorerst.“'
+}, {
+  id: 'xf-06',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'SEIT MÄRZ. 1.500 FOLLOWER.',
+  hook: 'Andere haben 30.000. Ich hab 1.500.',
+  scriptText: 'Echte Grundlage: Du postest seit März, Instagram ca. 1.500 Follower, vergleichbare Accounts 30–40k.\n\n0–3 Sek.: Text „Seit März. 1.500 Follower.“\n3–20 Sek.: [HIER FEHLT: was dich frustriert und warum du trotzdem weitermachst, in deinen Worten]\nSchluss: „Wenn du einer von den 1.500 bist: danke. Wenn nicht: Folgen kostet nichts.“'
+}, {
+  id: 'xf-07',
+  world: 'OLI',
+  format: 'Ehrlich-Freitag',
+  title: 'EIN KARUSSELL. 81 LEUTE.',
+  hook: 'Auf Facebook 543.000 Views. Auf Instagram 81.',
+  scriptText: 'Echte Grundlage: Aus dem Facebook-Hit (543.180 Views) ein Instagram-Karussell gemacht (18.11.): 81 erreichte Konten, 0 Shares.\n\n0–3 Sek.: Text „543.000“ – Schnitt – „81“.\n3–20 Sek.: „Gleicher Satz, andere Plattform. Instagram wollte es nicht.“ [HIER FEHLT: dein Kommentar]\nSchluss: „Ich probier’s weiter. Hier.“'
+}, {
+  id: 'uw-01',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: HAFEN',
+  hook: '5 Moves. 5 Orte. Hafen.',
+  scriptText: UW_MOVES + '\n\nOrte: Landungsbrücken · Fähranleger · Treppe zur Elbe · Geländer am Wasser · Bank.\nDreh: Schiffe oder Wasser im Hintergrund, Ortsnummern 1–5.'
+}, {
+  id: 'uw-02',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: EINKAUF',
+  hook: 'Einkauf dauert 20 Minuten. Das hier 20 Sekunden.',
+  scriptText: UW_MOVES + '\n\nOrte: Supermarkt-Parkplatz · neben dem Einkaufswagen · am offenen Kofferraum · Fahrradständer · Ampel auf dem Heimweg.\nDreh: Einkaufstüten im Bild, die Pointe ist der Alltag.'
+}, {
+  id: 'uw-03',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: WARTEN',
+  hook: 'Du wartest sowieso.',
+  scriptText: UW_MOVES + '\n\nOrte: Bahnsteig (mit Abstand zur Kante) · Bushaltestelle · U-Bahn-Treppe · Bahnhofsvorplatz · vor der Arztpraxis oder dem Amt (ohne Schild im Bild).\nDreh: eingeblendete Wartezeit pro Ort („Bus kommt in 4 Min.“).'
+}, {
+  id: 'uw-04',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: AUTO',
+  hook: 'Wer fährt, sitzt. Deshalb das.',
+  scriptText: UW_MOVES + '\n\nOrte: Tankstelle beim Tanken · Raststätte · Parkhaus · Parkplatz vor dem Büro · Garageneinfahrt.\nDreh: Autotür offen, Schlüssel in der Hand, dann Moves.'
+}, {
+  id: 'uw-05',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: SCHIETWETTER',
+  hook: 'Hamburg. Regen. Keine Ausrede.',
+  scriptText: UW_MOVES + '\n\nOrte: im Regen auf dem Gehweg · unter einer Brücke · mit Schirm · im Hauseingang · Wind am Wasser.\nDreh: nur bei echtem Regen; rutschige Flächen meiden, Hopps kleiner machen.'
+}, {
+  id: 'uw-06',
+  world: 'JOGA',
+  format: 'Unterwegs',
+  title: 'UNTERWEGS: FRÜH UM 7',
+  hook: 'Bevor der Kaffee fertig ist.',
+  scriptText: UW_MOVES + '\n\nOrte: Haustür · leere Straße · vor dem Bäcker · Park · Treppe zurück nach Hause.\nDreh: Morgenlicht, Uhrzeit im Bild (7:02, 7:05 …).'
+}];
+const extraSeed = () => EXTRA_SEED.map(p => normPiece({
+  fn: p.format === 'Unterwegs' ? 'REACH' : 'ME',
+  prodType: 'Neudreh',
+  status: 'Idee',
+  entry: p.format === 'Unterwegs' ? 'Move first' : 'Face first',
+  audio: p.format === 'Unterwegs' ? 'Silent/Musik' : 'On-Cam',
+  platforms: ['Instagram', 'TikTok', 'Facebook'],
+  publishDate: '',
+  src: 'Content-Zyklus 1',
+  ...p,
+  created: '2026-11-21',
+  updated: '2026-11-21'
+}));
 const productionSeedV23 = () => PRODUCTION_SEED_V23.map(p => normPiece({
   ...p,
   created: '2026-10-08',
@@ -7196,6 +7304,11 @@ function migrateState(s) {
   }
   // Statement-Bibliothek: einmalig, nur fehlende IDs (st-01…st-28). Bestehende oder von dir geänderte Pieces werden nie überschrieben,
   // gelöschte kommen nicht wieder.
+  if (!out.extrasSeedV1) {
+    const have = new Set(out.content.map(c => c.id));
+    out.content = [...out.content, ...extraSeed().filter(c => !have.has(c.id))];
+    out.extrasSeedV1 = true;
+  }
   if (!out.statementLibV1) {
     const have = new Set(out.content.map(c => c.id));
     out.content = [...out.content, ...statementSeed().filter(c => !have.has(c.id))];
@@ -10864,27 +10977,31 @@ const CYCLE = {
   start: '2026-11-23',
   slots: {
     mittag: '12:00 · IG, TikTok, FB',
-    unterwegs: '16:00 · Unterwegs',
+    unterwegs: '16:00 · Extra nach Bedarf',
     serie: '19:30 · alle Plattformen'
   },
-  days: [['Oli geht: „Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen …“ (Skript im Board)', '', 'Serie 1, Teil 1: Bücken'], ['Statement st-01: Du bist nicht zu alt. Du hast nur aufgehört.', '', 'Serie 1, Teil 2: Vom Boden hochkommen'], ['Oli klärt: Knie nie über die Zehen? (Skript im Board)', '', 'Serie 1, Teil 3: Schuhe im Stehen'], ['Oli geht: 56 und der Morgen', '', 'Serie 1, Teil 4: Treppe ohne Geländer'], ['Ehrlich-Freitag', '', 'Serie 1, Teil 5: Koffer ins Gepäckfach'], ['Challenge: Balance-Check, Wackeln erlaubt', '', 'Serie 1, Teil 6: Schulterblick'], ['Freeshot: Herbst-Tipp aus der Reserve', '', 'Serie 1, Teil 7: Auf einem Bein stehen'], ['Opa-Oliver, Folge 1', '', 'Serie 2, Teil 1'], ['Statement st-14: Die wichtigste Kraft siehst du nicht im Spiegel.', 'Unterwegs, Orte 1–5', 'Serie 2, Teil 2'], ['Oli klärt: Zu alt für Muskelaufbau?', '', 'Serie 2, Teil 3'], ['Oli geht: 56 und Yogalehrer, der kein Yoga verkauft', 'Unterwegs, Orte 6–10', 'Serie 2, Teil 4'], ['Challenge: Tornado-Opener', '', 'Serie 2, Teil 5'], ['Opa-Oliver, Folge 2', 'Unterwegs, Orte 11–15', 'Serie 2, Teil 6'], ['Freeshot: Herbst-Tipp aus der Reserve', '', 'Serie 2, Teil 7'], ['Oli geht: Warum ich Bewegung Körperpflege nenne (Skript im Board)', '', 'Serie 3, Teil 1'], ['Statement st-21: Die beste Bewegung ist die, die du wirklich machst.', 'Unterwegs, Orte 16–20', 'Serie 3, Teil 2'], ['Opa-Oliver, Folge 3', '', 'Serie 3, Teil 3'], ['Oli klärt: Unter 10.000 Schritten zählt’s nicht?', 'Unterwegs, Orte 21–25', 'Serie 3, Teil 4'], ['Ehrlich-Freitag', '', 'Serie 3, Teil 5'], ['Opa-Oliver, Folge 4', 'Unterwegs, Orte 26–30', 'Serie 3, Teil 6'], ['Challenge: Try it', '', 'Serie 3, Teil 7']],
+  days: [['Oli geht: „Ich hab beruflich jahrelang versucht, Aufmerksamkeit zu erzeugen …“ (Skript im Board)', '', 'Serie 1, Teil 1: Vom Boden hochkommen'], ['Oli klärt: Knie nie über die Zehen? (Skript im Board)', '', 'Serie 1, Teil 2: Bücken'], ['Oli geht: 56 und der Morgen', '', 'Serie 1, Teil 3: Schuhe im Stehen'], ['Oli klärt: Steif? Dann musst du mehr dehnen. (Skript im Board)', '', 'Serie 1, Teil 4: Treppe ohne Geländer'], ['Oli geht: 56 und Yogalehrer, der kein Yoga verkauft', '', 'Serie 1, Teil 5: Koffer ins Gepäckfach'], ['Oli klärt: Balance hat man. Oder eben nicht. (Skript im Board)', '', 'Serie 1, Teil 6: Schulterblick'], ['Oli geht: 56 und die Zahlen', '', 'Serie 1, Teil 7: Auf einem Bein stehen'], ['Opa, Folge 1: kommt nicht aus dem Sessel', '', 'Serie 2, Teil 1'], ['Oli klärt: Zu alt für Muskelaufbau?', '', 'Serie 2, Teil 2'], ['Opa, Folge 2: Schlüssel fällt runter, er kommt nicht ran', '', 'Serie 2, Teil 3'], ['Oli geht: Warum ich Bewegung Körperpflege nenne (Skript im Board)', '', 'Serie 2, Teil 4'], ['Opa, Folge 3: zieht die Schuhe nur noch im Sitzen an', '', 'Serie 2, Teil 5'], ['Oli klärt: Vor dem Sport erst mal lange dehnen?', '', 'Serie 2, Teil 6'], ['Oli geht: 56 und das erste Mal', '', 'Serie 2, Teil 7'], ['Opa, Folge 4: nach einer Treppe außer Atem', '', 'Serie 3, Teil 1'], ['Oli klärt: Unter 10.000 Schritten zählt’s nicht?', '', 'Serie 3, Teil 2'], ['Opa, Folge 5: dreht beim Einparken den ganzen Körper', '', 'Serie 3, Teil 3'], ['Oli geht: 56 und mit 70', '', 'Serie 3, Teil 4'], ['Opa, Folge 6: wackelt beim Sockenanziehen', '', 'Serie 3, Teil 5'], ['Oli klärt: Ist Pilates Krafttraining?', '', 'Serie 3, Teil 6'], ['Oli geht: stärkstes Thema fortsetzen', '', 'Serie 3, Teil 7']],
   serie: {
     name: 'Mit 70 noch können',
     aufbau: '30–45 Sek., nur Musik. 0–3 Sek. Hook im Bild + „Teil X von 7“. Dann 3–4 nummerierte Übungen mit Dosis im Bild. Endbild: „Morgen Teil X+1“ + „Speichern“.',
-    hooks: [['Facebook', 'Wenn du dich mit 70 noch gut bücken können willst. Teil 1 von 7.'], ['Instagram', 'Mit 56 mache ich das, damit ich mich mit 70 noch bücken kann. Schaffst du alle 4?'], ['TikTok', 'Mit 70 noch können. Teil 1 von 7: Bücken. Endbild: Folg mir für Teil 2.']],
-    teile: [['Bücken', 'Hüftbeuge 10x · Rumpfbeuge mit gebeugten Knien 30 Sek. · Windmühle 5x je Seite · Tiefe Hocke 30 Sek.'], ['Ohne Hände vom Boden hochkommen', 'Tiefe Hocke 30 Sek. · Aus dem Kniestand aufstehen 5x je Seite · Becken heben 10x · Aus dem Schneidersitz aufstehen 5x'], ['Schuhe im Stehen zubinden', 'Einbeinstand 30 Sek. je Seite · Knie zur Brust im Stand 5x je Seite · Figur 4 im Stand 20 Sek. je Seite'], ['Treppe ohne Geländer', 'Aufsteigen auf eine Stufe 10x je Seite · Wadenheben 15x · Ausfallschritt am Platz 8x je Seite'], ['Koffer ins Gepäckfach heben', 'Flasche über Kopf drücken 10x · Liegestütz an der Wand 10x · Rotation mit gestreckten Armen 8x je Seite'], ['Schulterblick beim Einparken', 'Kopfdrehung im Sitzen 5x je Seite · Brustwirbel-Rotation im Vierfüßler 6x je Seite · Arm-Twist vor der Brust 30 Sek.'], ['Sicher auf einem Bein stehen', 'Einbeinstand Augen zu 20 Sek. je Seite · Tandemstand 30 Sek. · 10 Schritte auf einer Linie']],
+    hooks: [['Facebook', 'Wenn du mit 70 noch ohne Hände vom Boden hochkommen willst. Teil 1 von 7.'], ['Instagram', 'Kommst du noch ohne Hände vom Boden hoch? Mit 56 trainiere ich das so. Schaffst du alle 3?'], ['TikTok', 'Mit 70 noch können. Teil 1 von 7: Vom Boden hochkommen. Endbild: Folg mir für Teil 2.']],
+    teile: [['Ohne Hände vom Boden hochkommen', 'Erst die Fähigkeit zeigen, dann: Tiefe Hocke 30 Sek. · Aus dem Kniestand aufstehen 5x je Seite · Becken heben 10x'], ['Bücken', 'Hüftbeuge 10x · Rumpfbeuge mit gebeugten Knien 30 Sek. · Windmühle 5x je Seite · Tiefe Hocke 30 Sek.'], ['Schuhe im Stehen zubinden', 'Einbeinstand 30 Sek. je Seite · Knie zur Brust im Stand 5x je Seite · Figur 4 im Stand 20 Sek. je Seite'], ['Treppe ohne Geländer', 'Aufsteigen auf eine Stufe 10x je Seite · Wadenheben 15x · Ausfallschritt am Platz 8x je Seite'], ['Koffer ins Gepäckfach heben', 'Flasche über Kopf drücken 10x · Liegestütz an der Wand 10x · Rotation mit gestreckten Armen 8x je Seite'], ['Schulterblick beim Einparken', 'Kopfdrehung im Sitzen 5x je Seite · Brustwirbel-Rotation im Vierfüßler 6x je Seite · Arm-Twist vor der Brust 30 Sek.'], ['Sicher auf einem Bein stehen', 'Einbeinstand Augen zu 20 Sek. je Seite · Tandemstand 30 Sek. · 10 Schritte auf einer Linie']],
     hinweis: 'Serie 2 wird am Tag 7 festgelegt, Serie 3 am Tag 14. Übungen sind Vorschläge, austauschbar.'
   },
-  formate: [['Oli geht', 'Im Gehen in die Kamera sprechen, 20–25 Sek., ein Gedanke, gern privat. Schluss mit einer Handlung.'], ['Oli klärt', 'Ein Mythos, sofort mit Demonstration. Voice-over oder Hybrid.'], ['Statement', 'Ein Satz aus der Statement-Bibliothek, von dir gesprochen, plus ein Satz aus deinem Leben. 10–20 Sek.'], ['Challenge', 'Mitmachen ohne Sprache, Move in Frame 1.'], ['Freeshot', 'Ein Tipp in einem durchgehenden Take, Originalton.'], ['Ehrlich-Freitag', 'Was diese Woche nicht geklappt hat: ein Flop, eine Zahl, ein Fehlversuch. 20–30 Sek.'], ['Opa-Oliver', 'Opa im Sessel (0–5 Sek.): „Ich bin du. 2051.“ – kommt nicht hoch – „Dreißig Jahre Sitzen.“ – Maske runter. Dann 2 Übungen: Tiefe Hocke 1 Min., Ausfallschritt 1 Min. Endbild: Speichern und weiterschicken.'], ['Unterwegs', 'Immer dieselben 5 Moves, jeder an einem anderen Ort, Orte werden weitergezählt: Hopps, Bodywave, Arm-Twist vor der Brust, Rotation, Qi-Squats.']],
+  formate: [['Oli geht', 'Im Gehen in die Kamera sprechen, 20–25 Sek., ein Gedanke, gern privat. Schluss mit einer Handlung.'], ['Oli klärt', 'Ein Mythos, sofort mit Demonstration. Voice-over oder Hybrid.'], ['Statement', 'Ein Satz aus der Statement-Bibliothek, von dir gesprochen, plus ein Satz aus deinem Leben. 10–20 Sek.'], ['Challenge', 'Mitmachen ohne Sprache, Move in Frame 1.'], ['Freeshot', 'Ein Tipp in einem durchgehenden Take, Originalton.'], ['Ehrlich-Freitag', 'Was diese Woche nicht geklappt hat: ein Flop, eine Zahl, ein Fehlversuch. 20–30 Sek.'], ['Opa-Oliver', 'Ab Woche 2 Mo, Mi, Fr um 12 Uhr. 0–5 Sek.: „Ich bin du. 2051.“, ein Problem aus der Serie, Maske runter. Dann 2 passende Übungen, Endbild: Speichern und weiterschicken. Opa ist sauer auf dich, weil du sitzt – die Pointe trifft das Sitzen, nicht das Alter.'], ['Extras nach Bedarf', 'Statement, Challenge, Freeshot, Ehrlich-Freitag, Unterwegs: zusätzlich, wenn Material da ist, am besten 16 Uhr. Werden getrennt ausgewertet.'], ['Unterwegs', 'Immer dieselben 5 Moves, jeder an einem anderen Ort, Orte werden weitergezählt: Hopps, Bodywave, Arm-Twist vor der Brust, Rotation, Qi-Squats.']],
   messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.'
 };
+const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
 function ContentView({
   state,
-  update
+  update,
+  gotoContent
 }) {
   const today = todayISO();
   const [sec, setSec] = useState('tage');
+  const [grp, setGrp] = useState('Statement');
   const done = state.cpDone || {};
+  const extras = state.cpExtras || {};
   const toggle = k => update(s => ({
     ...s,
     cpDone: {
@@ -10892,11 +11009,62 @@ function ContentView({
       [k]: !(s.cpDone || {})[k]
     }
   }));
-  const end = addDays(CYCLE.start, CYCLE.days.length - 1);
+  const dates = CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+  const end = dates[dates.length - 1];
+  const byId = id => state.content.find(c => c.id === id);
+  const plannedOn = id => dates.filter(d => (extras[d] || []).includes(id));
+  const schedule = (id, d) => update(s => {
+    const ex = {
+      ...(s.cpExtras || {})
+    };
+    Object.keys(ex).forEach(k => {
+      ex[k] = (ex[k] || []).filter(x => x !== id);
+    });
+    if (d) ex[d] = [...(ex[d] || []), id];
+    return {
+      ...s,
+      cpExtras: ex,
+      content: s.content.map(c => c.id === id ? {
+        ...c,
+        publishDate: d || c.publishDate
+      } : c)
+    };
+  });
+  const createExtra = format => {
+    const n = newPiece({
+      world: 'JOGA',
+      format,
+      title: format.toUpperCase() + ': '
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, n]
+    }));
+    gotoContent(n.id);
+  };
+  const Check = ({
+    k
+  }) => /*#__PURE__*/React.createElement("span", {
+    onClick: e => {
+      e.stopPropagation();
+      toggle(k);
+    },
+    style: {
+      width: 16,
+      height: 16,
+      flex: '0 0 16px',
+      marginTop: 2,
+      borderRadius: 4,
+      border: '2px solid var(--accent)',
+      background: done[k] ? 'var(--accent)' : 'transparent',
+      cursor: 'pointer'
+    }
+  });
   const Row = ({
     k,
     time,
-    text
+    text,
+    onOpen
   }) => !text ? null : /*#__PURE__*/React.createElement("div", {
     "data-cp-slot": k,
     className: "row",
@@ -10905,17 +11073,9 @@ function ContentView({
       alignItems: 'flex-start',
       gap: 8
     },
-    onClick: () => toggle(k)
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 16,
-      height: 16,
-      flex: '0 0 16px',
-      marginTop: 2,
-      borderRadius: 4,
-      border: '2px solid var(--accent)',
-      background: done[k] ? 'var(--accent)' : 'transparent'
-    }
+    onClick: () => onOpen ? onOpen() : toggle(k)
+  }, /*#__PURE__*/React.createElement(Check, {
+    k: k
   }), /*#__PURE__*/React.createElement("span", {
     style: {
       flex: 1,
@@ -10926,8 +11086,10 @@ function ContentView({
     style: {
       display: 'block'
     }
-  }, time), text));
-  const weeks = [0, 1, 2];
+  }, time), text, onOpen && /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, " ›")));
+  const groupPieces = fmts => state.content.filter(c => fmts.includes(c.format)).sort((x, y) => (x.status === 'Gepostet') - (y.status === 'Gepostet'));
   return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
     className: "head"
   }, /*#__PURE__*/React.createElement("h1", null, "Content"), /*#__PURE__*/React.createElement("span", {
@@ -10938,12 +11100,15 @@ function ContentView({
     on: sec === 'tage',
     onClick: () => setSec('tage')
   }, "Tage"), /*#__PURE__*/React.createElement(Tag, {
+    on: sec === 'extras',
+    onClick: () => setSec('extras')
+  }, "Extras"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'serie',
     onClick: () => setSec('serie')
   }, "Serie"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'formate',
     onClick: () => setSec('formate')
-  }, "Formate")), sec === 'tage' && weeks.map(w => /*#__PURE__*/React.createElement("div", {
+  }, "Formate")), sec === 'tage' && [0, 1, 2].map(w => /*#__PURE__*/React.createElement("div", {
     key: w
   }, /*#__PURE__*/React.createElement("h2", {
     style: {
@@ -10951,7 +11116,7 @@ function ContentView({
     }
   }, "Woche ", w + 1), CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => {
     const i = w * 7 + j,
-      iso = addDays(CYCLE.start, i);
+      iso = dates[i];
     return /*#__PURE__*/React.createElement("div", {
       key: iso,
       "data-cp-day": iso,
@@ -10975,10 +11140,15 @@ function ContentView({
       k: iso + '-m',
       time: CYCLE.slots.mittag,
       text: d[0]
-    }), /*#__PURE__*/React.createElement(Row, {
-      k: iso + '-u',
-      time: CYCLE.slots.unterwegs,
-      text: d[1]
+    }), (extras[iso] || []).map(id => {
+      const p = byId(id);
+      return p ? /*#__PURE__*/React.createElement(Row, {
+        key: id,
+        k: iso + '-x-' + id,
+        time: '16:00 · Extra · ' + (EXTRA_GROUPS.find(([, f]) => f.includes(p.format)) || [p.format])[0],
+        text: p.title || '(ohne Titel)',
+        onOpen: () => gotoContent(id)
+      }) : null;
     }), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-s',
       time: CYCLE.slots.serie,
@@ -10986,7 +11156,72 @@ function ContentView({
     }));
   }))), sec === 'tage' && /*#__PURE__*/React.createElement("div", {
     className: "hint"
-  }, "Antippen hakt ab. ", CYCLE.messung), sec === 'serie' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+  }, "Kästchen antippen hakt ab. Extras planst du im Bereich „Extras“ ein. ", CYCLE.messung), sec === 'extras' && /*#__PURE__*/React.createElement("div", {
+    "data-cp-extras": true
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Zusätzlich nach Bedarf, am besten 16 Uhr. Einplanen setzt das Datum und zeigt das Extra im Tagesplan. Antippen öffnet Skript und Details."), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, EXTRA_GROUPS.map(([g, f]) => /*#__PURE__*/React.createElement(Tag, {
+    key: g,
+    on: grp === g,
+    onClick: () => setGrp(g)
+  }, g, " (", groupPieces(f).length, ")"))), (() => {
+    const [g, f] = EXTRA_GROUPS.find(([x]) => x === grp);
+    const list = groupPieces(f);
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-sm",
+      style: {
+        marginTop: 8
+      },
+      onClick: () => createExtra(f[0])
+    }, "+ Neu: ", g), list.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        marginTop: 8
+      }
+    }, "Noch keine Ideen in diesem Format."), list.map(p => {
+      const on = plannedOn(p.id)[0] || '';
+      return /*#__PURE__*/React.createElement("div", {
+        key: p.id,
+        "data-cp-extra": p.id,
+        className: "card slim",
+        style: {
+          marginTop: 6
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "hook",
+        onClick: () => gotoContent(p.id),
+        style: {
+          cursor: 'pointer'
+        }
+      }, p.title || '(ohne Titel)', " ›"), /*#__PURE__*/React.createElement("div", {
+        className: "row between",
+        style: {
+          margin: '4px 0 0',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "meta"
+      }, p.format, " · ", p.status), /*#__PURE__*/React.createElement("select", {
+        value: on,
+        onChange: e => schedule(p.id, e.target.value),
+        style: {
+          background: 'var(--panel2)',
+          color: 'var(--text)',
+          border: '1px solid var(--line)',
+          borderRadius: 6,
+          fontSize: 12,
+          padding: '3px 4px'
+        }
+      }, /*#__PURE__*/React.createElement("option", {
+        value: ""
+      }, "Einplanen …"), dates.map((d, i) => /*#__PURE__*/React.createElement("option", {
+        key: d,
+        value: d
+      }, "Tag ", i + 1, " · ", wdName(d), " ", fmtD(d))))));
+    }));
+  })()), sec === 'serie' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: '12px 0 4px'
     }
@@ -12535,7 +12770,8 @@ function App() {
     gotoBriefing: gotoBriefing
   }), tab === 'content' && /*#__PURE__*/React.createElement(ContentView, {
     state: state,
-    update: update
+    update: update,
+    gotoContent: gotoContent
   }), tab === 'plan' && /*#__PURE__*/React.createElement(PlanView, {
     state: state,
     gotoContent: gotoContent,
