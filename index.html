@@ -10878,13 +10878,17 @@ const CYCLE = {
   formate: [['Oli geht', 'Im Gehen in die Kamera sprechen, 20–25 Sek., ein Gedanke, gern privat. Schluss mit einer Handlung.'], ['Oli klärt', 'Ein Mythos, sofort mit Demonstration. Voice-over oder Hybrid.'], ['Statement', 'Ein Satz aus der Statement-Bibliothek, von dir gesprochen, plus ein Satz aus deinem Leben. 10–20 Sek.'], ['Challenge', 'Mitmachen ohne Sprache, Move in Frame 1.'], ['Freeshot', 'Ein Tipp in einem durchgehenden Take, Originalton.'], ['Ehrlich-Freitag', 'Was diese Woche nicht geklappt hat: ein Flop, eine Zahl, ein Fehlversuch. 20–30 Sek.'], ['Opa-Oliver', 'Ab Woche 2 Mo, Mi, Fr um 12 Uhr. 0–5 Sek.: „Ich bin du. 2051.“, ein Problem aus der Serie, Maske runter. Dann 2 passende Übungen, Endbild: Speichern und weiterschicken. Opa ist sauer auf dich, weil du sitzt – die Pointe trifft das Sitzen, nicht das Alter.'], ['Extras nach Bedarf', 'Statement, Challenge, Freeshot, Ehrlich-Freitag, Unterwegs: zusätzlich, wenn Material da ist, am besten 16 Uhr. Werden getrennt ausgewertet.'], ['Unterwegs', 'Immer dieselben 5 Moves, jeder an einem anderen Ort, Orte werden weitergezählt: Hopps, Bodywave, Arm-Twist vor der Brust, Rotation, Qi-Squats.']],
   messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.'
 };
+const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
 function ContentView({
   state,
-  update
+  update,
+  gotoContent
 }) {
   const today = todayISO();
   const [sec, setSec] = useState('tage');
+  const [grp, setGrp] = useState('Statement');
   const done = state.cpDone || {};
+  const extras = state.cpExtras || {};
   const toggle = k => update(s => ({
     ...s,
     cpDone: {
@@ -10892,11 +10896,62 @@ function ContentView({
       [k]: !(s.cpDone || {})[k]
     }
   }));
-  const end = addDays(CYCLE.start, CYCLE.days.length - 1);
+  const dates = CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+  const end = dates[dates.length - 1];
+  const byId = id => state.content.find(c => c.id === id);
+  const plannedOn = id => dates.filter(d => (extras[d] || []).includes(id));
+  const schedule = (id, d) => update(s => {
+    const ex = {
+      ...(s.cpExtras || {})
+    };
+    Object.keys(ex).forEach(k => {
+      ex[k] = (ex[k] || []).filter(x => x !== id);
+    });
+    if (d) ex[d] = [...(ex[d] || []), id];
+    return {
+      ...s,
+      cpExtras: ex,
+      content: s.content.map(c => c.id === id ? {
+        ...c,
+        publishDate: d || c.publishDate
+      } : c)
+    };
+  });
+  const createExtra = format => {
+    const n = newPiece({
+      world: 'JOGA',
+      format,
+      title: format.toUpperCase() + ': '
+    });
+    update(s => ({
+      ...s,
+      content: [...s.content, n]
+    }));
+    gotoContent(n.id);
+  };
+  const Check = ({
+    k
+  }) => /*#__PURE__*/React.createElement("span", {
+    onClick: e => {
+      e.stopPropagation();
+      toggle(k);
+    },
+    style: {
+      width: 16,
+      height: 16,
+      flex: '0 0 16px',
+      marginTop: 2,
+      borderRadius: 4,
+      border: '2px solid var(--accent)',
+      background: done[k] ? 'var(--accent)' : 'transparent',
+      cursor: 'pointer'
+    }
+  });
   const Row = ({
     k,
     time,
-    text
+    text,
+    onOpen
   }) => !text ? null : /*#__PURE__*/React.createElement("div", {
     "data-cp-slot": k,
     className: "row",
@@ -10905,17 +10960,9 @@ function ContentView({
       alignItems: 'flex-start',
       gap: 8
     },
-    onClick: () => toggle(k)
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 16,
-      height: 16,
-      flex: '0 0 16px',
-      marginTop: 2,
-      borderRadius: 4,
-      border: '2px solid var(--accent)',
-      background: done[k] ? 'var(--accent)' : 'transparent'
-    }
+    onClick: () => onOpen ? onOpen() : toggle(k)
+  }, /*#__PURE__*/React.createElement(Check, {
+    k: k
   }), /*#__PURE__*/React.createElement("span", {
     style: {
       flex: 1,
@@ -10926,8 +10973,10 @@ function ContentView({
     style: {
       display: 'block'
     }
-  }, time), text));
-  const weeks = [0, 1, 2];
+  }, time), text, onOpen && /*#__PURE__*/React.createElement("span", {
+    className: "meta"
+  }, " ›")));
+  const groupPieces = fmts => state.content.filter(c => fmts.includes(c.format)).sort((x, y) => (x.status === 'Gepostet') - (y.status === 'Gepostet'));
   return /*#__PURE__*/React.createElement("section", null, /*#__PURE__*/React.createElement("header", {
     className: "head"
   }, /*#__PURE__*/React.createElement("h1", null, "Content"), /*#__PURE__*/React.createElement("span", {
@@ -10938,12 +10987,15 @@ function ContentView({
     on: sec === 'tage',
     onClick: () => setSec('tage')
   }, "Tage"), /*#__PURE__*/React.createElement(Tag, {
+    on: sec === 'extras',
+    onClick: () => setSec('extras')
+  }, "Extras"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'serie',
     onClick: () => setSec('serie')
   }, "Serie"), /*#__PURE__*/React.createElement(Tag, {
     on: sec === 'formate',
     onClick: () => setSec('formate')
-  }, "Formate")), sec === 'tage' && weeks.map(w => /*#__PURE__*/React.createElement("div", {
+  }, "Formate")), sec === 'tage' && [0, 1, 2].map(w => /*#__PURE__*/React.createElement("div", {
     key: w
   }, /*#__PURE__*/React.createElement("h2", {
     style: {
@@ -10951,7 +11003,7 @@ function ContentView({
     }
   }, "Woche ", w + 1), CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => {
     const i = w * 7 + j,
-      iso = addDays(CYCLE.start, i);
+      iso = dates[i];
     return /*#__PURE__*/React.createElement("div", {
       key: iso,
       "data-cp-day": iso,
@@ -10975,10 +11027,15 @@ function ContentView({
       k: iso + '-m',
       time: CYCLE.slots.mittag,
       text: d[0]
-    }), /*#__PURE__*/React.createElement(Row, {
-      k: iso + '-u',
-      time: CYCLE.slots.unterwegs,
-      text: d[1]
+    }), (extras[iso] || []).map(id => {
+      const p = byId(id);
+      return p ? /*#__PURE__*/React.createElement(Row, {
+        key: id,
+        k: iso + '-x-' + id,
+        time: '16:00 · Extra · ' + (EXTRA_GROUPS.find(([, f]) => f.includes(p.format)) || [p.format])[0],
+        text: p.title || '(ohne Titel)',
+        onOpen: () => gotoContent(id)
+      }) : null;
     }), /*#__PURE__*/React.createElement(Row, {
       k: iso + '-s',
       time: CYCLE.slots.serie,
@@ -10986,7 +11043,72 @@ function ContentView({
     }));
   }))), sec === 'tage' && /*#__PURE__*/React.createElement("div", {
     className: "hint"
-  }, "Antippen hakt ab. ", CYCLE.messung), sec === 'serie' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
+  }, "Kästchen antippen hakt ab. Extras planst du im Bereich „Extras“ ein. ", CYCLE.messung), sec === 'extras' && /*#__PURE__*/React.createElement("div", {
+    "data-cp-extras": true
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "hint"
+  }, "Zusätzlich nach Bedarf, am besten 16 Uhr. Einplanen setzt das Datum und zeigt das Extra im Tagesplan. Antippen öffnet Skript und Details."), /*#__PURE__*/React.createElement("div", {
+    className: "row wrap"
+  }, EXTRA_GROUPS.map(([g, f]) => /*#__PURE__*/React.createElement(Tag, {
+    key: g,
+    on: grp === g,
+    onClick: () => setGrp(g)
+  }, g, " (", groupPieces(f).length, ")"))), (() => {
+    const [g, f] = EXTRA_GROUPS.find(([x]) => x === grp);
+    const list = groupPieces(f);
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-sm",
+      style: {
+        marginTop: 8
+      },
+      onClick: () => createExtra(f[0])
+    }, "+ Neu: ", g), list.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "meta",
+      style: {
+        marginTop: 8
+      }
+    }, "Noch keine Ideen in diesem Format."), list.map(p => {
+      const on = plannedOn(p.id)[0] || '';
+      return /*#__PURE__*/React.createElement("div", {
+        key: p.id,
+        "data-cp-extra": p.id,
+        className: "card slim",
+        style: {
+          marginTop: 6
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "hook",
+        onClick: () => gotoContent(p.id),
+        style: {
+          cursor: 'pointer'
+        }
+      }, p.title || '(ohne Titel)', " ›"), /*#__PURE__*/React.createElement("div", {
+        className: "row between",
+        style: {
+          margin: '4px 0 0',
+          alignItems: 'center'
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "meta"
+      }, p.format, " · ", p.status), /*#__PURE__*/React.createElement("select", {
+        value: on,
+        onChange: e => schedule(p.id, e.target.value),
+        style: {
+          background: 'var(--panel2)',
+          color: 'var(--text)',
+          border: '1px solid var(--line)',
+          borderRadius: 6,
+          fontSize: 12,
+          padding: '3px 4px'
+        }
+      }, /*#__PURE__*/React.createElement("option", {
+        value: ""
+      }, "Einplanen …"), dates.map((d, i) => /*#__PURE__*/React.createElement("option", {
+        key: d,
+        value: d
+      }, "Tag ", i + 1, " · ", wdName(d), " ", fmtD(d))))));
+    }));
+  })()), sec === 'serie' && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h2", {
     style: {
       margin: '12px 0 4px'
     }
@@ -12535,7 +12657,8 @@ function App() {
     gotoBriefing: gotoBriefing
   }), tab === 'content' && /*#__PURE__*/React.createElement(ContentView, {
     state: state,
-    update: update
+    update: update,
+    gotoContent: gotoContent
   }), tab === 'plan' && /*#__PURE__*/React.createElement(PlanView, {
     state: state,
     gotoContent: gotoContent,

@@ -5878,35 +5878,68 @@ const CYCLE = {
   ],
   messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.',
 };
-function ContentView({ state, update }) {
+const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
+function ContentView({ state, update, gotoContent }) {
   const today = todayISO();
   const [sec, setSec] = useState('tage');
+  const [grp, setGrp] = useState('Statement');
   const done = state.cpDone || {};
+  const extras = state.cpExtras || {};
   const toggle = (k) => update(s => ({ ...s, cpDone: { ...(s.cpDone || {}), [k]: !(s.cpDone || {})[k] } }));
-  const end = addDays(CYCLE.start, CYCLE.days.length - 1);
-  const Row = ({ k, time, text }) => !text ? null : (
-    <div data-cp-slot={k} className="row" style={{ margin: '6px 0 0', alignItems: 'flex-start', gap: 8 }} onClick={() => toggle(k)}>
-      <span style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent' }} />
-      <span style={{ flex: 1, opacity: done[k] ? 0.5 : 1 }}><span className="meta" style={{ display: 'block' }}>{time}</span>{text}</span>
+  const dates = CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+  const end = dates[dates.length - 1];
+  const byId = (id) => state.content.find(c => c.id === id);
+  const plannedOn = (id) => dates.filter(d => (extras[d] || []).includes(id));
+  const schedule = (id, d) => update(s => {
+    const ex = { ...(s.cpExtras || {}) };
+    Object.keys(ex).forEach(k => { ex[k] = (ex[k] || []).filter(x => x !== id); });
+    if (d) ex[d] = [...(ex[d] || []), id];
+    return { ...s, cpExtras: ex, content: s.content.map(c => c.id === id ? { ...c, publishDate: d || c.publishDate } : c) };
+  });
+  const createExtra = (format) => { const n = newPiece({ world: 'JOGA', format, title: format.toUpperCase() + ': ' }); update(s => ({ ...s, content: [...s.content, n] })); gotoContent(n.id); };
+  const Check = ({ k }) => <span onClick={(e) => { e.stopPropagation(); toggle(k); }} style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent', cursor: 'pointer' }} />;
+  const Row = ({ k, time, text, onOpen }) => !text ? null : (
+    <div data-cp-slot={k} className="row" style={{ margin: '6px 0 0', alignItems: 'flex-start', gap: 8 }} onClick={() => onOpen ? onOpen() : toggle(k)}>
+      <Check k={k} />
+      <span style={{ flex: 1, opacity: done[k] ? 0.5 : 1 }}><span className="meta" style={{ display: 'block' }}>{time}</span>{text}{onOpen && <span className="meta"> ›</span>}</span>
     </div>
   );
-  const weeks = [0, 1, 2];
+  const groupPieces = (fmts) => state.content.filter(c => fmts.includes(c.format)).sort((x, y) => (x.status === 'Gepostet') - (y.status === 'Gepostet'));
   return (
     <section>
       <header className="head"><h1>Content</h1><span className="meta">{CYCLE.name} · {fmtD(CYCLE.start)}–{fmtD(end)}</span></header>
-      <div className="row wrap"><Tag on={sec === 'tage'} onClick={() => setSec('tage')}>Tage</Tag><Tag on={sec === 'serie'} onClick={() => setSec('serie')}>Serie</Tag><Tag on={sec === 'formate'} onClick={() => setSec('formate')}>Formate</Tag></div>
-      {sec === 'tage' && weeks.map(w => (
+      <div className="row wrap"><Tag on={sec === 'tage'} onClick={() => setSec('tage')}>Tage</Tag><Tag on={sec === 'extras'} onClick={() => setSec('extras')}>Extras</Tag><Tag on={sec === 'serie'} onClick={() => setSec('serie')}>Serie</Tag><Tag on={sec === 'formate'} onClick={() => setSec('formate')}>Formate</Tag></div>
+      {sec === 'tage' && [0, 1, 2].map(w => (
         <div key={w}>
           <h2 style={{ margin: '12px 0 4px' }}>Woche {w + 1}</h2>
-          {CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => { const i = w * 7 + j, iso = addDays(CYCLE.start, i); return (
+          {CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => { const i = w * 7 + j, iso = dates[i]; return (
             <div key={iso} data-cp-day={iso} className="sheet" style={{ padding: 10, marginBottom: 8, borderColor: iso === today ? 'var(--accent)' : undefined }}>
               <div className="row between" style={{ margin: 0 }}><b>Tag {i + 1} · {wdName(iso)} {fmtD(iso)}</b>{iso === today && <span className="meta" style={{ color: 'var(--accent)' }}>HEUTE</span>}</div>
               <Row k={iso + '-m'} time={CYCLE.slots.mittag} text={d[0]} />
-              <Row k={iso + '-u'} time={CYCLE.slots.unterwegs} text={d[1]} />
+              {(extras[iso] || []).map(id => { const p = byId(id); return p ? <Row key={id} k={iso + '-x-' + id} time={'16:00 · Extra · ' + (EXTRA_GROUPS.find(([, f]) => f.includes(p.format)) || [p.format])[0]} text={p.title || '(ohne Titel)'} onOpen={() => gotoContent(id)} /> : null; })}
               <Row k={iso + '-s'} time={CYCLE.slots.serie} text={d[2]} />
             </div>); })}
         </div>))}
-      {sec === 'tage' && <div className="hint">Antippen hakt ab. {CYCLE.messung}</div>}
+      {sec === 'tage' && <div className="hint">Kästchen antippen hakt ab. Extras planst du im Bereich „Extras“ ein. {CYCLE.messung}</div>}
+      {sec === 'extras' && <div data-cp-extras>
+        <div className="hint">Zusätzlich nach Bedarf, am besten 16 Uhr. Einplanen setzt das Datum und zeigt das Extra im Tagesplan. Antippen öffnet Skript und Details.</div>
+        <div className="row wrap">{EXTRA_GROUPS.map(([g, f]) => <Tag key={g} on={grp === g} onClick={() => setGrp(g)}>{g} ({groupPieces(f).length})</Tag>)}</div>
+        {(() => { const [g, f] = EXTRA_GROUPS.find(([x]) => x === grp); const list = groupPieces(f); return <>
+          <button className="btn btn-sm" style={{ marginTop: 8 }} onClick={() => createExtra(f[0])}>+ Neu: {g}</button>
+          {list.length === 0 && <div className="meta" style={{ marginTop: 8 }}>Noch keine Ideen in diesem Format.</div>}
+          {list.map(p => { const on = plannedOn(p.id)[0] || ''; return (
+            <div key={p.id} data-cp-extra={p.id} className="card slim" style={{ marginTop: 6 }}>
+              <div className="hook" onClick={() => gotoContent(p.id)} style={{ cursor: 'pointer' }}>{p.title || '(ohne Titel)'} ›</div>
+              <div className="row between" style={{ margin: '4px 0 0', alignItems: 'center' }}>
+                <span className="meta">{p.format} · {p.status}</span>
+                <select value={on} onChange={(e) => schedule(p.id, e.target.value)} style={{ background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12, padding: '3px 4px' }}>
+                  <option value="">Einplanen …</option>
+                  {dates.map((d, i) => <option key={d} value={d}>Tag {i + 1} · {wdName(d)} {fmtD(d)}</option>)}
+                </select>
+              </div>
+            </div>); })}
+        </>; })()}
+      </div>}
       {sec === 'serie' && <div>
         <h2 style={{ margin: '12px 0 4px' }}>Serie 1: {CYCLE.serie.name}</h2>
         <div className="hint">{CYCLE.serie.aufbau}</div>
@@ -6429,7 +6462,7 @@ function App() {
           : detailOpen ? <ContentDetail key={openContent} id={openContent} state={state} update={update} onClose={() => setOpenContent(null)} gotoContent={gotoContent} />
           : <>
             {tab === 'heute' && <HeuteView state={state} update={update} gotoContent={gotoContent} gotoBriefing={gotoBriefing} />}
-            {tab === 'content' && <ContentView state={state} update={update} />}
+            {tab === 'content' && <ContentView state={state} update={update} gotoContent={gotoContent} />}
             {tab === 'plan' && <PlanView state={state} gotoContent={gotoContent} ui={ui} setUi={setUi} />}
             {tab === 'produktion' && <ProduktionView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} gotoHooks={(c) => { setHookCtx(c); setLib('hooks'); }} />}
             {tab === 'analyse' && <AnalyseView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} />}
