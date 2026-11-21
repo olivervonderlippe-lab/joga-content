@@ -11058,7 +11058,7 @@ const geschnitten = p => stIdx(p) >= C_STATUS.indexOf('Geschnitten');
 // Was ist an Tag d zu tun? Überfälliges landet auf heute.
 function prodTasks(items, d, today) {
   items = items.filter(it => it.iso >= today); // Vergangene Posttage sind keine Aufgabe mehr
-  const dreh = items.filter(it => !gedreht(it.p) && (it.dreh === d || d === today && it.dreh < today));
+  const dreh = items.filter(it => !gedreht(it.p) && it.p.prodType === 'Neudreh' && (it.dreh === d || d === today && it.dreh < today)); // Bestand/Recut: nur schneiden
   const schnitt = items.filter(it => !geschnitten(it.p) && (it.schnitt === d || d === today && it.schnitt < today));
   const uniq = l => l.filter((x, i) => l.findIndex(y => y.p.id === x.p.id) === i);
   return {
@@ -11069,7 +11069,7 @@ function prodTasks(items, d, today) {
 function prodIcs(items) {
   const days = {};
   items.forEach(it => {
-    if (!gedreht(it.p)) (days[it.dreh + 'D' + it.t] = days[it.dreh + 'D' + it.t] || {
+    if (!gedreht(it.p) && it.p.prodType === 'Neudreh') (days[it.dreh + 'D' + it.t] = days[it.dreh + 'D' + it.t] || {
       d: it.dreh,
       what: 'Dreh',
       t: it.t,
