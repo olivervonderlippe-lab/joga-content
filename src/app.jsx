@@ -4967,6 +4967,10 @@ function migrateState(s) {
     out.content = [...out.content, ...cz1Seed().filter(c => !have.has(c.id))];
     out.cz1SeedV1 = true;
   }
+  if (!out.cycle1DatesV1) {
+    Object.assign(out, applyCycleDates(out));
+    out.cycle1DatesV1 = true;
+  }
   if (!out.extrasSeedV1) {
     const have = new Set(out.content.map(c => c.id));
     out.content = [...out.content, ...extraSeed().filter(c => !have.has(c.id))];
@@ -5676,6 +5680,7 @@ function HeuteView({ state, update, gotoContent, gotoBriefing }) {
   return (
     <section>
       <header className="head"><h1>Heute</h1><span className="meta" data-today>{wdName(today)} {fmtD(today)}{today.slice(0, 4)}</span></header>
+      <div className="sheet" data-heute-prod style={{ padding: 10, marginBottom: 10 }}><b>Produktion heute</b><ProdDay state={state} update={update} gotoContent={gotoContent} d={today} items={cycleItems(state)} compact /></div>
       {sec('A', 'Heute posten', A.length ? A.length + ' Piece' + (A.length > 1 ? 's' : '') : null, A.length === 0 ? <div className="meta" data-empty>Heute ist nichts zum Posten geplant.</div> : A.map(p => (
         <div key={p.id} data-card className="card slim" style={{ marginTop: 8 }}>
           <div className="row wrap" style={{ margin: 0 }}><WorldBadge w={p.world} /><span className={`type type-${p.fn}`}>{p.fn}</span><span className="meta">{p.prodType} · {p.status}</span>{p.series && <span className="meta" data-series-badge>· Serie {p.series}</span>}</div>
@@ -5910,10 +5915,141 @@ const CYCLE = {
   ],
   messung: 'Pro Video und Plattform: neue Follower pro 1.000 Views, Saves, Ø Wiedergabezeit, Views. Auswertung So 29.11., So 06.12., So 13.12.',
 };
+
+// Zyklus-Slots einem Piece zuordnen (ref = feste ID, match = Titelteil eines vorhandenen Skripts).
+const cycleResolve = (content, slot) => {
+  if (!slot) return null;
+  if (slot.ref) return content.find(c => c.id === slot.ref) || null;
+  const hits = content.filter(c => (c.title || '').toUpperCase().includes(slot.match));
+  hits.sort((x, y) => (/Oli/.test(y.format) - /Oli/.test(x.format)) || ((y.scriptText || '').length + (y.shots || []).length * 50) - ((x.scriptText || '').length + (x.shots || []).length * 50));
+  return hits[0] || null;
+};
+// Einmalig: Datum der Zyklus-Pieces setzen, damit sie in HEUTE erscheinen. Alte, nicht gepostete Pieces aus dem 7-Wochen-Plan im Zyklus-Zeitraum verlieren ihr Datum.
+const applyCycleDates = (st) => {
+  const dates = CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+  const assign = {};
+  CYCLE.days.forEach((d, i) => d.forEach(slot => { const p = cycleResolve(st.content, slot); if (p) assign[p.id] = dates[i]; }));
+  const ex = st.cpExtras || {};
+  Object.keys(ex).forEach(d => (ex[d] || []).forEach(id => { assign[id] = d; }));
+  const end = dates[dates.length - 1];
+  return { ...st, content: st.content.map(c => assign[c.id] ? { ...c, publishDate: assign[c.id] } : (c.publishDate >= CYCLE.start && c.publishDate <= end && c.status !== 'Gepostet') ? { ...c, publishDate: '' } : c) };
+};
 const EXTRA_GROUPS = [['Statement', ['Statement']], ['Challenge', ['WOW / Challenge']], ['Freeshot', ['Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)']], ['Ehrlich-Freitag', ['Ehrlich-Freitag']], ['Unterwegs', ['Unterwegs']]];
+
+// ---- Produktion aus dem Content-Zyklus: Indoor (So drehen, Mo schneiden) und Outdoor (Mi drehen, Do schneiden). Serie: ganze Woche am Indoor-Drehtag davor.
+const PROD_DAYS = { indoor: { dreh: 0, schnitt: 1, label: 'Indoor' }, outdoor: { dreh: 3, schnitt: 4, label: 'Outdoor' } };
+const isOutdoorP = (p) => /Oli Geht|Unterwegs/i.test((p && p.format) || '');
+const wdNum = (iso) => new Date(iso + 'T00:00:00Z').getUTCDay();
+const lastWeekdayBefore = (iso, wd) => { let d = addDays(iso, -1); for (let i = 0; i < 7; i++) { if (wdNum(d) === wd) return d; d = addDays(d, -1); } return d; };
+const cycleDates = () => CYCLE.days.map((_, i) => addDays(CYCLE.start, i));
+function cycleItems(st) {
+  const dates = cycleDates(), ov = st.cpOverride || {}, ex = st.cpExtras || {};
+  const byId = (id) => st.content.find(c => c.id === id);
+  const out = [];
+  dates.forEach((iso, i) => {
+    [['m', 0, '12:00'], ['x', -1, '16:00'], ['s', 1, '19:30']].forEach(([kind, idx, time]) => {
+      if (kind === 'x') { (ex[iso] || []).forEach(id => { const p = byId(id); if (p) out.push({ iso, kind, time, p, week: Math.floor(i / 7) }); }); return; }
+      const p = (ov[iso + '-' + kind] && byId(ov[iso + '-' + kind])) || cycleResolve(st.content, CYCLE.days[i][idx]);
+      if (p) out.push({ iso, kind, time, p, week: Math.floor(i / 7) });
+    });
+  });
+  return out.map(it => {
+    const t = isOutdoorP(it.p) ? 'outdoor' : 'indoor', P = PROD_DAYS[t];
+    const ref = it.kind === 's' ? dates[it.week * 7] : it.iso;
+    const dreh = lastWeekdayBefore(ref, P.dreh);
+    let schnitt = addDays(dreh, (P.schnitt - P.dreh + 7) % 7); if (schnitt > it.iso) schnitt = it.iso;
+    return { ...it, t, dreh, schnitt };
+  });
+}
+const gedreht = (p) => stIdx(p) >= C_STATUS.indexOf('Gedreht');
+const geschnitten = (p) => stIdx(p) >= C_STATUS.indexOf('Geschnitten');
+// Was ist an Tag d zu tun? Überfälliges landet auf heute.
+function prodTasks(items, d, today) {
+  items = items.filter(it => it.iso >= today); // Vergangene Posttage sind keine Aufgabe mehr
+  const dreh = items.filter(it => !gedreht(it.p) && it.p.prodType === 'Neudreh' && (it.dreh === d || (d === today && it.dreh < today))); // Bestand/Recut: nur schneiden
+  const schnitt = items.filter(it => !geschnitten(it.p) && (it.schnitt === d || (d === today && it.schnitt < today)));
+  const uniq = (l) => l.filter((x, i) => l.findIndex(y => y.p.id === x.p.id) === i);
+  return { dreh: uniq(dreh), schnitt: uniq(schnitt) };
+}
+function prodIcs(items) {
+  const days = {};
+  items.forEach(it => {
+    if (!gedreht(it.p) && it.p.prodType === 'Neudreh') (days[it.dreh + 'D' + it.t] = days[it.dreh + 'D' + it.t] || { d: it.dreh, what: 'Dreh', t: it.t, l: [] }).l.push(it.p.title);
+    if (!geschnitten(it.p)) (days[it.schnitt + 'S'] = days[it.schnitt + 'S'] || { d: it.schnitt, what: 'Schnitt', t: '', l: [] }).l.push(it.p.title);
+  });
+  const esc = (x) => String(x).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const ev = Object.values(days).map((e, i) => {
+    const ymd = e.d.replace(/-/g, ''), [h1, h2] = e.what === 'Dreh' ? ['100000', '130000'] : ['140000', '160000'];
+    const titles = [...new Set(e.l)];
+    return ['BEGIN:VEVENT', 'UID:joga-' + ymd + '-' + e.what + e.t + '-' + i + '@joga-content', 'DTSTAMP:' + ymd + 'T080000', 'DTSTART:' + ymd + 'T' + h1, 'DTEND:' + ymd + 'T' + h2,
+      'SUMMARY:' + esc('JOGA ' + (e.what === 'Dreh' ? PROD_DAYS[e.t].label + '-Dreh' : 'Schnitt') + ': ' + titles.length + ' Beiträge'), 'DESCRIPTION:' + esc(titles.join('\n')),
+      'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc('JOGA ' + e.what), 'TRIGGER:-PT60M', 'END:VALARM', 'END:VEVENT'].join('\r\n');
+  });
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//JOGA Content//DE', 'CALSCALE:GREGORIAN', ...ev, 'END:VCALENDAR'].join('\r\n');
+}
+const downloadIcs = (items) => { const a = document.createElement('a'); a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(prodIcs(items)); a.download = 'joga-produktion.ics'; a.click(); };
+const EXTRA_FORMATS_ALL = ['Statement', 'WOW / Challenge', 'Freeshot', 'Herbst-Tipp', 'Herbst-Tipp (4 in 1)', 'Ehrlich-Freitag', 'Unterwegs'];
+function scheduleExtra(update, id, d) {
+  update(s => {
+    const ex = { ...(s.cpExtras || {}) };
+    Object.keys(ex).forEach(k => { ex[k] = (ex[k] || []).filter(x => x !== id); });
+    if (d) ex[d] = [...(ex[d] || []), id];
+    return { ...s, cpExtras: ex, content: s.content.map(c => c.id === id ? { ...c, publishDate: d || c.publishDate } : c) };
+  });
+}
+// Kompakter Block: Was heute (bzw. an Tag d) zu drehen, schneiden und zu posten ist, plus Extra hinzufügen.
+function ProdDay({ state, update, gotoContent, d, items, compact }) {
+  const today = todayISO();
+  const t = prodTasks(items, d, today);
+  const posts = items.filter(it => it.iso === d);
+  const extraOptions = state.content.filter(c => EXTRA_FORMATS_ALL.includes(c.format) && c.status !== 'Gepostet' && !posts.some(it => it.p.id === c.id));
+  const setStatus = (p, st) => update(s => ({ ...s, content: s.content.map(c => c.id === p.id ? { ...c, status: st, updated: todayISO() } : c) }));
+  const Line = ({ it, act }) => (
+    <div className="row" style={{ margin: '5px 0 0', gap: 8, alignItems: 'flex-start' }}>
+      <span style={{ flex: 1, cursor: 'pointer' }} onClick={() => gotoContent(it.p.id)}>
+        <b style={{ fontWeight: 700 }}>{it.p.title || '(ohne Titel)'}</b> <span style={{ color: 'var(--accent)' }}>›</span>
+        <span className="meta" style={{ display: 'block' }}>{it.p.format} · Post {wdName(it.iso)} {fmtD(it.iso)} {it.time}{act && (act === 'Gedreht' ? it.dreh : it.schnitt) < today ? ' · überfällig' : ''}</span>
+      </span>
+      {act && <button className="btn btn-sm" onClick={() => setStatus(it.p, act)}>{act} ✓</button>}
+    </div>
+  );
+  const head = (txt) => <div className="meta" style={{ marginTop: 8, fontWeight: 800, letterSpacing: '.03em' }}>{txt}</div>;
+  const drehIn = t.dreh.filter(x => x.t === 'indoor'), drehOut = t.dreh.filter(x => x.t === 'outdoor');
+  return (
+    <div data-prod-day={d}>
+      {drehIn.length > 0 && <>{head('INDOOR DREHEN (' + drehIn.length + ')')}{drehIn.map(it => <Line key={'d' + it.p.id} it={it} act="Gedreht" />)}</>}
+      {drehOut.length > 0 && <>{head('OUTDOOR DREHEN (' + drehOut.length + ')')}{drehOut.map(it => <Line key={'o' + it.p.id} it={it} act="Gedreht" />)}</>}
+      {t.schnitt.length > 0 && <>{head('SCHNEIDEN (' + t.schnitt.length + ')')}{t.schnitt.map(it => <Line key={'s' + it.p.id} it={it} act="Geschnitten" />)}</>}
+      {!compact && posts.length > 0 && <>{head('POSTEN')}{posts.map(it => <Line key={'p' + it.p.id + it.kind} it={it} />)}</>}
+      {t.dreh.length + t.schnitt.length === 0 && compact && <div className="meta" style={{ marginTop: 6 }}>Heute nichts zu drehen oder zu schneiden.</div>}
+      <select value="" onChange={e => e.target.value && scheduleExtra(update, e.target.value, d)} style={{ marginTop: 8, width: '100%', background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12, padding: '5px' }}>
+        <option value="">+ Extra für {d === today ? 'heute' : wdName(d) + ' ' + fmtD(d)} einplanen …</option>
+        {EXTRA_GROUPS.map(([g, f]) => <optgroup key={g} label={g}>{extraOptions.filter(c => f.includes(c.format)).map(c => <option key={c.id} value={c.id}>{c.title || '(ohne Titel)'}</option>)}</optgroup>)}
+      </select>
+    </div>
+  );
+}
+function ProdWeek({ state, update, gotoContent }) {
+  const today = todayISO();
+  const items = cycleItems(state);
+  const dates = cycleDates();
+  const start = today;
+  const days = Array.from({ length: 8 }, (_, i) => addDays(start, i)).filter(d => d <= dates[dates.length - 1]);
+  return (
+    <div data-prod-week>
+      <div className="hint">Produktion: Indoor So drehen, Mo schneiden · Outdoor (Oli geht, Unterwegs) Mi drehen, Do schneiden · Serie: ganze Woche am Indoor-Drehtag davor. Überfälliges steht auf heute.</div>
+      <button className="btn btn-sm" style={{ marginTop: 6 }} onClick={() => downloadIcs(items)}>Dreh- und Schnitttermine in den Kalender</button>
+      {days.map(d => (
+        <div key={d} className="sheet" style={{ padding: 10, marginTop: 8, borderColor: d === today ? 'var(--accent)' : undefined }}>
+          <div className="row between" style={{ margin: 0 }}><b>{d === today ? 'Heute' : d === addDays(today, 1) ? 'Morgen' : wdName(d)} · {fmtD(d)}</b><span className="meta">{wdNum(d) === 0 ? 'Indoor-Drehtag' : wdNum(d) === 1 ? 'Indoor-Schnitt' : wdNum(d) === 3 ? 'Outdoor-Drehtag' : wdNum(d) === 4 ? 'Outdoor-Schnitt' : ''}</span></div>
+          <ProdDay state={state} update={update} gotoContent={gotoContent} d={d} items={items} />
+        </div>))}
+    </div>
+  );
+}
 function ContentView({ state, update, gotoContent }) {
   const today = todayISO();
-  const [sec, setSec] = useState('tage');
+  const [sec, setSec] = useState('woche');
   const [grp, setGrp] = useState('Statement');
   const done = state.cpDone || {};
   const extras = state.cpExtras || {};
@@ -5930,14 +6066,54 @@ function ContentView({ state, update, gotoContent }) {
   });
   const createExtra = (format) => { const n = newPiece({ world: 'JOGA', format, title: format.toUpperCase() + ': ' }); update(s => ({ ...s, content: [...s.content, n] })); gotoContent(n.id); };
   const Check = ({ k }) => <span onClick={(e) => { e.stopPropagation(); toggle(k); }} style={{ width: 16, height: 16, flex: '0 0 16px', marginTop: 2, borderRadius: 4, border: '2px solid var(--accent)', background: done[k] ? 'var(--accent)' : 'transparent', cursor: 'pointer' }} />;
-  const resolve = (slot) => {
-    if (!slot) return null;
-    if (slot.ref) return byId(slot.ref) || null;
-    const hits = state.content.filter(c => (c.title || '').toUpperCase().includes(slot.match));
-    hits.sort((x, y) => (/Oli/.test(y.format) - /Oli/.test(x.format)) || ((y.scriptText || '').length + (y.shots || []).length * 50) - ((x.scriptText || '').length + (x.shots || []).length * 50));
-    return hits[0] || null;
+  const resolve = (slot) => cycleResolve(state.content, slot);
+  const ov = state.cpOverride || {};
+  const [edit, setEdit] = useState(null);
+  const [q, setQ] = useState('');
+  const slotOf = (iso, kind) => { const i = dates.indexOf(iso); return i < 0 ? null : CYCLE.days[i][kind === 'm' ? 0 : 1]; };
+  const slotPiece = (iso, kind) => (ov[iso + '-' + kind] && byId(ov[iso + '-' + kind])) || resolve(slotOf(iso, kind));
+  const setSlots = (pairs, dateFix) => update(s => {
+    const o = { ...(s.cpOverride || {}) };
+    pairs.forEach(([k, id]) => { o[k] = id; });
+    return { ...s, cpOverride: o, content: s.content.map(c => (c.id in dateFix) ? { ...c, publishDate: dateFix[c.id] } : c) };
+  });
+  const chooseFor = (iso, kind, id) => {
+    const old = slotPiece(iso, kind), fix = { [id]: iso };
+    if (old && old.id !== id && old.status !== 'Gepostet') fix[old.id] = '';
+    setSlots([[iso + '-' + kind, id]], fix); setEdit(null); setQ('');
   };
-  const Row = ({ k, time, slot, piece, text }) => {
+  const swapWith = (iso, kind, other) => {
+    const a = slotPiece(iso, kind), b = slotPiece(other, kind);
+    const fix = {}; if (a) fix[a.id] = other; if (b) fix[b.id] = iso;
+    setSlots([[iso + '-' + kind, b ? b.id : ''], [other + '-' + kind, a ? a.id : '']], fix); setEdit(null);
+  };
+  const createFor = (iso, kind) => {
+    const n = newPiece({ world: kind === 'm' ? 'OLI' : 'JOGA', fn: kind === 'm' ? 'ME' : 'REACH', format: kind === 'm' ? 'Oli Geht' : 'Serie', title: 'NEU · ' + wdName(iso) + ' ' + fmtD(iso), platforms: ['Instagram', 'TikTok', 'Facebook'], publishDate: iso, created: todayISO(), updated: todayISO() });
+    update(s => ({ ...s, content: [...s.content, n] }));
+    chooseFor(iso, kind, n.id); gotoContent(n.id);
+  };
+  const SlotEdit = ({ iso, kind }) => {
+    const cur = slotPiece(iso, kind);
+    const ql = q.trim().toUpperCase();
+    const list = ql.length < 2 ? [] : state.content.filter(c => c.id !== (cur && cur.id) && c.status !== 'Gepostet' && (((c.title || '') + ' ' + (c.format || '')).toUpperCase().includes(ql))).slice(0, 12);
+    return (
+      <div data-cp-edit className="card slim" style={{ marginTop: 6, borderColor: 'var(--accent)' }} onClick={e => e.stopPropagation()}>
+        <div className="meta" style={{ marginBottom: 4 }}>{kind === 'm' ? '12-Uhr-Slot' : '19:30-Slot'} ändern</div>
+        <div className="row wrap" style={{ gap: 6, margin: 0 }}>
+          <select defaultValue="" onChange={e => e.target.value && swapWith(iso, kind, e.target.value)} style={{ background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 12, padding: '4px' }}>
+            <option value="">Mit anderem Tag tauschen …</option>
+            {dates.filter(d => d !== iso).map(d => <option key={d} value={d}>Tag {dates.indexOf(d) + 1} · {wdName(d)} {fmtD(d)}</option>)}
+          </select>
+          <button className="btn btn-sm" onClick={() => createFor(iso, kind)}>+ Neu erstellen</button>
+          <button className="btn btn-sm" onClick={() => { setEdit(null); setQ(''); }}>Abbrechen</button>
+        </div>
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Anderen Beitrag suchen (Titel oder Format) …" style={{ width: '100%', marginTop: 6, background: 'var(--panel2)', color: 'var(--text)', border: '1px solid var(--line)', borderRadius: 6, fontSize: 13, padding: '6px' }} />
+        {list.map(c => <div key={c.id} className="row" style={{ margin: '4px 0 0', cursor: 'pointer' }} onClick={() => chooseFor(iso, kind, c.id)}><span className="meta" style={{ flex: 1 }}><b style={{ color: 'var(--text)' }}>{c.title || '(ohne Titel)'}</b> · {c.format} · {c.status}</span></div>)}
+        {ql.length >= 2 && list.length === 0 && <div className="meta" style={{ marginTop: 4 }}>Nichts gefunden.</div>}
+      </div>
+    );
+  };
+  const Row = ({ k, time, slot, piece, text, onEdit }) => {
     const p = piece || resolve(slot);
     const label = p ? (p.title || '(ohne Titel)') : (text || (slot && slot.label));
     if (!label) return null;
@@ -5950,6 +6126,7 @@ function ContentView({ state, update, gotoContent }) {
           <b style={{ fontWeight: 700 }}>{label}</b>{p && <span style={{ color: 'var(--accent)' }}> ›</span>}
           {p && <span className="meta" style={{ display: 'block' }}>{p.status}{p.hook ? ' · ' + p.hook : ''}</span>}
         </span>
+        {onEdit && <button className="btn btn-sm" data-cp-change onClick={(e) => { e.stopPropagation(); onEdit(); }} style={{ flex: '0 0 auto' }}>Ändern</button>}
       </div>
     );
   };
@@ -5957,16 +6134,19 @@ function ContentView({ state, update, gotoContent }) {
   return (
     <section>
       <header className="head"><h1>Content</h1><span className="meta">{CYCLE.name} · {fmtD(CYCLE.start)}–{fmtD(end)}</span></header>
-      <div className="row wrap"><Tag on={sec === 'tage'} onClick={() => setSec('tage')}>Tage</Tag><Tag on={sec === 'extras'} onClick={() => setSec('extras')}>Extras</Tag><Tag on={sec === 'serie'} onClick={() => setSec('serie')}>Serie</Tag><Tag on={sec === 'formate'} onClick={() => setSec('formate')}>Formate</Tag></div>
+      <div className="row wrap"><Tag on={sec === 'woche'} onClick={() => setSec('woche')}>Woche</Tag><Tag on={sec === 'tage'} onClick={() => setSec('tage')}>Tage</Tag><Tag on={sec === 'extras'} onClick={() => setSec('extras')}>Extras</Tag><Tag on={sec === 'serie'} onClick={() => setSec('serie')}>Serie</Tag><Tag on={sec === 'formate'} onClick={() => setSec('formate')}>Formate</Tag></div>
+      {sec === 'woche' && <ProdWeek state={state} update={update} gotoContent={gotoContent} />}
       {sec === 'tage' && [0, 1, 2].map(w => (
         <div key={w}>
           <h2 style={{ margin: '12px 0 4px' }}>Woche {w + 1}</h2>
           {CYCLE.days.slice(w * 7, w * 7 + 7).map((d, j) => { const i = w * 7 + j, iso = dates[i]; return (
             <div key={iso} data-cp-day={iso} className="sheet" style={{ padding: 10, marginBottom: 8, borderColor: iso === today ? 'var(--accent)' : undefined }}>
               <div className="row between" style={{ margin: 0 }}><b>Tag {i + 1} · {wdName(iso)} {fmtD(iso)}</b>{iso === today && <span className="meta" style={{ color: 'var(--accent)' }}>HEUTE</span>}</div>
-              <Row k={iso + '-m'} time={CYCLE.slots.mittag} slot={d[0]} />
+              <Row k={iso + '-m'} time={CYCLE.slots.mittag} piece={slotPiece(iso, 'm')} slot={ov[iso + '-m'] ? null : d[0]} onEdit={() => setEdit(iso + '-m')} />
+              {edit === iso + '-m' && SlotEdit({ iso, kind: 'm' })}
               {(extras[iso] || []).map(id => { const p = byId(id); return p ? <Row key={id} k={iso + '-x-' + id} time={'16:00 · Extra'} piece={p} /> : null; })}
-              <Row k={iso + '-s'} time={CYCLE.slots.serie} slot={d[1]} />
+              <Row k={iso + '-s'} time={CYCLE.slots.serie} piece={slotPiece(iso, 's')} slot={ov[iso + '-s'] ? null : d[1]} onEdit={() => setEdit(iso + '-s')} />
+              {edit === iso + '-s' && SlotEdit({ iso, kind: 's' })}
             </div>); })}
         </div>))}
       {sec === 'tage' && <div className="hint">Kästchen antippen hakt ab. Titel antippen öffnet das komplette Briefing: Drehanleitung, Shots, Hook pro Plattform, Caption. Extras planst du im Bereich „Extras“ ein. {CYCLE.messung}</div>}
