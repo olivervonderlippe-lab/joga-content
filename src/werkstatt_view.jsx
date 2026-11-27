@@ -126,10 +126,38 @@ function WerkstattView({ state, update }) {
     );
   };
 
+  const [msg, setMsg] = useState('');
+  const doExport = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(lessons, null, 1)], { type: 'application/json' }));
+    a.download = `joga-werkstatt-sicherung-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  const doImport = (text) => {
+    try {
+      const parsed = JSON.parse(text);
+      const arr = Array.isArray(parsed) ? parsed : parsed && Array.isArray(parsed.lessons) ? parsed.lessons : null;
+      const valid = arr && arr.length && arr.every(x => x && x.id && Array.isArray(x.variants) && x.variants.length && Array.isArray(x.decisions) && Array.isArray(x.data));
+      if (!valid) throw new Error('Das ist keine Werkstatt-Sicherung.');
+      update(s => ({ ...s, werkstatt: WK.normalize(arr) })); setSelected(arr[0].id); setVariantId(''); setMsg('Sicherung importiert.');
+    } catch (e) { setMsg('Import fehlgeschlagen: ' + e.message); }
+  };
+  const Sicherung = () => (
+    <details className="sheet">
+      <summary>Sicherung · Export und Import</summary>
+      <p className="hint">Gespeichert wird mit dem restlichen App-Zustand. Mit der Sicherung lassen sich Änderungen aus der alten Stundenwerkstatt übernehmen. Ein Import ersetzt den aktuellen Stand.</p>
+      <div className="row wrap">
+        <Btn small onClick={doExport}>Exportieren</Btn>
+        <label className="btn btn-sm">Datei importieren<input type="file" accept="application/json,.json" style={{ display: 'none' }} onChange={e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = () => doImport(String(r.result)); r.readAsText(f); } e.target.value = ''; }} /></label>
+      </div>
+      {msg && <p className="hint">{msg}</p>}
+    </details>
+  );
   return (
     <div className="wk">
       <div className="row wrap">{[['reihe', 'Reihe'], ['vergleich', 'Vergleich'], ['stunde', 'Stunde']].map(([k, l]) => <Tag key={k} on={view === k} onClick={() => setView(k)}>{l}</Tag>)}</div>
       {view === 'reihe' ? Reihe() : view === 'vergleich' ? Vergleich() : Stunde()}
+      {view === 'stunde' && Sicherung()}
     </div>
   );
 }
