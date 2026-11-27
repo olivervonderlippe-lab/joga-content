@@ -31,6 +31,9 @@ Ohne Netlify (nur Datei öffnen) läuft die App offline und speichert lokal im B
 - Moves haben ein Feld „Fähigkeit/Alltagsziel“; Drehplan und Hooks starten bei der Fähigkeit, nicht beim Körperbereich.
 - Drehplan schlägt Schnitte vor, du wählst aus (vorausgewählt: Routine, REACH-Version, eine JOGA-Minute).
 
+## Stundenwerkstatt (Reiter STUNDEN)
+Klassenplan-Entwicklung: Reihe, Vergleich, Stundenprofil, Entscheidungen, Varianten, Starter-Module (60/45/30/20). Daten und Logik in `src/werkstatt_core.js` (identisch in der Journeys-App), Ansicht in `src/werkstatt_view.jsx`. Gespeichert im App-Zustand (`state.werkstatt`), also zusammen mit dem Rest in Netlify Blobs bzw. lokal.
+
 ## Kachel-Generator
 
 Pieces mit Format „Kachel“ zeigen im Abschnitt Post den Kachel-Generator. Er zeichnet zwei Folien (1080 × 1350) im Canvas:

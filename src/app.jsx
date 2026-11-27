@@ -4895,6 +4895,7 @@ function migrateOliItem(m, forceId) {
 }
 function migrateState(s) {
   const out = { ...s };
+  out.werkstatt = WK.normalize(out.werkstatt); // Stundenwerkstatt: fehlt oder ist beschädigt -> Seed; sonst bleibt alles wie gespeichert
   if (!Array.isArray(out.content)) out.content = [];
   if (!Array.isArray(out.tests)) out.tests = []; // Altbestand (14-Tage-Test) bleibt unangetastet im State, ohne Funktion
   if (!out.contentMigrated) {
@@ -6686,8 +6687,8 @@ function App() {
   if (needPin) return <PinGate onDone={(p) => { localStorage.setItem(PIN_KEY, p); load(); }} />;
   if (!state) return <div className="gate"><div className="logo">JOGA</div><p>{sync}</p></div>;
 
-  // Vier Hauptpunkte. Board, Review, Drehplan, Hooks, Moves und Oli sind eingeordnet, nicht gelöscht.
-  const tabs = [['heute', 'HEUTE'], ['content', 'CONTENT'], ['produktion', 'PRODUKTION'], ['analyse', 'ANALYSE']];
+  // Fünf Hauptpunkte (STUNDEN = Stundenwerkstatt). Board, Review, Drehplan, Hooks, Moves und Oli sind eingeordnet, nicht gelöscht.
+  const tabs = [['heute', 'HEUTE'], ['content', 'CONTENT'], ['produktion', 'PRODUKTION'], ['analyse', 'ANALYSE'], ['stunden', 'STUNDEN']];
   const detailOpen = openContent && state.content.some(c => c.id === openContent);
   return (
     <div className="app">
@@ -6706,6 +6707,7 @@ function App() {
             {tab === 'content' && <ContentView state={state} update={update} gotoContent={gotoContent} />}
             {tab === 'plan' && <PlanView state={state} gotoContent={gotoContent} ui={ui} setUi={setUi} />}
             {tab === 'produktion' && <ProduktionView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} gotoHooks={(c) => { setHookCtx(c); setLib('hooks'); }} />}
+            {tab === 'stunden' && <WerkstattView state={state} update={update} />}
             {tab === 'analyse' && <AnalyseView state={state} update={update} ui={ui} setUi={setUi} gotoContent={gotoContent} />}
           </>}
       </main>

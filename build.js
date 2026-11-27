@@ -1,7 +1,9 @@
 // Baut index.html: Tailwind-CSS + Babel-kompiliertes JSX + Seed-Moves + Font in eine Datei.
 const fs = require('fs'), { execSync } = require('child_process');
 execSync('npx tailwindcss -i src/input.css -o build/app.css --minify', { stdio: 'inherit' });
-execSync('npx babel src/app.jsx -o build/app.js', { stdio: 'inherit' });
+// Stundenwerkstatt: gemeinsamer Kern + Ansicht vor die App; zur Laufzeit werden sie erst beim Rendern benutzt.
+fs.writeFileSync('build/all.jsx', ['src/werkstatt_core.js', 'src/werkstatt_view.jsx', 'src/app.jsx'].map(f => fs.readFileSync(f, 'utf8')).join('\n'));
+execSync('npx babel build/all.jsx -o build/app.js', { stdio: 'inherit' });
 const tpl = fs.readFileSync('src/template.html', 'utf8');
 const out = tpl
   .replace('__FONT__', fs.readFileSync('src/font.txt', 'utf8').trim())
